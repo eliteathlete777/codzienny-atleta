@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Runda 2 — B3 bez pulsu + D z prawdziwą grafiką</title>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=JetBrains+Mono:wght@400;700;800&family=Barlow+Condensed:wght@600;700;800&family=Saira+Stencil+One&display=swap">
+<style>
+:root{ --bg:#0A0A0C; --card:#141419; --line:#24242C; --txt:#E8E8EA; --txt2:#9A9AA3; --accent:#C81E2C; --accent-txt:#E8394A; color-scheme:dark; }
+*{box-sizing:border-box;}
+body{margin:0; background:var(--bg); color:var(--txt); font-family:'Barlow Condensed',sans-serif; padding:24px 16px 90px;}
+h1{font-size:20px; text-align:center; margin:0 0 6px; text-transform:uppercase; letter-spacing:.04em;}
+p.sub{text-align:center; color:var(--txt2); font-size:13px; margin:0 0 20px; max-width:620px; margin-inline:auto; line-height:1.5;}
+h2{font-size:16px; text-transform:uppercase; letter-spacing:.06em; color:var(--accent-txt); text-align:center; margin:56px 0 6px; border-top:1px solid var(--line); padding-top:36px;}
+p.h2sub{text-align:center; color:var(--txt2); font-size:12px; margin:0 0 22px; max-width:580px; margin-inline:auto;}
+.grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:16px; max-width:1300px; margin:0 auto;}
+.cell{background:var(--card); border:1px solid var(--line); border-radius:10px; padding:10px; display:flex; flex-direction:column; align-items:center; gap:7px;}
+.idx{font-family:'JetBrains Mono',monospace; font-size:11px; font-weight:800; background:var(--accent); color:#fff; border-radius:4px; padding:2px 8px; align-self:flex-start;}
+.lbl{font-size:11px; color:var(--txt2); text-align:center; line-height:1.3; min-height:32px;}
+.stage{width:100%; height:130px; border-radius:8px; overflow:hidden; position:relative; background:#0A0A0C; border:1px solid var(--line);
+  display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px;}
+button.replay{font-size:10px; padding:4px 10px; border-radius:4px; border:1px solid var(--accent); background:transparent; color:var(--accent-txt); cursor:pointer; font-family:inherit;}
+button.replay:active{background:var(--accent); color:#fff;}
+.holoNum{font-family:'Saira Stencil One',cursive; font-size:40px; line-height:1; color:#fff; -webkit-text-stroke:1.5px #000; text-shadow:0 0 12px rgba(200,30,44,.9), 0 0 26px rgba(200,30,44,.6);}
+.banner{display:inline-block; background:var(--accent); color:#fff; font-family:'Barlow Condensed',sans-serif; font-weight:800; text-transform:uppercase; font-size:11px; padding:4px 10px; clip-path:polygon(2% 10%,10% 0,92% 6%,100% 22%,97% 84%,90% 100%,8% 92%,0 74%);}
+/* Hero sekcja — pelna karta 9:16 z PRAWDZIWA grafika w tle */
+.heroGrid{display:grid; grid-template-columns:repeat(auto-fit,minmax(230px,1fr)); gap:22px; max-width:900px; margin:0 auto;}
+.heroCell{background:var(--card); border:1px solid var(--line); border-radius:12px; padding:14px; display:flex; flex-direction:column; align-items:center; gap:10px;}
+.heroStage{width:100%; max-width:260px; aspect-ratio:9/16; border-radius:10px; overflow:hidden; position:relative;
+  border:1.5px solid var(--accent); box-shadow:0 12px 34px rgba(0,0,0,.6);
+  display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px;}
+.heroBgPhoto{position:absolute; inset:0; background-image:url('splash-bg.jpg'); background-size:cover; background-position:top center; filter:contrast(1.08);}
+.heroBgGrad{position:absolute; inset:0; background:linear-gradient(rgba(10,10,12,.32), rgba(10,10,12,.8) 55%, rgba(10,10,12,.96));}
+.heroBrand{position:absolute; top:8%; left:0; right:0; text-align:center; font-family:'JetBrains Mono',monospace; font-size:10px; font-weight:800; letter-spacing:.1em; color:var(--accent-txt); opacity:0; z-index:2;}
+</style>
+</head>
+<body>
+<h1>Runda 2 — poprawki: B bez pulsu + D z prawdziwą grafiką</h1>
+<p class="sub">B2: usunięte pulsujące pierścienie z każdego ticku liczenia (zostaje spokojne liczenie + JEDEN efekt pierścienia na starcie/końcu, w stylu #10) — 3 nowe propozycje w tym duchu.
+D: prawdziwe zdjęcie w tle (jak w appce), tempo wszystkich elementów zsynchronizowane z prędkością paska ładowania, liczba pełnej wielkości (bez pomniejszania) w każdym wariancie.</p>
+
+<h2>B3 — liczenie bez pulsowania na każdy tick, styl #10</h2>
+<p class="h2sub">Pierścień pojawia się raz na starcie i/lub raz na końcu (tąpnięcie) — NIE miga przy każdej cyfrze podczas liczenia.</p>
+<div class="grid" id="gridB3"></div>
+
+<h2>D — 3 sekwencje hero z prawdziwą grafiką, tempo zsynchronizowane z paskiem ładowania</h2>
+<p class="h2sub">Każda: pasek segmentowy ładuje się w swoim tempie → CAŁA reszta (grafika w tle się odsłania, banery, liczba, etykieta) porusza się w tym samym rytmie co pasek. D3 ma dokładnie tej samej wielkości liczbę co D1/D2 (bez pomniejszania).</p>
+<div class="heroGrid" id="gridD"></div>
+
+<script>
+function wait(ms){ return new Promise(r=>setTimeout(r,ms)); }
+function shakeStage(stage, amt){
+  stage.animate([{transform:'translate(0,0)'},{transform:`translate(${amt}px,${-amt*.6}px)`},{transform:`translate(${-amt}px,${amt*.4}px)`},{transform:'translate(0,0)'}], {duration:180, easing:'ease-out'});
+}
+
+// ---------- B3: liczenie BEZ pulsu na kazdy tick, tylko start/koniec ----------
+const B3 = [
+  { name:'Pełny pierścień obraca się w tle liczenia (bez pulsu), na finał zwęża się i znika w liczbie', run:async (stage)=>{
+    stage.innerHTML = `<div class="holoNum">0</div>`;
+    const num = stage.children[0];
+    const ring = document.createElement('div');
+    ring.style.cssText='position:absolute; width:72px; height:72px; border-radius:50%; border:3px solid var(--accent); opacity:.8; animation:spin .8s linear infinite;';
+    const style = document.createElement('style'); style.textContent='@keyframes spin{to{transform:rotate(360deg);}}'; stage.appendChild(style);
+    stage.insertBefore(ring, num);
+    let n=0; await new Promise(res=>{ const iv=setInterval(()=>{ n+=5; num.textContent=Math.min(n,45); if(n>=45){clearInterval(iv); res();} }, 90); });
+    ring.style.animation='none';
+    await ring.animate([{width:'72px',height:'72px',opacity:.8},{width:'8px',height:'8px',opacity:0}],{duration:260,easing:'ease-in'}).finished;
+    ring.remove();
+    await num.animate([{transform:'scale(1.2)'},{transform:'scale(1)'}],{duration:180,easing:'ease-out'}).finished;
+    shakeStage(stage,4);
+  }},
+  { name:'Cichy, spokojny count (zero efektów w trakcie) — pierścień pojawia się TYLKO na finalne tąpnięcie', run:async (stage)=>{
+    stage.innerHTML = `<div class="holoNum">0</div>`;
+    const num = stage.children[0]; const cx=stage.clientWidth/2, cy=stage.clientHeight/2;
+    let n=0; await new Promise(res=>{ const iv=setInterval(()=>{ n+=5; num.textContent=Math.min(n,45); if(n>=45){clearInterval(iv); res();} }, 85); });
+    const ring=document.createElement('div');
+    ring.style.cssText=`position:absolute; left:${cx}px; top:${cy}px; width:16px; height:16px; border:2px solid var(--accent); border-radius:50%; transform:translate(-50%,-50%);`;
+    stage.appendChild(ring);
+    ring.animate([{width:'16px',height:'16px',opacity:1},{width:'130px',height:'130px',opacity:0}],{duration:400,easing:'ease-out'}).onfinish=()=>ring.remove();
+    await num.animate([{transform:'scale(1.25)'},{transform:'scale(1)'}],{duration:200,easing:'ease-out'}).finished;
+    shakeStage(stage,5);
+  }},
+  { name:'Pierścień widoczny od startu jako statyczna poświata (bez animacji), znika płynnym fade na finał', run:async (stage)=>{
+    stage.innerHTML = `<div class="holoNum">0</div>`;
+    const num = stage.children[0];
+    const ring = document.createElement('div');
+    ring.style.cssText='position:absolute; width:74px; height:74px; border-radius:50%; box-shadow:0 0 0 2px var(--accent), 0 0 24px rgba(200,30,44,.5); opacity:.7;';
+    stage.insertBefore(ring, num);
+    let n=0; await new Promise(res=>{ const iv=setInterval(()=>{ n+=5; num.textContent=Math.min(n,45); if(n>=45){clearInterval(iv); res();} }, 90); });
+    await ring.animate([{opacity:.7},{opacity:0}],{duration:300}).finished;
+    ring.remove();
+    await num.animate([{transform:'scale(1.2)'},{transform:'scale(1)'}],{duration:180,easing:'ease-out'}).finished;
+    shakeStage(stage,4);
+  }}
+];
+
+function buildGrid(gridId, list){
+  const grid = document.getElementById(gridId);
+  list.forEach((v,i)=>{
+    const cell = document.createElement('div'); cell.className='cell';
+    cell.innerHTML = `<span class="idx">B3.${i+1}</span><div class="stage"></div><div class="lbl">${v.name}</div><button class="replay">▶ odtwórz</button>`;
+    grid.appendChild(cell);
+    const stage = cell.querySelector('.stage');
+    const play = ()=> v.run(stage);
+    cell.querySelector('.replay').addEventListener('click', play);
+    play();
+  });
+}
+buildGrid('gridB3', B3);
+
+// ---------- D: hero z prawdziwa grafika, tempo pochodzi z jednego "tempo" scalara ----------
+function segLoader(stage, duration){
+  return new Promise(res=>{
+    const wrap=document.createElement('div'); wrap.style.cssText='display:flex; gap:2px; position:absolute; top:14%; left:0; right:0; justify-content:center; z-index:2;';
+    for(let i=0;i<14;i++){ const s=document.createElement('span'); s.style.cssText='width:5px; height:12px; background:#222; display:inline-block;'; wrap.appendChild(s); }
+    stage.appendChild(wrap);
+    const segs=wrap.children; let n=0; const step=duration/14;
+    const iv=setInterval(()=>{ n++; if(segs[n-1]) segs[n-1].style.background='var(--accent)'; if(n>=14){clearInterval(iv); setTimeout(()=>{wrap.remove(); res();},150);} }, step);
+  });
+}
+// Wszystkie opoznienia/czasy w sekwencji sa mnoznikiem jednego "tempo" (ms na jednostke) —
+// szybszy pasek ladowania = szybszy caly reszta sekwencji, wolniejszy pasek = wolniejsza reszta.
+async function heroSequence(stage, tempo){
+  stage.innerHTML = `<div class="heroBgPhoto"></div><div class="heroBgGrad"></div>
+    <div class="heroBrand">🔥 CODZIENNY ATLETA</div>
+    <div class="hnum" style="position:relative; z-index:2; font-family:'Saira Stencil One'; font-size:26vw; color:#fff; -webkit-text-stroke:1.5px #000; text-shadow:0 0 14px rgba(200,30,44,.85), 0 0 30px rgba(200,30,44,.55); opacity:0;">0</div>
+    <div style="position:relative; z-index:2; display:flex; flex-direction:column; align-items:center; gap:4px; margin-top:6px;">
+      <span class="banner b1" style="opacity:0;"></span><span class="banner b2" style="opacity:0;"></span>
+    </div>
+    <div class="hlbl" style="position:relative; z-index:2; font-size:14px; font-weight:800; letter-spacing:.05em; color:#ccc; text-transform:uppercase; opacity:0; margin-top:8px;">POMPEK DZISIAJ</div>`;
+  const brand=stage.querySelector('.heroBrand'), num=stage.querySelector('.hnum'), b1=stage.querySelector('.b1'), b2=stage.querySelector('.b2'), lbl=stage.querySelector('.hlbl');
+  const loadMs = tempo * 14;
+  await segLoader(stage, loadMs);
+  brand.style.transition = (tempo*2)+'ms'; brand.style.opacity='1';
+  await wait(tempo*2);
+  for(const [b,text] of [[b1,'JEDNA SERIA.'],[b2,'ZERO WYMÓWEK.']]){
+    b.textContent=text; b.style.opacity='1';
+    await b.animate([{transform:'translateX(-70px) scale(2)'},{transform:'translateX(0) scale(1)'}],{duration:tempo*3,easing:'ease-out'}).finished;
+    shakeStage(stage,4); await wait(tempo);
+  }
+  await wait(tempo*2);
+  num.style.opacity='1';
+  let n=0; await new Promise(r=>{ const iv=setInterval(()=>{ n+=5; num.textContent=Math.min(n,45);
+    if(n>=45){clearInterval(iv); r();} }, tempo); });
+  await num.animate([{transform:'scale(1.25)'},{transform:'scale(1)'}],{duration:tempo*2,easing:'ease-out'}).finished;
+  shakeStage(stage,5);
+  await wait(tempo*2);
+  lbl.style.opacity='1';
+  await lbl.animate([{transform:'translateX(-40px) scale(1.7)'},{transform:'translateX(0) scale(1)'}],{duration:tempo*3,easing:'ease-out'}).finished;
+  shakeStage(stage,4);
+}
+
+const D = [
+  { name:'D1 — szybkie tempo (pasek ładuje się szybko, reszta idzie w tym samym rytmie)', tempo:55 },
+  { name:'D2 — średnie/cinematic tempo', tempo:95 },
+  { name:'D3 — wolniejsze tempo, liczba TEJ SAMEJ wielkości co D1/D2 (bez pomniejszania)', tempo:135 }
+];
+const gridD = document.getElementById('gridD');
+D.forEach((v)=>{
+  const cell = document.createElement('div'); cell.className='heroCell';
+  cell.innerHTML = `<span class="idx">${v.name.split(' —')[0]}</span><div class="heroStage"></div><div class="lbl">${v.name}</div><button class="replay">▶ odtwórz</button>`;
+  gridD.appendChild(cell);
+  const stage = cell.querySelector('.heroStage');
+  const play = ()=> heroSequence(stage, v.tempo);
+  cell.querySelector('.replay').addEventListener('click', play);
+  play();
+});
+</script>
+</body>
+</html>

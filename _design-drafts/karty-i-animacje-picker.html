@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>10 kart + 10 animacji</title>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=JetBrains+Mono:wght@400;700;800&family=Barlow+Condensed:wght@600;700;800&display=swap">
+<style>
+:root{ --bg:#0A0A0C; --card:#141419; --line:#24242C; --txt:#E8E8EA; --txt2:#9A9AA3; --accent:#C81E2C; --accent-txt:#E8394A; color-scheme:dark; }
+*{box-sizing:border-box;}
+body{margin:0; background:var(--bg); color:var(--txt); font-family:'Barlow Condensed',sans-serif;
+  padding:24px 16px 80px;}
+h1{font-size:20px; text-align:center; margin:0 0 4px; text-transform:uppercase; letter-spacing:.04em;}
+p.sub{text-align:center; color:var(--txt2); font-size:13px; margin:0 0 30px;}
+h2{font-size:16px; text-transform:uppercase; letter-spacing:.06em; color:var(--accent-txt); text-align:center;
+  margin:50px 0 20px; border-top:1px solid var(--line); padding-top:36px;}
+.grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(190px,1fr)); gap:18px; max-width:1200px; margin:0 auto;}
+.cell{background:var(--card); border:1px solid var(--line); border-radius:10px; padding:12px;
+  display:flex; flex-direction:column; align-items:center; gap:8px;}
+.idx{font-family:'JetBrains Mono',monospace; font-size:11px; font-weight:800; background:var(--accent); color:#fff;
+  border-radius:4px; padding:2px 8px; align-self:flex-start;}
+.lbl{font-size:12px; color:var(--txt2); text-align:center; line-height:1.35; min-height:32px;}
+.cardWrap{width:100%; aspect-ratio:9/16; border-radius:8px; overflow:hidden; position:relative;
+  background:#101014; border:1px solid var(--line);}
+.bgphoto{position:absolute; inset:0; background:linear-gradient(160deg,#1c1c22,#050506 70%); opacity:.9;}
+.brand{position:absolute; top:8%; left:0; right:0; text-align:center; font-family:'JetBrains Mono',monospace;
+  font-size:9px; font-weight:800; letter-spacing:.1em; color:var(--accent-txt);}
+.bignum{position:absolute; left:0; right:0; text-align:center; font-family:'Anton',sans-serif; color:#fff;
+  text-shadow:0 0 10px rgba(200,30,44,.6);}
+.banner{display:inline-block; background:var(--accent); color:#fff; font-family:'Barlow Condensed',sans-serif;
+  font-weight:800; text-transform:uppercase; font-size:9px; padding:3px 9px; transform:rotate(-2deg);
+  clip-path:polygon(2% 10%,10% 0,92% 6%,100% 22%,97% 84%,90% 100%,8% 92%,0 74%);}
+button.replay{margin-top:2px; font-size:10px; padding:4px 10px; border-radius:4px; border:1px solid var(--accent);
+  background:transparent; color:var(--accent-txt); cursor:pointer; font-family:inherit;}
+button.replay:active{background:var(--accent); color:#fff;}
+</style>
+</head>
+<body>
+<h1>Warianty kart + animacje wejścia</h1>
+<p class="sub">10 różnych layoutów karty (sekcja 1) i 10 animacji ładowania/dekodowania (sekcja 2). Napisz numery, które wybierasz.</p>
+
+<h2>Sekcja 1 — 10 wariantów karty</h2>
+<div class="grid" id="cardGrid"></div>
+
+<h2>Sekcja 2 — 10 animacji "ładowania / dekodowania"</h2>
+<div class="grid" id="animGrid"></div>
+
+<script>
+// ---------- Sekcja 1: 10 layoutow karty (statyczne miniaturki, ten sam branding, rozny uklad) ----------
+const cards = [
+  { name:'Obecny układ — marka / liczba / etykieta / 2 banery / data', build:(el)=>{
+    el.innerHTML = `<div class="bgphoto"></div><div class="brand">🔥 CODZIENNY ATLETA</div>
+    <div class="bignum" style="top:30%; font-size:26vw;">45</div>
+    <div style="position:absolute; top:58%; left:0; right:0; text-align:center; font-size:11px; color:#ccc; font-weight:700; letter-spacing:.05em;">POMPEK DZISIAJ</div>
+    <div style="position:absolute; top:66%; left:0; right:0; text-align:center; display:flex; flex-direction:column; align-items:center; gap:3px;">
+      <span class="banner">Jedna seria.</span><span class="banner">Zero wymówek.</span></div>
+    <div style="position:absolute; bottom:6%; left:0; right:0; text-align:center; font-size:8px; color:#777;">24 września 2026</div>`;
+  }},
+  { name:'Banery na górze jako "pieczątka", liczba na dole', build:(el)=>{
+    el.innerHTML = `<div class="bgphoto"></div>
+    <div style="position:absolute; top:6%; right:-6%; display:flex; flex-direction:column; gap:2px; transform:rotate(8deg);">
+      <span class="banner">Jedna seria.</span><span class="banner">Zero wymówek.</span></div>
+    <div class="brand" style="top:38%;">🔥 CODZIENNY ATLETA</div>
+    <div class="bignum" style="top:44%; font-size:24vw;">45</div>
+    <div style="position:absolute; top:70%; left:0; right:0; text-align:center; font-size:11px; color:#ccc; font-weight:700;">POMPEK DZISIAJ · 24.09</div>`;
+  }},
+  { name:'Liczba jako gigantyczny watermark za zdjęciem', build:(el)=>{
+    el.innerHTML = `<div class="bgphoto"></div>
+    <div class="bignum" style="top:18%; font-size:46vw; opacity:.16; color:#fff;">45</div>
+    <div class="brand" style="top:10%;">🔥 CODZIENNY ATLETA</div>
+    <div style="position:absolute; top:60%; left:0; right:0; text-align:center;">
+      <div style="font-size:15vw; font-family:'Anton'; color:#fff;">45</div>
+      <div style="font-size:10px; color:#ccc; font-weight:700; margin-top:4px;">POMPEK DZISIAJ</div>
+    </div>
+    <div style="position:absolute; bottom:10%; left:0; right:0; text-align:center; display:flex; flex-direction:column; align-items:center; gap:3px;">
+      <span class="banner">Jedna seria.</span><span class="banner">Zero wymówek.</span></div>`;
+  }},
+  { name:'Polaroid — zdjęcie w ramce, pasek statystyk na dole', build:(el)=>{
+    el.innerHTML = `<div style="position:absolute; inset:5%; bottom:24%; background:linear-gradient(160deg,#222,#000); border:3px solid #fff;"></div>
+    <div style="position:absolute; bottom:2%; left:5%; right:5%; top:78%; background:#fff; display:flex; flex-direction:column; align-items:center; justify-content:center;">
+      <div style="font-family:'Anton'; font-size:13vw; color:#111;">45</div>
+      <div style="font-size:8px; color:#555; font-weight:700;">POMPEK DZISIAJ · JEDNA SERIA, ZERO WYMÓWEK</div>
+    </div>
+    <div class="brand" style="top:8%; color:#fff;">🔥 CODZIENNY ATLETA</div>`;
+  }},
+  { name:'Neonowy kontur liczby (bez wypełnienia)', build:(el)=>{
+    el.innerHTML = `<div class="bgphoto" style="opacity:.6;"></div><div class="brand">🔥 CODZIENNY ATLETA</div>
+    <div class="bignum" style="top:26%; font-size:28vw; color:transparent; -webkit-text-stroke:2px var(--accent-txt);">45</div>
+    <div style="position:absolute; top:58%; left:0; right:0; text-align:center; font-size:11px; color:#ccc; font-weight:700;">POMPEK DZISIAJ</div>
+    <div style="position:absolute; top:68%; left:0; right:0; text-align:center; display:flex; flex-direction:column; align-items:center; gap:3px;">
+      <span class="banner" style="background:transparent; border:1.5px solid var(--accent);">Jedna seria.</span>
+      <span class="banner" style="background:transparent; border:1.5px solid var(--accent);">Zero wymówek.</span></div>`;
+  }},
+  { name:'Split-screen — góra zdjęcie, dół czarny blok ze statystyką', build:(el)=>{
+    el.innerHTML = `<div style="position:absolute; inset:0; bottom:44%; background:linear-gradient(160deg,#222,#000);"></div>
+    <div style="position:absolute; top:56%; left:0; right:0; bottom:0; background:#0A0A0C; border-top:2px solid var(--accent);
+      display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px;">
+      <div style="font-family:'Anton'; font-size:16vw; color:#fff;">45</div>
+      <div style="font-size:9px; color:#ccc; font-weight:700;">POMPEK DZISIAJ</div>
+      <div style="display:flex; gap:3px;"><span class="banner">Jedna seria.</span><span class="banner">Zero wymówek.</span></div>
+    </div>
+    <div class="brand" style="top:6%; color:#fff;">🔥 CODZIENNY ATLETA</div>`;
+  }},
+  { name:'VHS / scanlines — surowy, filmowy klimat', build:(el)=>{
+    el.innerHTML = `<div class="bgphoto"></div>
+    <div style="position:absolute; inset:0; background:repeating-linear-gradient(rgba(255,255,255,.05) 0 1px, transparent 1px 3px);"></div>
+    <div style="position:absolute; inset:0; box-shadow:inset 0 0 60px rgba(200,30,44,.35);"></div>
+    <div class="brand" style="top:8%; font-family:'JetBrains Mono'; letter-spacing:.15em;">▓ CODZIENNY ATLETA ▓</div>
+    <div class="bignum" style="top:30%; font-size:26vw; text-shadow:2px 0 red, -2px 0 cyan;">45</div>
+    <div style="position:absolute; top:60%; left:0; right:0; text-align:center; font-family:'JetBrains Mono'; font-size:10px; color:#0f0;">POMPEK_DZISIAJ.exe</div>`;
+  }},
+  { name:'Minimalistyczny — pełne zdjęcie, tylko liczba i mały watermark', build:(el)=>{
+    el.innerHTML = `<div class="bgphoto" style="opacity:1;"></div>
+    <div class="bignum" style="top:36%; font-size:30vw;">45</div>
+    <div style="position:absolute; bottom:4%; right:5%; font-family:'JetBrains Mono'; font-size:8px; color:#aaa;">🔥 codziennyatleta</div>`;
+  }},
+  { name:'Plakat comiksowy — grube obrysy, rastrowa tekstura', build:(el)=>{
+    el.innerHTML = `<div class="bgphoto"></div>
+    <div style="position:absolute; inset:0; background-image:radial-gradient(rgba(255,255,255,.08) 1px, transparent 1px); background-size:6px 6px;"></div>
+    <div class="brand" style="top:8%;">🔥 CODZIENNY ATLETA</div>
+    <div class="bignum" style="top:28%; font-size:28vw; color:#fff; -webkit-text-stroke:3px #000;">45</div>
+    <div style="position:absolute; top:62%; left:0; right:0; text-align:center; display:flex; flex-direction:column; align-items:center; gap:4px;">
+      <span class="banner" style="transform:rotate(-4deg); font-size:11px; padding:5px 12px;">Jedna seria.</span>
+      <span class="banner" style="transform:rotate(3deg); font-size:11px; padding:5px 12px;">Zero wymówek.</span></div>`;
+  }},
+  { name:'Pasek postępu combo + liczba obok (styl "dashboard")', build:(el)=>{
+    el.innerHTML = `<div class="bgphoto"></div><div class="brand" style="top:7%;">🔥 CODZIENNY ATLETA</div>
+    <div style="position:absolute; top:20%; left:8%; right:8%; height:5px; background:#333; border-radius:3px;">
+      <div style="width:70%; height:100%; background:var(--accent); border-radius:3px;"></div></div>
+    <div class="bignum" style="top:28%; font-size:26vw;">45</div>
+    <div style="position:absolute; top:58%; left:0; right:0; text-align:center; font-size:10px; color:#ccc; font-weight:700;">POMPEK DZISIAJ · 🔥 3 DNI COMBO</div>
+    <div style="position:absolute; top:68%; left:0; right:0; text-align:center; display:flex; flex-direction:column; align-items:center; gap:3px;">
+      <span class="banner">Jedna seria.</span><span class="banner">Zero wymówek.</span></div>`;
+  }}
+];
+const cardGrid = document.getElementById('cardGrid');
+cards.forEach((c,i)=>{
+  const cell = document.createElement('div'); cell.className='cell';
+  cell.innerHTML = `<span class="idx">${i+1}</span><div class="cardWrap"></div><div class="lbl">${c.name}</div>`;
+  cardGrid.appendChild(cell);
+  c.build(cell.querySelector('.cardWrap'));
+});
+
+// ---------- Sekcja 2: 10 animacji ladowania/dekodowania ----------
+const anims = [
+  { name:'Typewriter — litery wpisywane jedna po drugiej', run:(el)=>{
+    const lines = ['JEDNA SERIA.','ZERO WYMÓWEK.'];
+    el.innerHTML = '<div class="a-l1" style="font-weight:800;"></div><div class="a-l2" style="font-weight:800; color:var(--accent-txt);"></div>';
+    const l1=el.querySelector('.a-l1'), l2=el.querySelector('.a-l2');
+    let i=0,j=0;
+    const t1=setInterval(()=>{ l1.textContent=lines[0].slice(0,++i); if(i>=lines[0].length){clearInterval(t1);
+      const t2=setInterval(()=>{ l2.textContent=lines[1].slice(0,++j); if(j>=lines[1].length) clearInterval(t2); },45); } },45);
+  }},
+  { name:'Terminal decode — losowe znaki "osiadają" na miejscu', run:(el)=>{
+    const chars='ABCDEFGHIJKLMNOPQRSTUVWXYZ.';
+    const lines=['JEDNA SERIA.','ZERO WYMÓWEK.'];
+    el.innerHTML = '<div class="a-l1" style="font-weight:800;"></div><div class="a-l2" style="font-weight:800; color:var(--accent-txt);"></div>';
+    const els=[el.querySelector('.a-l1'), el.querySelector('.a-l2')];
+    lines.forEach((line,li)=>{
+      let frame=0;
+      const iv=setInterval(()=>{
+        frame++;
+        els[li].textContent = line.split('').map((ch,ci)=> ch===' '?' ':(ci*2<frame? ch : chars[Math.floor(Math.random()*chars.length)])).join('');
+        if(frame> line.length*2){ els[li].textContent=line; clearInterval(iv);}
+      },40);
+    });
+  }},
+  { name:'Glitch flicker — RGB split, ustabilizowanie się tekstu', run:(el)=>{
+    el.innerHTML = `<style>@keyframes gl{0%{transform:translate(2px,0); opacity:.3;}20%{transform:translate(-3px,0); opacity:.6;}40%{transform:translate(2px,0);}60%{transform:translate(-1px,0); opacity:.9;}100%{transform:translate(0); opacity:1;}}
+      .gl{animation:gl .5s steps(2) 2;}</style>
+      <div class="gl" style="font-weight:800;">JEDNA SERIA.</div><div class="gl" style="font-weight:800; color:var(--accent-txt);">ZERO WYMÓWEK.</div>`;
+  }},
+  { name:'Slide-up + fade — linie wjeżdżają z dołu', run:(el)=>{
+    el.innerHTML = `<style>@keyframes su{0%{transform:translateY(14px); opacity:0;}100%{transform:translateY(0); opacity:1;}}</style>
+      <div style="font-weight:800; animation:su .4s ease .0s both;">JEDNA SERIA.</div>
+      <div style="font-weight:800; color:var(--accent-txt); animation:su .4s ease .18s both;">ZERO WYMÓWEK.</div>`;
+  }},
+  { name:'Skan świetlny — pozioma smuga odsłania tekst', run:(el)=>{
+    el.innerHTML = `<style>@keyframes scan{0%{clip-path:inset(0 100% 0 0);}100%{clip-path:inset(0 0 0 0);}}
+      .sc{animation:scan .7s ease-out both;}</style>
+      <div class="sc" style="font-weight:800;">JEDNA SERIA.</div>
+      <div class="sc" style="font-weight:800; color:var(--accent-txt); animation-delay:.15s;">ZERO WYMÓWEK.</div>`;
+  }},
+  { name:'Blur-to-focus — obraz i tekst ostrzą się', run:(el)=>{
+    el.innerHTML = `<style>@keyframes bf{0%{filter:blur(8px); opacity:.3;}100%{filter:blur(0); opacity:1;}}
+      .bf{animation:bf .6s ease both;}</style>
+      <div class="bf" style="font-weight:800;">JEDNA SERIA.</div>
+      <div class="bf" style="font-weight:800; color:var(--accent-txt); animation-delay:.12s;">ZERO WYMÓWEK.</div>`;
+  }},
+  { name:'Maszyna do pisania + mrugający kursor', run:(el)=>{
+    const lines=['JEDNA SERIA.','ZERO WYMÓWEK.'];
+    el.innerHTML = '<div class="a-l1" style="font-weight:800;"></div><div class="a-l2" style="font-weight:800; color:var(--accent-txt);"></div>';
+    const l1=el.querySelector('.a-l1'), l2=el.querySelector('.a-l2');
+    let i=0;
+    const t1=setInterval(()=>{ l1.textContent=lines[0].slice(0,++i)+'▌'; if(i>=lines[0].length){ clearInterval(t1); l1.textContent=lines[0];
+      let j=0; const t2=setInterval(()=>{ l2.textContent=lines[1].slice(0,++j)+'▌'; if(j>=lines[1].length){clearInterval(t2); l2.textContent=lines[1];} },60); } },60);
+  }},
+  { name:'Pikselizacja — mozaika rozmywa się w ostry tekst', run:(el)=>{
+    el.innerHTML = `<style>@keyframes px{0%{filter:blur(0) contrast(3) brightness(1.8); letter-spacing:.3em; opacity:.4;}100%{filter:none; letter-spacing:normal; opacity:1;}}
+      .px{animation:px .55s steps(6) both;}</style>
+      <div class="px" style="font-weight:800;">JEDNA SERIA.</div>
+      <div class="px" style="font-weight:800; color:var(--accent-txt); animation-delay:.1s;">ZERO WYMÓWEK.</div>`;
+  }},
+  { name:'Odtajnianie — czarne paski odsuwają się na bok', run:(el)=>{
+    el.innerHTML = `<style>@keyframes redact{0%{transform:scaleX(1);}100%{transform:scaleX(0);}}
+      .rw{position:relative; overflow:hidden; display:inline-block;}
+      .rw::after{content:''; position:absolute; inset:0; background:#000; transform-origin:right; animation:redact .4s ease-out .3s both;}</style>
+      <div class="rw" style="font-weight:800;">JEDNA SERIA.</div>
+      <div class="rw" style="font-weight:800; color:var(--accent-txt);"><span style="position:relative; z-index:0;">ZERO WYMÓWEK.</span></div>`;
+  }},
+  { name:'Pasek ładowania 0→100%, potem karta "wskakuje"', run:(el)=>{
+    el.innerHTML = `<div style="width:80%; height:4px; background:#333; border-radius:3px; margin:0 auto 10px;">
+      <div class="bar" style="width:0%; height:100%; background:var(--accent); border-radius:3px; transition:width .8s linear;"></div></div>
+      <div class="pop" style="font-weight:800; opacity:0; transform:scale(.7);">JEDNA SERIA.</div>
+      <div class="pop2" style="font-weight:800; color:var(--accent-txt); opacity:0; transform:scale(.7);">ZERO WYMÓWEK.</div>
+      <style>@keyframes pop{0%{opacity:0; transform:scale(.7);}60%{opacity:1; transform:scale(1.08);}100%{opacity:1; transform:scale(1);}}</style>`;
+    requestAnimationFrame(()=>{ el.querySelector('.bar').style.width='100%'; });
+    setTimeout(()=>{
+      el.querySelector('.pop').style.animation='pop .35s ease both';
+      el.querySelector('.pop2').style.animation='pop .35s ease .1s both';
+    }, 800);
+  }}
+];
+const animGrid = document.getElementById('animGrid');
+anims.forEach((a,i)=>{
+  const cell = document.createElement('div'); cell.className='cell';
+  cell.innerHTML = `<span class="idx">${i+1}</span>
+    <div class="cardWrap" style="display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px; font-size:15px; text-align:center; padding:10px;"></div>
+    <div class="lbl">${a.name}</div>
+    <button class="replay">▶ odtwórz</button>`;
+  animGrid.appendChild(cell);
+  const target = cell.querySelector('.cardWrap');
+  const play = ()=>{ target.innerHTML=''; a.run(target); };
+  cell.querySelector('.replay').addEventListener('click', play);
+  play();
+});
+</script>
+</body>
+</html>

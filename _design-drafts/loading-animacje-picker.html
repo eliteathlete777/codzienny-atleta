@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>10 animacji ładowania panelu</title>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=JetBrains+Mono:wght@400;700;800&family=Barlow+Condensed:wght@600;700;800&family=Saira+Stencil+One&display=swap">
+<style>
+:root{ --bg:#0A0A0C; --card:#141419; --line:#24242C; --txt:#E8E8EA; --txt2:#9A9AA3; --accent:#C81E2C; --accent-txt:#E8394A; color-scheme:dark; }
+*{box-sizing:border-box;}
+body{margin:0; background:var(--bg); color:var(--txt); font-family:'Barlow Condensed',sans-serif; padding:24px 16px 80px;}
+h1{font-size:20px; text-align:center; margin:0 0 6px; text-transform:uppercase; letter-spacing:.04em;}
+p.sub{text-align:center; color:var(--txt2); font-size:13px; margin:0 0 30px; max-width:520px; margin-inline:auto; line-height:1.5;}
+.grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(210px,1fr)); gap:18px; max-width:1300px; margin:0 auto;}
+.cell{background:var(--card); border:1px solid var(--line); border-radius:10px; padding:12px; display:flex; flex-direction:column; align-items:center; gap:8px;}
+.idx{font-family:'JetBrains Mono',monospace; font-size:11px; font-weight:800; background:var(--accent); color:#fff; border-radius:4px; padding:2px 8px; align-self:flex-start;}
+.lbl{font-size:12px; color:var(--txt2); text-align:center; line-height:1.35; min-height:32px;}
+.stage{width:100%; aspect-ratio:9/16; border-radius:8px; overflow:hidden; position:relative; background:#0A0A0C; border:1px solid var(--line);}
+.bgphoto{position:absolute; inset:0; background:linear-gradient(160deg,#1c1c22,#050506 70%);}
+button.replay{margin-top:2px; font-size:10px; padding:4px 10px; border-radius:4px; border:1px solid var(--accent); background:transparent; color:var(--accent-txt); cursor:pointer; font-family:inherit;}
+button.replay:active{background:var(--accent); color:#fff;}
+.brand{position:absolute; top:8%; left:0; right:0; text-align:center; font-family:'JetBrains Mono',monospace; font-size:9px; font-weight:800; letter-spacing:.1em; color:var(--accent-txt); opacity:0;}
+.banners{position:absolute; top:66%; left:0; right:0; display:flex; flex-direction:column; align-items:center; gap:3px;}
+.banner{display:inline-block; background:var(--accent); color:#fff; font-family:'Barlow Condensed',sans-serif; font-weight:800; text-transform:uppercase; font-size:9px; padding:3px 9px; transform:rotate(-2deg); clip-path:polygon(2% 10%,10% 0,92% 6%,100% 22%,97% 84%,90% 100%,8% 92%,0 74%); min-width:10px; text-align:center;}
+.bignum{position:absolute; top:28%; left:0; right:0; text-align:center; font-family:'Saira Stencil One',cursive; font-size:22vw; line-height:1; color:#fff; opacity:0; text-shadow:0 0 10px rgba(200,30,44,.7);}
+.lblToday{position:absolute; top:58%; left:0; right:0; text-align:center; font-size:11px; color:#ccc; font-weight:800; opacity:0; letter-spacing:.05em;}
+</style>
+</head>
+<body>
+<h1>10 animacji "bootowania" całej karty</h1>
+<p class="sub">Każda: ok. 3s futurystyczne ładowanie → potem ta sama kolejność treści: banery "Jedna seria. / Zero wymówek." wpisują się (maszyna do pisania) → liczba pompek najeżdża/liczy w górę czcionką z licznika w trybie liczenia → etykieta "POMPEK DZISIAJ" wchodzi na końcu, mocniej wyeksponowana. Różni się TYLKO styl ładowania na starcie.</p>
+
+<div class="grid" id="grid"></div>
+
+<script>
+const FINAL = 45;
+
+function typeLine(el, text, speed){
+  return new Promise(r=>{ let i=0; el.textContent=''; const iv=setInterval(()=>{ i++; el.textContent=text.slice(0,i)+(i<text.length?'▌':''); if(i>=text.length){clearInterval(iv); r();} }, speed); });
+}
+function countUp(el, to, duration){
+  return new Promise(r=>{
+    const start = performance.now();
+    function step(now){
+      const p = Math.min(1, (now-start)/duration);
+      el.textContent = Math.round(p*to);
+      if(p<1) requestAnimationFrame(step); else { el.textContent = to; r(); }
+    }
+    requestAnimationFrame(step);
+  });
+}
+// Wspolna sekwencja tresci po zakonczeniu loadera
+async function revealContent(stage){
+  const brand = stage.querySelector('.brand');
+  const l1 = stage.querySelector('.b1'), l2 = stage.querySelector('.b2');
+  const num = stage.querySelector('.bignum');
+  const lblT = stage.querySelector('.lblToday');
+  brand.style.transition='opacity .3s'; brand.style.opacity='1';
+  await new Promise(r=>setTimeout(r,150));
+  await typeLine(l1, 'JEDNA SERIA.', 45);
+  await typeLine(l2, 'ZERO WYMÓWEK.', 45);
+  await new Promise(r=>setTimeout(r,150));
+  num.style.transition='opacity .2s'; num.style.opacity='1';
+  await countUp(num, FINAL, 900);
+  lblT.style.transition='opacity .3s, transform .3s'; lblT.style.transform='scale(1.15)'; lblT.style.opacity='1';
+  setTimeout(()=>{ lblT.style.transform='scale(1)'; }, 300);
+}
+function baseStage(stage){
+  stage.innerHTML = `<div class="bgphoto"></div><div class="loader"></div>
+    <div class="brand">🔥 CODZIENNY ATLETA</div>
+    <div class="bignum">0</div>
+    <div class="lblToday">POMPEK DZISIAJ</div>
+    <div class="banners"><span class="banner b1"></span><span class="banner b2"></span></div>`;
+  return stage.querySelector('.loader');
+}
+
+const variants = [
+  { name:'Radar — obracająca się smuga skanera', boot:(stage)=>{
+    const l = baseStage(stage);
+    l.style.cssText = 'position:absolute; inset:0; display:flex; align-items:center; justify-content:center;';
+    l.innerHTML = `<div style="width:90px; height:90px; border-radius:50%; border:2px solid #333; position:relative; overflow:hidden;">
+      <div style="position:absolute; inset:0; background:conic-gradient(from 0deg, transparent 0deg, var(--accent) 40deg, transparent 90deg); animation:radarspin 1s linear infinite;"></div>
+      <div style="position:absolute; inset:6px; border-radius:50%; background:#0A0A0C;"></div></div>
+      <style>@keyframes radarspin{to{transform:rotate(360deg);}}</style>`;
+    setTimeout(()=>{ l.style.transition='opacity .3s'; l.style.opacity='0'; revealContent(stage); }, 1800);
+  }},
+  { name:'Terminal boot — logi systemowe', boot:(stage)=>{
+    const l = baseStage(stage);
+    l.style.cssText='position:absolute; inset:0; padding:14px; font-family:"JetBrains Mono",monospace; font-size:9px; color:#3f3;';
+    const lines=['> INICJALIZACJA SYSTEMU...','> ŁADOWANIE DANYCH ATLETY...','> WERYFIKACJA SERII...','> GOTOWE ✓'];
+    let i=0;
+    const iv=setInterval(()=>{ l.innerHTML += lines[i]+'<br>'; i++; if(i>=lines.length){ clearInterval(iv); setTimeout(()=>{ l.style.transition='opacity .25s'; l.style.opacity='0'; revealContent(stage); },400);} }, 420);
+  }},
+  { name:'Pasek HUD — segmentowy progres %', boot:(stage)=>{
+    const l = baseStage(stage);
+    l.style.cssText='position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:10px;';
+    l.innerHTML = `<div style="display:flex; gap:3px;">${Array.from({length:14}).map((_,i)=>`<span class="seg" style="width:6px; height:16px; background:#222; display:inline-block;"></span>`).join('')}</div>
+      <div class="pct" style="font-family:'JetBrains Mono'; font-size:11px; color:var(--accent-txt);">0%</div>`;
+    const segs = l.querySelectorAll('.seg'); const pct = l.querySelector('.pct');
+    let n=0; const iv=setInterval(()=>{ n++; if(segs[n-1]) segs[n-1].style.background='var(--accent)'; pct.textContent = Math.round(n/14*100)+'%';
+      if(n>=14){ clearInterval(iv); setTimeout(()=>{ l.style.transition='opacity .25s'; l.style.opacity='0'; revealContent(stage); },300);} }, 130);
+  }},
+  { name:'Glitch szum — stabilizacja obrazu', boot:(stage)=>{
+    const l = baseStage(stage);
+    l.style.cssText='position:absolute; inset:0; background:repeating-linear-gradient(0deg,#111 0 2px, #1a1a1a 2px 4px); animation:noiseflicker .08s steps(2) infinite;';
+    l.innerHTML = `<style>@keyframes noiseflicker{0%{opacity:1;}50%{opacity:.7;}100%{opacity:1;}}</style>`;
+    setTimeout(()=>{ l.style.transition='opacity .2s'; l.style.opacity='0'; revealContent(stage); }, 1400);
+  }},
+  { name:'Puls sonar — rozchodzące się pierścienie', boot:(stage)=>{
+    const l = baseStage(stage);
+    l.style.cssText='position:absolute; inset:0; display:flex; align-items:center; justify-content:center;';
+    l.innerHTML = `<style>@keyframes ring{0%{transform:scale(.2); opacity:1;}100%{transform:scale(2.6); opacity:0;}}</style>
+      <div style="width:40px; height:40px; border-radius:50%; border:2px solid var(--accent); position:absolute; animation:ring 1s ease-out infinite;"></div>
+      <div style="width:40px; height:40px; border-radius:50%; border:2px solid var(--accent); position:absolute; animation:ring 1s ease-out infinite .33s;"></div>
+      <div style="width:40px; height:40px; border-radius:50%; border:2px solid var(--accent); position:absolute; animation:ring 1s ease-out infinite .66s;"></div>
+      <span style="font-size:20px; position:relative;">🔥</span>`;
+    setTimeout(()=>{ l.style.transition='opacity .25s'; l.style.opacity='0'; revealContent(stage); }, 1700);
+  }},
+  { name:'Siatka heksagonalna — składanie', boot:(stage)=>{
+    const l = baseStage(stage);
+    l.style.cssText='position:absolute; inset:0; display:flex; align-items:center; justify-content:center;';
+    l.innerHTML = `<style>@keyframes hexspin{to{transform:rotate(360deg);}}</style>
+      <div style="width:70px; height:70px; clip-path:polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%);
+        background:conic-gradient(var(--accent) 0 90deg, #222 90deg 360deg); animation:hexspin .9s linear infinite;"></div>`;
+    setTimeout(()=>{ l.style.transition='opacity .25s'; l.style.opacity='0'; revealContent(stage); }, 1600);
+  }},
+  { name:'Deszcz danych — spadające znaki (matrix)', boot:(stage)=>{
+    const l = baseStage(stage);
+    l.style.cssText='position:absolute; inset:0; overflow:hidden; font-family:"JetBrains Mono"; font-size:11px; color:#3f3;';
+    for(let i=0;i<8;i++){
+      const col = document.createElement('div');
+      col.style.cssText = `position:absolute; top:-100%; left:${i*13}%; animation:fall ${0.8+Math.random()*0.6}s linear infinite; animation-delay:${Math.random()*0.4}s;`;
+      col.textContent = Array.from({length:10}).map(()=> '01'[Math.floor(Math.random()*2)]).join('');
+      l.appendChild(col);
+    }
+    const style = document.createElement('style'); style.textContent = '@keyframes fall{to{top:100%;}}'; l.appendChild(style);
+    setTimeout(()=>{ l.style.transition='opacity .25s'; l.style.opacity='0'; revealContent(stage); }, 1600);
+  }},
+  { name:'Odliczanie — 3, 2, 1', boot:(stage)=>{
+    const l = baseStage(stage);
+    l.style.cssText='position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-family:Anton; font-size:22vw; color:var(--accent-txt);';
+    let n=3; l.textContent = n;
+    const iv=setInterval(()=>{ n--; if(n>0){ l.textContent=n; } else { clearInterval(iv); l.style.transition='opacity .2s, transform .3s'; l.style.transform='scale(1.6)'; l.style.opacity='0'; revealContent(stage);} }, 500);
+  }},
+  { name:'Obwód elektroniczny — linie rysują ramkę', boot:(stage)=>{
+    const l = baseStage(stage);
+    l.style.cssText='position:absolute; inset:0;';
+    l.innerHTML = `<svg viewBox="0 0 100 178" style="position:absolute; inset:0; width:100%; height:100%;">
+      <rect x="3" y="3" width="94" height="172" fill="none" stroke="var(--accent)" stroke-width="1.5"
+        stroke-dasharray="540" stroke-dashoffset="540" style="animation:draw 1.4s linear forwards;"/></svg>
+      <style>@keyframes draw{to{stroke-dashoffset:0;}}</style>`;
+    setTimeout(()=>{ l.style.transition='opacity .25s'; l.style.opacity='0'; revealContent(stage); }, 1700);
+  }},
+  { name:'Zapłon płomienia — ikona rośnie w logo', boot:(stage)=>{
+    const l = baseStage(stage);
+    l.style.cssText='position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-size:14px;';
+    l.innerHTML = `<span style="display:inline-block; animation:flamegrow 1.3s ease-in-out infinite;">🔥</span>
+      <style>@keyframes flamegrow{0%,100%{transform:scale(1); filter:brightness(1);}50%{transform:scale(1.8); filter:brightness(1.4);}}</style>`;
+    setTimeout(()=>{ l.style.transition='opacity .25s'; l.style.opacity='0'; revealContent(stage); }, 1600);
+  }}
+];
+
+const grid = document.getElementById('grid');
+variants.forEach((v,i)=>{
+  const cell = document.createElement('div'); cell.className='cell';
+  cell.innerHTML = `<span class="idx">${i+1}</span><div class="stage"></div><div class="lbl">${v.name}</div><button class="replay">▶ odtwórz</button>`;
+  grid.appendChild(cell);
+  const stage = cell.querySelector('.stage');
+  const play = ()=> v.boot(stage);
+  cell.querySelector('.replay').addEventListener('click', play);
+  play();
+});
+</script>
+</body>
+</html>

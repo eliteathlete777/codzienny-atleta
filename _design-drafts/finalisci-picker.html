@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Finaliści — 10x3 + hero 5s</title>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=JetBrains+Mono:wght@400;700;800&family=Barlow+Condensed:wght@600;700;800&family=Saira+Stencil+One&display=swap">
+<style>
+:root{ --bg:#0A0A0C; --card:#141419; --line:#24242C; --txt:#E8E8EA; --txt2:#9A9AA3; --accent:#C81E2C; --accent-txt:#E8394A; color-scheme:dark; }
+*{box-sizing:border-box;}
+body{margin:0; background:var(--bg); color:var(--txt); font-family:'Barlow Condensed',sans-serif; padding:24px 16px 90px;}
+h1{font-size:20px; text-align:center; margin:0 0 6px; text-transform:uppercase; letter-spacing:.04em;}
+p.sub{text-align:center; color:var(--txt2); font-size:13px; margin:0 0 20px; max-width:600px; margin-inline:auto; line-height:1.5;}
+h2{font-size:16px; text-transform:uppercase; letter-spacing:.06em; color:var(--accent-txt); text-align:center; margin:56px 0 6px; border-top:1px solid var(--line); padding-top:36px;}
+p.h2sub{text-align:center; color:var(--txt2); font-size:12px; margin:0 0 22px; max-width:560px; margin-inline:auto;}
+.grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:16px; max-width:1300px; margin:0 auto;}
+.cell{background:var(--card); border:1px solid var(--line); border-radius:10px; padding:10px; display:flex; flex-direction:column; align-items:center; gap:7px;}
+.idx{font-family:'JetBrains Mono',monospace; font-size:11px; font-weight:800; background:var(--accent); color:#fff; border-radius:4px; padding:2px 8px; align-self:flex-start;}
+.lbl{font-size:11px; color:var(--txt2); text-align:center; line-height:1.3; min-height:44px;}
+.stage{width:100%; height:130px; border-radius:8px; overflow:hidden; position:relative; background:#0A0A0C; border:1px solid var(--line);
+  display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px;}
+button.replay{font-size:10px; padding:4px 10px; border-radius:4px; border:1px solid var(--accent); background:transparent; color:var(--accent-txt); cursor:pointer; font-family:inherit;}
+button.replay:active{background:var(--accent); color:#fff;}
+.banner{display:inline-block; background:var(--accent); color:#fff; font-family:'Barlow Condensed',sans-serif; font-weight:800; text-transform:uppercase; font-size:11px; padding:4px 10px; clip-path:polygon(2% 10%,10% 0,92% 6%,100% 22%,97% 84%,90% 100%,8% 92%,0 74%);}
+.holoNum{font-family:'Saira Stencil One',cursive; font-size:40px; line-height:1; color:#fff; -webkit-text-stroke:1.5px #000; text-shadow:0 0 12px rgba(200,30,44,.9), 0 0 26px rgba(200,30,44,.6);}
+.todayLbl{font-size:13px; font-weight:800; letter-spacing:.05em; color:#ccc; text-transform:uppercase;}
+/* Hero sekcja — pelna karta 9:16 z tlem zdjeciowym */
+.heroGrid{display:grid; grid-template-columns:repeat(auto-fit,minmax(230px,1fr)); gap:22px; max-width:900px; margin:0 auto;}
+.heroCell{background:var(--card); border:1px solid var(--line); border-radius:12px; padding:14px; display:flex; flex-direction:column; align-items:center; gap:10px;}
+.heroStage{width:100%; max-width:260px; aspect-ratio:9/16; border-radius:10px; overflow:hidden; position:relative;
+  background:linear-gradient(160deg,#1c1c22,#050506 70%); border:1.5px solid var(--accent); box-shadow:0 12px 34px rgba(0,0,0,.6);
+  display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px;}
+.heroBrand{position:absolute; top:8%; left:0; right:0; text-align:center; font-family:'JetBrains Mono',monospace; font-size:10px; font-weight:800; letter-spacing:.1em; color:var(--accent-txt); opacity:0;}
+</style>
+</head>
+<body>
+<h1>Finaliści: dopracowanie + hero 5s</h1>
+<p class="sub">Na bazie wyborów: Sekcja A finaliści 2+9, Sekcja B finalista 8, Sekcja C finaliści 1+2. Poniżej po 10 dopracowanych wariacji na bazie każdego z nich, plus na końcu 3 pełne "hero" sekwencje ~5s do nagrywania na stories.</p>
+
+<h2>A2 — banery: hak z boku (2) × zoom w stronę kamery (9)</h2>
+<p class="h2sub">10 sposobów połączenia tych dwóch efektów w jedno uderzenie.</p>
+<div class="grid" id="gridA2"></div>
+
+<h2>B2 — hologram: pulsujący pierścień podczas liczenia + tąpnięcie (8)</h2>
+<p class="h2sub">10 wariacji tego samego pomysłu — różne rytmy pierścienia i różne "tąpnięcia" na finał.</p>
+<div class="grid" id="gridB2"></div>
+
+<h2>C2 — etykieta: uderzenie z boku (1) × pieczęć-skala (2)</h2>
+<p class="h2sub">10 sposobów połączenia tych dwóch efektów.</p>
+<div class="grid" id="gridC2"></div>
+
+<h2>D — 3 pełne sekwencje "hero" (~5s, do nagrywania na stories)</h2>
+<p class="h2sub">Cała karta z Twoją grafiką w tle: ładowanie → banery → hologram liczby → etykieta → 2-3s "oddechu" na koniec (żeby dało się zatrzymać nagranie). Różny rytm/tempo w każdej.</p>
+<div class="heroGrid" id="gridD"></div>
+
+<script>
+function wait(ms){ return new Promise(r=>setTimeout(r,ms)); }
+function shakeStage(stage, amt){
+  stage.animate([{transform:'translate(0,0)'},{transform:`translate(${amt}px,${-amt*.6}px)`},{transform:`translate(${-amt}px,${amt*.4}px)`},{transform:'translate(0,0)'}], {duration:180, easing:'ease-out'});
+}
+function sparkBurst(stage, x, y, n=6){
+  for(let i=0;i<n;i++){
+    const s = document.createElement('span');
+    s.style.cssText = `position:absolute; left:${x}px; top:${y}px; width:3px; height:3px; background:#ffcf40; border-radius:50%; pointer-events:none;`;
+    stage.appendChild(s);
+    const ang = Math.random()*Math.PI*2, dist=14+Math.random()*18;
+    s.animate([{transform:'translate(0,0)', opacity:1},{transform:`translate(${Math.cos(ang)*dist}px, ${Math.sin(ang)*dist}px)`, opacity:0}], {duration:400+Math.random()*200, easing:'ease-out'}).onfinish=()=>s.remove();
+  }
+}
+function ringPulse(stage, cx, cy, color, size){
+  const ring=document.createElement('div');
+  ring.style.cssText=`position:absolute; left:${cx}px; top:${cy}px; width:14px; height:14px; border:2px solid ${color}; border-radius:50%; transform:translate(-50%,-50%);`;
+  stage.appendChild(ring);
+  ring.animate([{width:'14px',height:'14px',opacity:1},{width:size+'px',height:size+'px',opacity:0}],{duration:420,easing:'ease-out'}).onfinish=()=>ring.remove();
+}
+
+// ---------- A2: hak z boku x zoom w strone kamery ----------
+const A2 = [
+  { name:'Hak z boku, potem impuls zoomu na trafieniu', run:async (stage)=>{
+    stage.innerHTML = '<span class="banner" style="opacity:0;">JEDNA SERIA.</span><span class="banner" style="opacity:0;">ZERO WYMÓWEK.</span>';
+    for(const b of stage.children){
+      b.style.opacity='1';
+      await b.animate([{transform:'translateX(-100px)'},{transform:'translateX(0) scale(1)'},{transform:'scale(1.25)'},{transform:'scale(1)'}],{duration:320,easing:'ease-out'}).finished;
+      shakeStage(stage,4); await wait(90);
+    }
+  }},
+  { name:'Zoom z kamery, ląduje z lekkim hakiem w bok', run:async (stage)=>{
+    stage.innerHTML = '<span class="banner" style="opacity:0;">JEDNA SERIA.</span><span class="banner" style="opacity:0;">ZERO WYMÓWEK.</span>';
+    for(const b of stage.children){
+      b.style.opacity='1';
+      await b.animate([{transform:'scale(3.4) translateX(0)'},{transform:'scale(1) translateX(10px)'},{transform:'scale(1) translateX(0)'}],{duration:300,easing:'ease-in'}).finished;
+      shakeStage(stage,4); await wait(90);
+    }
+  }},
+  { name:'Baner 1 hakiem z lewej, baner 2 zoomem z kamery', run:async (stage)=>{
+    stage.innerHTML = '<span class="banner" style="opacity:0;">JEDNA SERIA.</span><span class="banner" style="opacity:0;">ZERO WYMÓWEK.</span>';
+    const [b1,b2]=stage.children;
+    b1.style.opacity='1';
+    await b1.animate([{transform:'translateX(-100px)'},{transform:'translateX(0)'}],{duration:220,easing:'ease-out'}).finished;
+    shakeStage(stage,3); await wait(100);
+    b2.style.opacity='1';
+    await b2.animate([{transform:'scale(3)'},{transform:'scale(1)'}],{duration:220,easing:'ease-in'}).finished;
+    shakeStage(stage,4);
+  }},
+  { name:'Jednoczesny hak + zoom w jednym ruchu (diagonalnie)', run:async (stage)=>{
+    stage.innerHTML = '<span class="banner" style="opacity:0;">JEDNA SERIA.</span><span class="banner" style="opacity:0;">ZERO WYMÓWEK.</span>';
+    for(const b of stage.children){
+      b.style.opacity='1';
+      await b.animate([{transform:'translate(-70px,-20px) scale(2.4)'},{transform:'translate(0,0) scale(1)'}],{duration:260,easing:'ease-out'}).finished;
+      shakeStage(stage,5); await wait(90);
+    }
+  }},
+  { name:'Hak ze smugą + najazd kamery (dolly punch) na trafieniu', run:async (stage)=>{
+    stage.innerHTML = '<span class="banner" style="opacity:0; filter:blur(6px);">JEDNA SERIA.</span><span class="banner" style="opacity:0; filter:blur(6px);">ZERO WYMÓWEK.</span>';
+    for(const b of stage.children){
+      b.style.opacity='1';
+      await b.animate([{transform:'translateX(-90px)', filter:'blur(8px)'},{transform:'translateX(4px)', filter:'blur(0)'},{transform:'translateX(0) scale(1.15)'},{transform:'scale(1)'}],{duration:340}).finished;
+      b.style.filter='none'; shakeStage(stage,5); await wait(90);
+    }
+  }},
+  { name:'Zoom + rotacja lekka, ląduje po łuku (hak)', run:async (stage)=>{
+    stage.innerHTML = '<span class="banner" style="opacity:0;">JEDNA SERIA.</span><span class="banner" style="opacity:0;">ZERO WYMÓWEK.</span>';
+    for(const b of stage.children){
+      b.style.opacity='1';
+      await b.animate([{transform:'scale(3) rotate(-10deg) translateX(-40px)'},{transform:'scale(1) rotate(0deg) translateX(0)'}],{duration:300,easing:'ease-out'}).finished;
+      shakeStage(stage,4); await wait(90);
+    }
+  }},
+  { name:'Dwustopniowe: rozmyty zoom, potem twardy hak-snap', run:async (stage)=>{
+    stage.innerHTML = '<span class="banner" style="opacity:0;">JEDNA SERIA.</span><span class="banner" style="opacity:0;">ZERO WYMÓWEK.</span>';
+    for(const b of stage.children){
+      b.style.opacity='1'; b.style.filter='blur(10px)';
+      await b.animate([{transform:'scale(2.6)'},{transform:'scale(1.4)'}],{duration:160}).finished;
+      b.style.filter='none';
+      await b.animate([{transform:'translateX(-30px) scale(1.4)'},{transform:'translateX(0) scale(1)'}],{duration:140,easing:'ease-out'}).finished;
+      shakeStage(stage,4); await wait(90);
+    }
+  }},
+  { name:'Asymetrycznie: baner 1 hak z prawej, baner 2 zoom', run:async (stage)=>{
+    stage.innerHTML = '<span class="banner" style="opacity:0;">JEDNA SERIA.</span><span class="banner" style="opacity:0;">ZERO WYMÓWEK.</span>';
+    const [b1,b2]=stage.children;
+    b1.style.opacity='1';
+    await b1.animate([{transform:'translateX(100px)'},{transform:'translateX(0)'}],{duration:220,easing:'ease-out'}).finished;
+    shakeStage(stage,3); await wait(100);
+    b2.style.opacity='1';
+    await b2.animate([{transform:'scale(3.2)'},{transform:'scale(1)'}],{duration:220,easing:'ease-in'}).finished;
+    shakeStage(stage,4);
+  }},
+  { name:'Smuga ruchu + aberracja chromatyczna + zoom-pulse', run:async (stage)=>{
+    stage.innerHTML = '<span class="banner" style="opacity:0; text-shadow:2px 0 red,-2px 0 cyan;">JEDNA SERIA.</span><span class="banner" style="opacity:0; text-shadow:2px 0 red,-2px 0 cyan;">ZERO WYMÓWEK.</span>';
+    for(const b of stage.children){
+      b.style.opacity='1';
+      await b.animate([{transform:'translateX(-80px) scale(2)'},{transform:'translateX(0) scale(1)'}],{duration:240}).finished;
+      b.style.textShadow='none'; shakeStage(stage,5); await wait(90);
+    }
+  }},
+  { name:'"Sucker punch" — wielki zoom + obrót + hak + wstrząs', run:async (stage)=>{
+    stage.innerHTML = '<span class="banner" style="opacity:0;">JEDNA SERIA.</span><span class="banner" style="opacity:0;">ZERO WYMÓWEK.</span>';
+    for(const b of stage.children){
+      b.style.opacity='1';
+      await b.animate([{transform:'scale(4.5) rotate(20deg) translateX(-60px)'},{transform:'scale(1) rotate(0) translateX(0)'}],{duration:300,easing:'cubic-bezier(.2,1.4,.4,1)'}).finished;
+      shakeStage(stage,7); await wait(100);
+    }
+  }}
+];
+
+// ---------- B2: pulsujacy pierscien + liczenie + tapniecie ----------
+const B2 = [
+  { name:'Jeden puls pierścienia na tick, tąpnięcie = odbicie skali', run:async (stage)=>{
+    stage.innerHTML = `<div class="holoNum">0</div>`;
+    const num = stage.children[0]; const cx=stage.clientWidth/2, cy=stage.clientHeight/2;
+    let n=0; await new Promise(res=>{ const iv=setInterval(()=>{ n+=5; num.textContent=Math.min(n,45); ringPulse(stage,cx,cy,'var(--accent)',90);
+      if(n>=45){clearInterval(iv); res();} },90); });
+    await num.animate([{transform:'scale(1.3)'},{transform:'scale(1)'}],{duration:200,easing:'ease-out'}).finished;
+  }},
+  { name:'Podwójne współśrodkowe pierścienie, tąpnięcie = biały flash', run:async (stage)=>{
+    stage.innerHTML = `<div class="holoNum">0</div><div class="flash" style="position:absolute; inset:0; background:#fff; opacity:0;"></div>`;
+    const num=stage.children[0], flash=stage.children[1]; const cx=stage.clientWidth/2, cy=stage.clientHeight/2;
+    let n=0; await new Promise(res=>{ const iv=setInterval(()=>{ n+=5; num.textContent=Math.min(n,45); ringPulse(stage,cx,cy,'var(--accent)',70); ringPulse(stage,cx,cy,'#fff',100);
+      if(n>=45){clearInterval(iv); res();} },90); });
+    flash.animate([{opacity:.7},{opacity:0}],{duration:220});
+  }},
+  { name:'Pierścień zmienia kolor z czerwonego na biały w miarę liczenia', run:async (stage)=>{
+    stage.innerHTML = `<div class="holoNum">0</div>`;
+    const num=stage.children[0]; const cx=stage.clientWidth/2, cy=stage.clientHeight/2;
+    let n=0; await new Promise(res=>{ const iv=setInterval(()=>{ n+=5; num.textContent=Math.min(n,45);
+      ringPulse(stage,cx,cy, n<25?'var(--accent)':'#fff', 90);
+      if(n>=45){clearInterval(iv); res();} },90); });
+    shakeStage(stage,4);
+  }},
+  { name:'Pierścień przyspiesza pod koniec liczenia, mocny finał', run:async (stage)=>{
+    stage.innerHTML = `<div class="holoNum">0</div>`;
+    const num=stage.children[0]; const cx=stage.clientWidth/2, cy=stage.clientHeight/2;
+    let n=0, delay=140;
+    async function tick(){ n+=5; num.textContent=Math.min(n,45); ringPulse(stage,cx,cy,'var(--accent)',90); delay=Math.max(50,delay-15);
+      if(n<45){ await wait(delay); return tick(); } }
+    await tick();
+    sparkBurst(stage,cx,cy,10); shakeStage(stage,5);
+  }},
+  { name:'Pierścień zostawia "echo" — kilka zanikających kopii', run:async (stage)=>{
+    stage.innerHTML = `<div class="holoNum">0</div>`;
+    const num=stage.children[0]; const cx=stage.clientWidth/2, cy=stage.clientHeight/2;
+    let n=0; await new Promise(res=>{ const iv=setInterval(()=>{ n+=5; num.textContent=Math.min(n,45);
+      ringPulse(stage,cx,cy,'var(--accent)',60); setTimeout(()=>ringPulse(stage,cx,cy,'var(--accent)',100),60); setTimeout(()=>ringPulse(stage,cx,cy,'var(--accent)',140),120);
+      if(n>=45){clearInterval(iv); res();} },110); });
+  }},
+  { name:'Pierścień "bije jak serce" — podwójny puls na tick', run:async (stage)=>{
+    stage.innerHTML = `<div class="holoNum">0</div>`;
+    const num=stage.children[0]; const cx=stage.clientWidth/2, cy=stage.clientHeight/2;
+    let n=0; await new Promise(res=>{ const iv=setInterval(()=>{ n+=5; num.textContent=Math.min(n,45);
+      ringPulse(stage,cx,cy,'var(--accent)',60); setTimeout(()=>ringPulse(stage,cx,cy,'var(--accent)',90),90);
+      if(n>=45){clearInterval(iv); res();} },160); });
+    await num.animate([{transform:'scale(1.25)'},{transform:'scale(1)'}],{duration:180}).finished;
+  }},
+  { name:'Pierścień pulsuje co 5 (rzadziej, ale mocniej)', run:async (stage)=>{
+    stage.innerHTML = `<div class="holoNum">0</div>`;
+    const num=stage.children[0]; const cx=stage.clientWidth/2, cy=stage.clientHeight/2;
+    let n=0; await new Promise(res=>{ const iv=setInterval(()=>{ n++; num.textContent=Math.min(n,45); if(n%5===0) ringPulse(stage,cx,cy,'var(--accent)',120);
+      if(n>=45){clearInterval(iv); res();} },20); });
+    shakeStage(stage,5);
+  }},
+  { name:'Pierścień odwrócony — kurczy się zamiast rosnąć, kolaps na finał', run:async (stage)=>{
+    stage.innerHTML = `<div class="holoNum">0</div>`;
+    const num=stage.children[0]; const cx=stage.clientWidth/2, cy=stage.clientHeight/2;
+    let n=0; const iv=setInterval(()=>{ n+=5; num.textContent=Math.min(n,45);
+      const ring=document.createElement('div'); ring.style.cssText=`position:absolute; left:${cx}px; top:${cy}px; width:90px; height:90px; border:2px solid var(--accent); border-radius:50%; transform:translate(-50%,-50%);`;
+      stage.appendChild(ring); ring.animate([{width:'90px',height:'90px',opacity:.9},{width:'10px',height:'10px',opacity:1}],{duration:280}).onfinish=()=>ring.remove();
+      if(n>=45){ clearInterval(iv); num.animate([{transform:'scale(.6)'},{transform:'scale(1.15)'},{transform:'scale(1)'}],{duration:220}); }
+    },100);
+  }},
+  { name:'Pierścień + delikatna wibracja liczby, finał = biały błysk cyfry', run:async (stage)=>{
+    stage.innerHTML = `<div class="holoNum">0</div>`;
+    const num=stage.children[0]; const cx=stage.clientWidth/2, cy=stage.clientHeight/2;
+    let n=0; await new Promise(res=>{ const iv=setInterval(()=>{ n+=5; num.textContent=Math.min(n,45);
+      ringPulse(stage,cx,cy,'var(--accent)',90); num.animate([{transform:'translateX(-1px)'},{transform:'translateX(1px)'},{transform:'translateX(0)'}],{duration:60});
+      if(n>=45){clearInterval(iv); res();} },90); });
+    num.style.color='#fff'; await num.animate([{filter:'brightness(3)'},{filter:'brightness(1)'}],{duration:200}).finished;
+  }},
+  { name:'Pierścień segmentowy (kreski) obraca się i "zatrzaskuje"', run:async (stage)=>{
+    stage.innerHTML = `<div class="holoNum">0</div>`;
+    const num=stage.children[0];
+    const seg=document.createElement('div');
+    seg.style.cssText='position:absolute; width:70px; height:70px; border-radius:50%; border:3px dashed var(--accent); animation:segspin .5s linear infinite;';
+    const style=document.createElement('style'); style.textContent='@keyframes segspin{to{transform:rotate(360deg);}}'; stage.appendChild(style);
+    stage.appendChild(seg);
+    let n=0; const iv=setInterval(()=>{ n+=5; num.textContent=Math.min(n,45); if(n>=45){ clearInterval(iv); seg.style.animation='none'; seg.style.border='3px solid var(--accent)'; seg.animate([{opacity:1,transform:'scale(1)'},{opacity:0,transform:'scale(1.6)'}],{duration:300}).onfinish=()=>seg.remove(); shakeStage(stage,4);} }, 110);
+  }}
+];
+
+// ---------- C2: uderzenie z boku x pieczec-skala ----------
+const C2 = [
+  { name:'Hak z boku, potem mini-stamp na lądowaniu', run:async (stage)=>{
+    stage.innerHTML = '<div class="todayLbl" style="opacity:0;">POMPEK DZISIAJ</div>';
+    const el=stage.children[0]; el.style.opacity='1';
+    await el.animate([{transform:'translateX(-90px)'},{transform:'translateX(0) scale(1)'},{transform:'scale(1.15)'},{transform:'scale(1)'}],{duration:280,easing:'ease-out'}).finished;
+    shakeStage(stage,4);
+  }},
+  { name:'Pieczęć najpierw (mały pop), potem wjazd na miejsce', run:async (stage)=>{
+    stage.innerHTML = '<div class="todayLbl" style="opacity:0;">POMPEK DZISIAJ</div>';
+    const el=stage.children[0]; el.style.opacity='1';
+    await el.animate([{transform:'scale(1.6)'},{transform:'scale(.9)'}],{duration:140}).finished;
+    await el.animate([{transform:'translateX(-40px) scale(.9)'},{transform:'translateX(0) scale(1)'}],{duration:180,easing:'ease-out'}).finished;
+    shakeStage(stage,3);
+  }},
+  { name:'Jeden ruch: diagonalny hak + skala lądowania naraz', run:async (stage)=>{
+    stage.innerHTML = '<div class="todayLbl" style="opacity:0;">POMPEK DZISIAJ</div>';
+    const el=stage.children[0]; el.style.opacity='1';
+    await el.animate([{transform:'translate(-60px,-8px) scale(2)'},{transform:'translate(0,0) scale(1)'}],{duration:240,easing:'ease-out'}).finished;
+    shakeStage(stage,4);
+  }},
+  { name:'Hak z prawej + wstrząs pieczęci', run:async (stage)=>{
+    stage.innerHTML = '<div class="todayLbl" style="opacity:0;">POMPEK DZISIAJ</div>';
+    const el=stage.children[0]; el.style.opacity='1';
+    await el.animate([{transform:'translateX(80px) scale(1.8)'},{transform:'translateX(0) scale(1)'}],{duration:240,easing:'ease-out'}).finished;
+    shakeStage(stage,5);
+  }},
+  { name:'Podwójna pieczęć zsynchronizowana z ruchem hak', run:async (stage)=>{
+    stage.innerHTML = '<div class="todayLbl" style="opacity:0;">POMPEK DZISIAJ</div>';
+    const el=stage.children[0]; el.style.opacity='1';
+    await el.animate([{transform:'translateX(-50px) scale(1.5)'},{transform:'translateX(0) scale(.9)'},{transform:'scale(1.1)'},{transform:'scale(1)'}],{duration:300}).finished;
+    shakeStage(stage,4);
+  }},
+  { name:'Mocna smuga ruchu + twarde zatrzymanie (stamp)', run:async (stage)=>{
+    stage.innerHTML = '<div class="todayLbl" style="opacity:0; filter:blur(5px);">POMPEK DZISIAJ</div>';
+    const el=stage.children[0]; el.style.opacity='1';
+    await el.animate([{transform:'translateX(-100px) scale(1.4)', filter:'blur(6px)'},{transform:'translateX(0) scale(1)', filter:'blur(0)'}],{duration:220,easing:'ease-out'}).finished;
+    el.style.filter='none'; shakeStage(stage,5);
+  }},
+  { name:'Skala + obrót snap, potem lekki hak-doskok', run:async (stage)=>{
+    stage.innerHTML = '<div class="todayLbl" style="opacity:0;">POMPEK DZISIAJ</div>';
+    const el=stage.children[0]; el.style.opacity='1';
+    await el.animate([{transform:'rotate(-8deg) scale(1.6)'},{transform:'rotate(0) scale(1)'}],{duration:180,easing:'ease-out'}).finished;
+    await el.animate([{transform:'translateX(-8px)'},{transform:'translateX(0)'}],{duration:120}).finished;
+    shakeStage(stage,3);
+  }},
+  { name:'Hak z odbiciem (overshoot), plus drugi mikro-stamp na końcu', run:async (stage)=>{
+    stage.innerHTML = '<div class="todayLbl" style="opacity:0;">POMPEK DZISIAJ</div>';
+    const el=stage.children[0]; el.style.opacity='1';
+    await el.animate([{transform:'translateX(-70px)'},{transform:'translateX(10px)'},{transform:'translateX(0) scale(1.1)'},{transform:'scale(1)'}],{duration:340,easing:'ease-out'}).finished;
+    shakeStage(stage,4);
+  }},
+  { name:'Pieczęć z falą uderzeniową + hak-slide przed nią', run:async (stage)=>{
+    stage.innerHTML = '<div class="todayLbl" style="opacity:0;">POMPEK DZISIAJ</div>';
+    const el=stage.children[0];
+    await el.animate([{opacity:0, transform:'translateX(-40px)'},{opacity:1, transform:'translateX(0)'}],{duration:140}).finished;
+    el.style.opacity='1';
+    const cx=stage.clientWidth/2, cy=stage.clientHeight/2;
+    await el.animate([{transform:'scale(1.7)'},{transform:'scale(1)'}],{duration:160}).finished;
+    ringPulse(stage,cx,cy,'var(--accent)',110); shakeStage(stage,4);
+  }},
+  { name:'W pełni zsynchronizowane: 0.3x → 1.15x (hak+zoom) → 1x (stamp)', run:async (stage)=>{
+    stage.innerHTML = '<div class="todayLbl" style="opacity:0;">POMPEK DZISIAJ</div>';
+    const el=stage.children[0]; el.style.opacity='1';
+    await el.animate([{transform:'translateX(-50px) scale(.3)'},{transform:'translateX(0) scale(1.15)'},{transform:'scale(1)'}],{duration:280,easing:'cubic-bezier(.25,1.5,.4,1)'}).finished;
+    shakeStage(stage,4);
+  }}
+];
+
+function buildGrid(gridId, list){
+  const grid = document.getElementById(gridId);
+  list.forEach((v,i)=>{
+    const cell = document.createElement('div'); cell.className='cell';
+    cell.innerHTML = `<span class="idx">${i+1}</span><div class="stage"></div><div class="lbl">${v.name}</div><button class="replay">▶ odtwórz</button>`;
+    grid.appendChild(cell);
+    const stage = cell.querySelector('.stage');
+    const play = ()=> v.run(stage);
+    cell.querySelector('.replay').addEventListener('click', play);
+    play();
+  });
+}
+buildGrid('gridA2', A2);
+buildGrid('gridB2', B2);
+buildGrid('gridC2', C2);
+
+// ---------- D: 3 pelne sekwencje hero ~5s ----------
+function typeLine(el, text, speed){ return new Promise(r=>{ let i=0; el.textContent=''; const iv=setInterval(()=>{ i++; el.textContent=text.slice(0,i)+(i<text.length?'▌':''); if(i>=text.length){clearInterval(iv); r();} }, speed); }); }
+function segLoader(stage, duration){
+  return new Promise(res=>{
+    const wrap=document.createElement('div'); wrap.style.cssText='display:flex; gap:2px; position:absolute; top:14%; left:0; right:0; justify-content:center;';
+    for(let i=0;i<14;i++){ const s=document.createElement('span'); s.style.cssText='width:5px; height:12px; background:#222; display:inline-block;'; wrap.appendChild(s); }
+    stage.appendChild(wrap);
+    const segs=wrap.children; let n=0; const step=duration/14;
+    const iv=setInterval(()=>{ n++; if(segs[n-1]) segs[n-1].style.background='var(--accent)'; if(n>=14){clearInterval(iv); setTimeout(()=>{wrap.remove(); res();},150);} }, step);
+  });
+}
+async function heroSequence(stage, opts){
+  stage.innerHTML = `<div class="heroBrand">🔥 CODZIENNY ATLETA</div>
+    <div class="hnum" style="font-family:'Saira Stencil One'; font-size:26vw; color:#fff; -webkit-text-stroke:1.5px #000; text-shadow:0 0 14px rgba(200,30,44,.85), 0 0 30px rgba(200,30,44,.55); opacity:0;">0</div>
+    <div style="display:flex; flex-direction:column; align-items:center; gap:4px; margin-top:6px;">
+      <span class="banner b1" style="opacity:0;"></span><span class="banner b2" style="opacity:0;"></span>
+    </div>
+    <div class="hlbl" style="font-size:14px; font-weight:800; letter-spacing:.05em; color:#ccc; text-transform:uppercase; opacity:0; margin-top:8px;">POMPEK DZISIAJ</div>`;
+  const brand=stage.querySelector('.heroBrand'), num=stage.querySelector('.hnum'), b1=stage.querySelector('.b1'), b2=stage.querySelector('.b2'), lbl=stage.querySelector('.hlbl');
+  await segLoader(stage, opts.loadMs);
+  brand.animate([{opacity:0},{opacity:1}],{duration:200}).finished; brand.style.opacity='1';
+  await wait(opts.pauseAfterLoad);
+  // banery — hak+zoom
+  for(const [b,text] of [[b1,'JEDNA SERIA.'],[b2,'ZERO WYMÓWEK.']]){
+    b.textContent=text; b.style.opacity='1';
+    await b.animate([{transform:'translateX(-70px) scale(2)'},{transform:'translateX(0) scale(1)'}],{duration:opts.bannerMs,easing:'ease-out'}).finished;
+    shakeStage(stage,4); await wait(opts.betweenBanners);
+  }
+  await wait(opts.pauseBeforeNum);
+  // liczba — pierscien + count
+  num.style.opacity='1';
+  const cx=stage.clientWidth/2, cy=stage.clientHeight*opts.numY;
+  let n=0; await new Promise(r=>{ const iv=setInterval(()=>{ n+=5; num.textContent=Math.min(n,45); ringPulse(stage,cx,cy,'var(--accent)',110);
+    if(n>=45){clearInterval(iv); r();} }, opts.countStep); });
+  await num.animate([{transform:'scale(1.25)'},{transform:'scale(1)'}],{duration:200,easing:'ease-out'}).finished;
+  shakeStage(stage,5);
+  await wait(opts.pauseBeforeLbl);
+  // etykieta — hak+stamp
+  lbl.style.opacity='1';
+  await lbl.animate([{transform:'translateX(-40px) scale(1.7)'},{transform:'translateX(0) scale(1)'}],{duration:opts.lblMs,easing:'ease-out'}).finished;
+  shakeStage(stage,4);
+}
+
+const D = [
+  { name:'Szybki i mocny (~5s: 1s load, reszta uderzenia w ~2s, 2s oddechu)', opts:{loadMs:1000, pauseAfterLoad:150, bannerMs:220, betweenBanners:80, pauseBeforeNum:120, countStep:70, numY:.32, pauseBeforeLbl:150, lblMs:200} },
+  { name:'Cinematic build-up (~5s: wolniejsze, dramatyczne liczenie)', opts:{loadMs:1500, pauseAfterLoad:250, bannerMs:320, betweenBanners:150, pauseBeforeNum:250, countStep:130, numY:.30, pauseBeforeLbl:300, lblMs:300} },
+  { name:'Combo overdrive (~5s: wszystko szybko, długi "oddech" na końcu do zatrzymania nagrania)', opts:{loadMs:700, pauseAfterLoad:80, bannerMs:160, betweenBanners:40, pauseBeforeNum:60, countStep:45, numY:.32, pauseBeforeLbl:60, lblMs:140} }
+];
+const gridD = document.getElementById('gridD');
+D.forEach((v,i)=>{
+  const cell = document.createElement('div'); cell.className='heroCell';
+  cell.innerHTML = `<span class="idx">D${i+1}</span><div class="heroStage"></div><div class="lbl">${v.name}</div><button class="replay">▶ odtwórz (~5s)</button>`;
+  gridD.appendChild(cell);
+  const stage = cell.querySelector('.heroStage');
+  const play = ()=> heroSequence(stage, v.opts);
+  cell.querySelector('.replay').addEventListener('click', play);
+  play();
+});
+</script>
+</body>
+</html>

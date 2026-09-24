@@ -1,0 +1,2216 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Codzienny Atleta</title>
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#0A0A0C">
+<meta name="application-name" content="Codzienny Atleta">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Codzienny Atleta">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon_180.png">
+<link rel="icon" type="image/png" href="icon_192.png">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=JetBrains+Mono:wght@400;700&family=Barlow+Condensed:wght@600;700;800&family=Big+Shoulders+Stencil:wght@700&family=Saira+Stencil+One&display=swap">
+
+<style>
+:root{
+  --bg:#0A0A0C; --bg2:#101014; --card:#141419; --card2:#1A1A21;
+  --line:#24242C; --line-hot:rgba(200,30,44,.35);
+  --txt:#E8E8EA; --txt2:#9A9AA3; --txt3:#7A7A85;
+  --accent:#C81E2C; --accent-txt:#E8394A; --accent-deep:#6E1019;
+  --amber:#FFB000; --ok:#35C46B; --scroll:rgba(200,30,44,.25);
+  --display:'Anton', Impact, 'Arial Narrow Bold', sans-serif;
+  --mono:'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  --glow-sm:0 1px 1px rgba(0,0,0,.55), 1px 0 1px rgba(0,0,0,.4), -1px 0 1px rgba(0,0,0,.4), 0 -1px 1px rgba(0,0,0,.35);
+  --glow-md:0 1px 1px rgba(0,0,0,.6), 1px 0 1px rgba(0,0,0,.45), -1px 0 1px rgba(0,0,0,.45), 0 -1px 1px rgba(0,0,0,.4);
+  --glow-txt:0 1px 1px rgba(0,0,0,.55), 1px 0 1px rgba(0,0,0,.4), -1px 0 1px rgba(0,0,0,.4), 0 -1px 1px rgba(0,0,0,.35);
+  --glow-amber:0 1px 1px rgba(0,0,0,.55), 1px 0 1px rgba(0,0,0,.4), -1px 0 1px rgba(0,0,0,.4), 0 -1px 1px rgba(0,0,0,.35);
+  --radius:4px; --r-sharp:2px;
+  --safe-b: env(safe-area-inset-bottom, 0px); --safe-t: env(safe-area-inset-top, 0px);
+}
+
+/* ===== PRYMITYWY TAKTYCZNE (skladniki, z ktorych zlozony jest caly interfejs) — 1:1 z Dziennika ===== */
+.hud{position:relative;}
+.hud::before,.hud::after{content:''; position:absolute; width:10px; height:10px;
+  border:1px solid var(--accent); pointer-events:none; opacity:.75;}
+.hud::before{top:-1px; left:-1px; border-width:1px 0 0 1px;}
+.hud::after{bottom:-1px; right:-1px; border-width:0 1px 1px 0;}
+.neon{border:1px solid var(--accent); box-shadow:var(--glow-md);}
+.scanlines::after{content:''; position:absolute; inset:0; pointer-events:none; z-index:1;
+  background:repeating-linear-gradient(rgba(255,255,255,.022) 0 1px, transparent 1px 3px);}
+.grid-bg{background-image:
+  linear-gradient(rgba(200,30,44,.05) 1px, transparent 1px),
+  linear-gradient(90deg, rgba(200,30,44,.05) 1px, transparent 1px);
+  background-size:24px 24px;}
+.clip-corner{clip-path:polygon(0 0, calc(100% - 9px) 0, 100% 9px, 100% 100%, 9px 100%, 0 calc(100% - 9px));}
+.led{display:inline-block; width:6px; height:6px; border-radius:50%; background:var(--accent);
+  box-shadow:var(--glow-sm); animation:ledPulse 2s ease-in-out infinite; flex:0 0 auto;}
+.led.amber{background:var(--amber); box-shadow:var(--glow-amber);}
+.led.ok{background:var(--ok);}
+@keyframes ledPulse{0%,100%{opacity:.45}50%{opacity:1}}
+@keyframes scanSweep{
+  0%{transform:translateY(-100%); opacity:0;}
+  15%{opacity:1;}
+  85%{opacity:1;}
+  100%{transform:translateY(100vh); opacity:0;}
+}
+#scanSweep{position:fixed; left:0; right:0; top:0; height:2px; z-index:95; pointer-events:none;
+  background:linear-gradient(90deg, transparent, var(--accent), transparent);
+  box-shadow:var(--glow-md); opacity:0;}
+#scanSweep.run{animation:scanSweep .35s linear;}
+.mono-data{font-family:var(--mono); font-variant-numeric:tabular-nums; letter-spacing:.01em;}
+.label-hud{font-family:var(--mono); font-size:9.5px; text-transform:uppercase; letter-spacing:.14em; color:var(--txt3);}
+*{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+html,body{margin:0;padding:0;background:var(--bg);color:var(--txt);
+  font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+  height:100%; overscroll-behavior:none;}
+/* Delikatne ziarno filmowe w tle calej appki — nawiazuje do surowej, gritty estetyki
+   okladki e-booka "Zbuduj Forme Bez Silowni", bez szkody dla czytelnosci UI. */
+body{display:flex;flex-direction:column;height:100vh;height:100dvh;max-width:520px;margin:0 auto;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E");
+  background-repeat:repeat;}
+
+#header{
+  position:sticky; top:0; z-index:20; background:rgba(10,10,12,.94); backdrop-filter:blur(10px);
+  padding:calc(10px + var(--safe-t)) 14px 10px; border-bottom:1px solid var(--line-hot);
+  box-shadow:0 2px 8px rgba(0,0,0,.5);
+}
+#header::after{content:''; position:absolute; inset:0; pointer-events:none;
+  background:repeating-linear-gradient(rgba(255,255,255,.022) 0 1px, transparent 1px 3px);}
+#headerTop{display:flex; align-items:center; gap:10px; min-height:38px;}
+#brandMark{flex:0 0 auto; font-size:17px; line-height:1; border:1px solid var(--accent); padding:4px 7px;
+  box-shadow:var(--glow-sm); align-self:center; display:flex; align-items:center; justify-content:center;
+  clip-path:polygon(0 0, calc(100% - 5px) 0, 100% 5px, 100% 100%, 5px 100%, 0 calc(100% - 5px));}
+#headerTitleWrap{flex:1; min-width:0;}
+#headerTitle{font-family:var(--display); font-size:20px; font-weight:400; letter-spacing:.03em; text-shadow:var(--glow-txt);
+  text-transform:uppercase; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+#headerTagline{font-size:10px; color:var(--txt3); font-weight:600; letter-spacing:.02em; margin-top:2px;
+  overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+.langBtn{background:var(--card2); border:1px solid var(--line); color:var(--txt3); font-family:var(--mono);
+  font-size:11px; font-weight:700; letter-spacing:.04em; padding:6px 9px; border-radius:var(--r-sharp);
+  cursor:pointer; -webkit-tap-highlight-color:transparent;}
+.langBtn.active{background:var(--accent); border-color:var(--accent); color:#fff; box-shadow:var(--glow-sm);}
+
+/* Powrót do poprzedniego ekranu — zawsze w lewym górnym rogu panelu głównego. */
+#backBtn{flex:0 0 auto; background:var(--card2); border:1px solid var(--line); color:var(--txt2);
+  width:36px; height:36px; border-radius:50%; font-size:16px; cursor:pointer; display:flex;
+  align-items:center; justify-content:center; -webkit-tap-highlight-color:transparent;}
+#backBtn:active{border-color:var(--accent); color:var(--accent-txt);}
+
+/* Ustawienia — zawsze w prawym górnym rogu ekranu, niezaleznie od tego, co jest na wierzchu. */
+#globalSettingsBtn{position:fixed; top:calc(12px + var(--safe-t)); right:12px; z-index:180;
+  width:38px; height:38px; border-radius:50%; background:rgba(26,26,33,.92); border:1px solid rgba(255,255,255,.16);
+  color:var(--txt); font-size:16px; cursor:pointer; display:flex; align-items:center; justify-content:center;
+  -webkit-tap-highlight-color:transparent; box-shadow:0 2px 12px rgba(0,0,0,.6);}
+#globalSettingsBtn:active{border-color:var(--amber); color:var(--amber);}
+#settingsOverlay{position:fixed; inset:0; z-index:190; background:var(--bg); display:none;
+  flex-direction:column; opacity:1; transition:opacity .25s ease;}
+#settingsOverlay.hide{opacity:0; pointer-events:none;}
+#settingsOverlay.on{display:flex;}
+#settingsHead{flex:0 0 auto; display:flex; align-items:center; gap:12px;
+  padding:calc(16px + var(--safe-t)) 16px 14px; border-bottom:1px solid var(--line);}
+#settingsHead h2{font-family:var(--display); font-size:19px; font-weight:400; letter-spacing:.02em;
+  text-transform:uppercase; margin:0;}
+#settingsBody{flex:1; overflow-y:auto; padding:20px 18px calc(20px + var(--safe-b)); display:flex;
+  flex-direction:column; gap:20px;}
+.settingsRow{display:flex; align-items:center; justify-content:space-between; gap:14px;
+  background:var(--card); border:1px solid var(--line); border-radius:var(--radius); padding:14px 16px;}
+.settingsRow .settingsLbl{font-size:13.5px; color:var(--txt); font-weight:700;}
+.settingsRow .settingsSub{font-size:11px; color:var(--txt3); margin-top:3px;}
+.settingsLangRow{display:flex; gap:8px;}
+.toggleSwitch{position:relative; flex:0 0 auto; width:46px; height:26px; border-radius:999px;
+  background:var(--bg2); border:1px solid var(--line); cursor:pointer; -webkit-tap-highlight-color:transparent;}
+.toggleSwitch::after{content:''; position:absolute; top:2px; left:2px; width:20px; height:20px; border-radius:50%;
+  background:var(--txt3); transition:transform .18s ease, background .18s ease;}
+.toggleSwitch.on{border-color:var(--accent); background:rgba(200,30,44,.18);}
+.toggleSwitch.on::after{transform:translateX(20px); background:var(--accent);}
+.settingsSectionLbl{font-family:var(--mono); font-size:10px; text-transform:uppercase; letter-spacing:.14em;
+  color:var(--amber); font-weight:700; margin:-8px 0 -12px;}
+.reminderRow{display:flex; align-items:center; gap:12px; background:var(--card); border:1px solid var(--line);
+  border-radius:var(--radius); padding:12px 16px; margin-bottom:10px;}
+.reminderRow:last-child{margin-bottom:0;}
+.reminderRow .reminderLbl{flex:1; font-size:13px; font-weight:700; color:var(--txt);}
+.reminderRow input[type=time]{background:var(--bg2); border:1px solid var(--line); color:var(--txt);
+  border-radius:var(--r-sharp); padding:7px 8px; font-family:var(--mono); font-size:14px;
+  font-variant-numeric:tabular-nums; color-scheme:dark;}
+.reminderRow input[type=time]:disabled{opacity:.4;}
+
+#main{flex:1; overflow-y:auto; -webkit-overflow-scrolling:touch; padding:12px 12px calc(24px + var(--safe-b));}
+
+.block{background:var(--card); border:1px solid var(--line); border-radius:var(--radius);
+  padding:16px; margin-bottom:12px;}
+.block h3{font-family:var(--mono); font-size:10px; text-transform:uppercase; letter-spacing:.14em;
+  margin:0 0 12px; color:var(--amber); font-weight:700; display:flex; align-items:center; gap:7px;}
+.block h3::before{content:'//'; color:var(--accent); opacity:.8;}
+
+.sectionHead{font-family:var(--display); font-size:15px; text-transform:uppercase; letter-spacing:.04em;
+  color:var(--txt); font-weight:400; margin:6px 2px 10px; display:flex; align-items:center;
+  justify-content:space-between; gap:10px; position:relative; padding-left:14px;}
+.sectionHead::before{content:''; position:absolute; left:0; top:50%; transform:translateY(-50%);
+  width:6px; height:19px; background:var(--accent); box-shadow:var(--glow-sm);
+  clip-path:polygon(0 8%, 100% 0, 88% 30%, 100% 52%, 82% 74%, 100% 92%, 10% 100%, 22% 70%, 0 48%, 14% 26%);}
+.editHint{font-size:11.5px; color:var(--txt2); margin:-2px 0 12px; padding-left:2px; line-height:1.5;}
+.editHint b{color:var(--txt2);}
+
+.archiveEmpty{text-align:center; color:var(--txt2); font-size:12.5px; padding:30px 10px;}
+
+/* Nowa, designerska tabelka rekordow — od razu pod "Zrob pompki", zamiast schowana w podekranie. */
+.recShowcase{display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:14px;}
+.recCard{position:relative; background:var(--card); border:1px solid var(--line-hot); border-radius:var(--radius);
+  padding:14px 12px; overflow:hidden;}
+.recCard::before{content:''; position:absolute; top:-1px; left:-1px; width:12px; height:12px;
+  border:1px solid var(--accent); border-width:1px 0 0 1px; opacity:.75; pointer-events:none;}
+.recCard::after{content:''; position:absolute; bottom:-1px; right:-1px; width:12px; height:12px;
+  border:1px solid var(--accent); border-width:0 1px 1px 0; opacity:.75; pointer-events:none;}
+.recCard.accent{border-color:var(--amber); background:linear-gradient(160deg, rgba(255,176,0,.08), var(--card) 60%);}
+.recCardIco{font-size:20px; line-height:1;
+  filter:drop-shadow(0 1px 0 #000) drop-shadow(0 -1px 0 #000) drop-shadow(1px 0 0 #000) drop-shadow(-1px 0 0 #000);}
+.recCardLbl{font-size:10px; text-transform:uppercase; letter-spacing:.07em; color:var(--txt3);
+  font-weight:700; margin:7px 0 5px;}
+.recCardVal{font-family:var(--display); font-size:21px; color:var(--txt); line-height:1.05; text-wrap:balance;}
+.recCard.accent .recCardVal{color:var(--amber);}
+.recCardSub{font-family:var(--mono); font-size:9.5px; color:var(--txt3); margin-top:5px;}
+
+/* Trzy kafelki nawigacyjne pod "Zrob pompki" — Tempo / Rekordy / Statystyki, kazdy prowadzi
+   do osobnego pelnoekranowego podekranu (.dmSubScreen). */
+.dmNavTiles{display:grid; grid-template-columns:repeat(3,1fr); gap:8px;}
+.dmNavTile{display:flex; flex-direction:column; align-items:center; gap:7px; padding:16px 6px;
+  background:var(--card); border:1px solid var(--line); border-radius:var(--radius); cursor:pointer;
+  font-family:inherit; -webkit-tap-highlight-color:transparent; transition:border-color .15s, transform .1s;}
+.dmNavTile:active{transform:scale(.96); border-color:var(--accent);}
+.dmNavTileIco{font-size:26px; line-height:1;
+  filter:drop-shadow(0 1px 0 #000) drop-shadow(0 -1px 0 #000) drop-shadow(1px 0 0 #000) drop-shadow(-1px 0 0 #000);}
+.dmNavTileLbl{font-family:var(--display); font-size:12px; text-transform:uppercase; letter-spacing:.03em; color:var(--txt2);}
+
+/* Podekrany otwierane z kafelkow — ten sam wzorzec co #settingsOverlay: pelny ekran, wlasny powrot. */
+.dmSubScreen{position:fixed; inset:0; z-index:150; background:var(--bg); display:none;
+  flex-direction:column; opacity:1; overflow:hidden;}
+.dmSubScreen.on{display:flex;}
+/* To samo zdjecie co splash/ekran wyboru — subtelne tlo klimatyczne, nie przeszkadza w czytaniu tresci. */
+.dmSubScreenBgImg{position:absolute; inset:0; background-image:url('assets/splash-bg.jpg');
+  background-size:260% auto; background-position:50% 10%; opacity:.16; filter:contrast(1.3); pointer-events:none;}
+.dmSubScreen::before{content:''; position:absolute; inset:0; z-index:1;
+  background:linear-gradient(rgba(10,10,12,.6), var(--bg) 45%); pointer-events:none;}
+.dmSubScreen > *:not(.dmSubScreenBgImg){position:relative; z-index:2;}
+.dmSubScreenHead{flex:0 0 auto; display:flex; align-items:center; gap:12px;
+  padding:calc(16px + var(--safe-t)) 16px 14px; border-bottom:1px solid var(--line);}
+.dmSubScreenHead h2{font-family:var(--display); font-size:19px; font-weight:400; letter-spacing:.02em;
+  text-transform:uppercase; margin:0;}
+.dmSubScreenBack{flex:0 0 auto; background:var(--card2); border:1px solid var(--line); color:var(--txt2);
+  width:38px; height:38px; border-radius:50%; font-size:16px; cursor:pointer; display:flex;
+  align-items:center; justify-content:center; -webkit-tap-highlight-color:transparent;}
+.dmSubScreenBack:active{border-color:var(--accent); color:var(--accent-txt);}
+.dmSubScreenBody{flex:1; overflow-y:auto; -webkit-overflow-scrolling:touch;
+  padding:16px 16px calc(24px + var(--safe-b));}
+
+.actionRow{display:flex; gap:8px; margin-bottom:12px;}
+.actionBtn{flex:1; min-height:44px; padding:12px 8px; border-radius:var(--r-sharp); font-family:var(--display); font-size:13.5px;
+  font-weight:400; border:1px solid var(--line); background:var(--card2); color:var(--txt); cursor:pointer;
+  text-align:center; white-space:nowrap; transition:opacity .15s; letter-spacing:.02em; text-transform:uppercase;}
+.actionBtn:active{opacity:.7;}
+.actionBtn:disabled{opacity:.55; cursor:default; filter:grayscale(.4);}
+.actionBtn.primary{background:var(--accent); border-color:var(--accent); color:#fff; box-shadow:var(--glow-sm);
+  clip-path:polygon(0 0, calc(100% - 9px) 0, 100% 9px, 100% 100%, 9px 100%, 0 calc(100% - 9px));}
+.actionBtn.primary:hover{box-shadow:var(--glow-md);}
+.actionBtn.secondary{background:transparent; border-color:rgba(255,176,0,.55); color:var(--amber);}
+.actionBtn.secondary:hover{border-color:var(--amber); box-shadow:var(--glow-amber);}
+.actionBtn.danger{background:transparent; border-color:var(--accent); color:var(--accent);}
+.archiveLink{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+  font-size:11.5px; color:var(--amber); font-weight:700; text-decoration:none; cursor:pointer;
+  text-transform:uppercase; letter-spacing:.06em;}
+
+.progresStats{display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:12px;}
+.progresStat{background:var(--card); border:1px solid var(--line); border-radius:var(--radius); padding:12px;}
+.progresStat .lbl{font-size:10px; text-transform:uppercase; letter-spacing:.08em; color:var(--txt3); font-weight:700;}
+.progresStat .val{font-family:var(--mono); font-variant-numeric:tabular-nums; font-size:22px; font-weight:700;
+  color:var(--amber); margin-top:4px; text-shadow:var(--glow-amber);}
+.progresStat .sub{font-size:11px; color:var(--txt3); margin-top:2px;}
+
+.dailyMinHero{position:relative; background:var(--card); border:1px solid var(--line); border-radius:var(--radius);
+  padding:18px 16px 20px; text-align:center; margin-bottom:12px;}
+.dailyMinHero::before,.dailyMinHero::after{content:''; position:absolute; width:12px; height:12px; border:1px solid var(--accent); opacity:.75; pointer-events:none;}
+.dailyMinHero::before{top:-1px; left:-1px; border-width:1px 0 0 1px;}
+.dailyMinHero::after{bottom:-1px; right:-1px; border-width:0 1px 1px 0;}
+/* Combo — teraz maly akcent nad glownymi liczbami, nie glowny bohater karty. */
+.heroComboRow{display:flex; align-items:baseline; justify-content:center; gap:6px; margin-bottom:14px;
+  padding-bottom:14px; border-bottom:1px solid var(--line);}
+.heroComboFlame{font-size:15px; line-height:1;}
+.heroComboNum{font-family:var(--mono); font-variant-numeric:tabular-nums; font-weight:700; font-size:16px;
+  color:var(--accent-txt); line-height:1;}
+.heroComboLbl{font-size:10px; text-transform:uppercase; letter-spacing:.08em; color:var(--txt3); font-weight:700;}
+.heroStatsRow{display:flex; align-items:center; justify-content:center; gap:0;}
+.heroStat{flex:1; min-width:0;}
+.heroStatNum{font-family:var(--mono); font-variant-numeric:tabular-nums; font-weight:700;
+  font-size:40px; color:var(--txt); line-height:1;}
+.heroStatLbl{font-size:11px; text-transform:uppercase; letter-spacing:.08em; color:var(--txt3); font-weight:700; margin-top:4px;}
+.heroStatDivider{flex:0 0 auto; width:1px; align-self:stretch; background:var(--line); margin:2px 18px;}
+.heroStatBtn{background:transparent; border:none; padding:4px; margin:0; font:inherit; cursor:pointer;
+  -webkit-tap-highlight-color:transparent; border-radius:var(--r-sharp); transition:transform .12s, background .12s;}
+.heroStatBtn:active{transform:scale(.95); background:rgba(200,30,44,.1);}
+.dmPoster{position:relative; overflow:hidden;
+  background-image:linear-gradient(rgba(200,30,44,.05) 1px, transparent 1px), linear-gradient(90deg, rgba(200,30,44,.05) 1px, transparent 1px);
+  background-size:22px 22px;}
+.dmPoster .cnr{position:absolute; width:18px; height:18px; border:2px solid var(--accent); pointer-events:none;}
+.dmPoster .tl{top:6px; left:6px; border-right:none; border-bottom:none;}
+.dmPoster .tr{top:6px; right:6px; border-left:none; border-bottom:none;}
+.dmPoster .bl{bottom:6px; left:6px; border-right:none; border-top:none;}
+.dmPoster .br{bottom:6px; right:6px; border-left:none; border-top:none;}
+
+.dmTimerRow{display:flex; align-items:center; gap:10px; margin-bottom:10px;}
+.dmTimerBtn{flex:0 0 auto; min-width:96px; min-height:44px; font-family:var(--display); font-size:13px;
+  text-transform:uppercase; letter-spacing:.03em; background:transparent; border:1px solid var(--accent);
+  color:var(--accent-txt); border-radius:var(--r-sharp); cursor:pointer; box-shadow:var(--glow-sm);
+  transition:box-shadow .2s, background .15s;}
+.dmTimerBtn.running{background:var(--accent); color:#fff; box-shadow:var(--glow-md);}
+.dmTimerBtn:disabled{border-color:var(--line); color:var(--txt3); box-shadow:none; cursor:default;}
+.dmTime{flex:1; text-align:right; font-family:var(--mono); font-variant-numeric:tabular-nums;
+  font-size:26px; font-weight:700; color:var(--txt);}
+.dmTapWrap{display:flex; flex-direction:column; align-items:center; gap:8px; margin:4px 0 16px;}
+.dmTapCircle{position:relative; width:180px; height:180px; max-width:70vw; max-height:70vw; border-radius:50%;
+  background:var(--card2); border:2px solid var(--line); cursor:pointer; padding:0;
+  display:flex; align-items:center; justify-content:center; -webkit-tap-highlight-color:transparent;
+  touch-action:manipulation; transition:transform .1s;}
+.dmTapCircle:active{transform:scale(.96);}
+.dmTapRing{position:absolute; inset:0; width:100%; height:100%; transform:rotate(-90deg);}
+.dmTapRingBg{fill:none; stroke:var(--line); stroke-width:5;}
+.dmTapRingFg{fill:none; stroke:var(--accent); stroke-width:5; stroke-linecap:round;
+  stroke-dasharray:339.3; stroke-dashoffset:339.3;}
+.dmTapFlame{font-size:52px; line-height:1;
+  filter:drop-shadow(0 1px 0 #000) drop-shadow(0 -1px 0 #000) drop-shadow(1px 0 0 #000) drop-shadow(-1px 0 0 #000);}
+.dmTapCircle.pop .dmTapFlame{animation:dmTapPop .28s ease;}
+@keyframes dmTapPop{0%{transform:scale(1);} 40%{transform:scale(1.4) rotate(-6deg);} 100%{transform:scale(1);}}
+.dmTapCount{position:absolute; bottom:30px; left:0; right:0; text-align:center; font-family:'Saira Stencil One', var(--display);
+  font-size:22px; font-weight:400; color:#fff; font-variant-numeric:tabular-nums;
+  text-shadow:0 0 10px rgba(200,30,44,.85), 0 0 22px rgba(200,30,44,.5);}
+/* Wyciety cien 3D — druga czcionka (Big Shoulders Stencil) przesunieta po przekatnej, jako "wyciete" tlo pod glownym napisem. */
+.dmTapCount::before{content:attr(data-val); position:absolute; inset:0; transform:translate(2px,2px);
+  z-index:-1; color:#000; font-family:'Big Shoulders Stencil'; font-weight:700; text-shadow:none;}
+.dmTapHint{font-family:var(--mono); font-size:10px; letter-spacing:.06em; text-transform:uppercase;
+  color:var(--txt3); text-align:center; max-width:220px;}
+.dmFsBtn{display:flex; align-items:center; justify-content:center; gap:8px; width:100%; min-height:46px;
+  margin:0 0 12px; background:var(--accent); border:1px solid var(--accent); color:#fff;
+  font-family:var(--display); font-size:14px; text-transform:uppercase; letter-spacing:.03em;
+  border-radius:var(--r-sharp); cursor:pointer; box-shadow:var(--glow-sm); -webkit-tap-highlight-color:transparent;}
+.dmFsBtn:active{background:var(--accent-deep); transform:scale(.98);}
+.dmFsOverlay{position:fixed; inset:0; z-index:160; display:none;
+  background:var(--bg); touch-action:none; -webkit-tap-highlight-color:transparent;
+  -webkit-user-select:none; user-select:none; -webkit-touch-callout:none;
+  flex-direction:column; align-items:center; justify-content:flex-start; padding:16px; overflow:hidden;}
+.dmFsOverlay.on{display:flex;}
+.shareOverlay{position:fixed; inset:0; z-index:190; display:none;
+  background:rgba(5,5,7,.94); backdrop-filter:blur(3px);
+  flex-direction:column; align-items:center; justify-content:center; gap:22px; padding:24px;}
+.shareOverlay.on{display:flex;}
+.shareCloseBtn{position:absolute; top:calc(14px + var(--safe-t)); left:16px; width:38px; height:38px;
+  border-radius:50%; background:var(--card2); border:1px solid var(--line); color:var(--txt);
+  font-size:18px; display:flex; align-items:center; justify-content:center; cursor:pointer;
+  -webkit-tap-highlight-color:transparent; z-index:2;}
+.shareCloseBtn:active{transform:scale(.94);}
+.shareCard{width:100%; max-width:300px; aspect-ratio:9/16; background:var(--bg2); position:relative; overflow:hidden;
+  border:1.5px solid var(--accent); border-radius:10px; box-shadow:0 12px 40px rgba(0,0,0,.6), 0 0 0 6px rgba(200,30,44,.08);
+  display:flex; flex-direction:column; align-items:center; justify-content:center; gap:10px; padding:22px 18px;}
+.shareCard::before{content:''; position:absolute; inset:0;
+  background-image:linear-gradient(rgba(10,10,12,.32), rgba(10,10,12,.8) 55%, rgba(10,10,12,.96)),
+    radial-gradient(ellipse at 50% 15%, rgba(200,30,44,.18), transparent 60%),
+    url('assets/splash-bg.jpg');
+  background-size:cover; background-position:top center; filter:contrast(1.08); pointer-events:none;}
+.shareCard > *{position:relative;}
+.shareBrand{font-family:var(--mono); font-size:11px; font-weight:800; letter-spacing:.12em; color:var(--accent-txt);}
+.shareBigNum{font-family:var(--display); font-size:min(24vw,96px); line-height:1; color:#fff;
+  text-shadow:0 0 16px rgba(200,30,44,.75), 0 0 36px rgba(200,30,44,.45);}
+.shareLbl{font-size:14px; text-transform:uppercase; letter-spacing:.06em; color:var(--txt2); font-weight:700;}
+.shareBanners{display:flex; flex-direction:column; align-items:center; margin-top:10px;}
+.shareBanners .grungeBanner{margin:2px 0;}
+.shareBanners .grungeBanner span{font-size:clamp(13px,3.6vw,16px);}
+.shareDate{font-family:var(--mono); font-size:10px; color:var(--txt3); margin-top:8px;}
+.shareTagline{font-size:10px; color:var(--txt3); margin-top:12px; letter-spacing:.04em;}
+.shareBtn{width:100%; max-width:300px; flex:0 0 auto;}
+.dmFsBrandStrip{display:none;}
+.dmFsClose{position:absolute; top:calc(14px + var(--safe-t)); left:16px; width:38px; height:38px;
+  border-radius:50%; background:var(--card2); border:1px solid var(--line); color:var(--txt);
+  font-size:18px; display:flex; align-items:center; justify-content:center; cursor:pointer;
+  -webkit-tap-highlight-color:transparent; z-index:2;}
+.dmFsClose:active{transform:scale(.94);}
+.dmFsTop{position:absolute; top:calc(14px + var(--safe-t)); left:50%; transform:translateX(-50%);
+  display:flex; flex-direction:column; align-items:center; gap:8px; max-width:calc(100vw - 76px); z-index:1;}
+.dmFsPanel{display:flex; align-items:center; justify-content:center; flex-wrap:wrap; gap:10px 14px;
+  background:rgba(10,10,12,.88); border:1.5px solid var(--accent);
+  border-radius:999px; padding:9px 18px; box-shadow:0 4px 18px rgba(0,0,0,.5);}
+.dmFsPanel .dmFsStat{display:flex; align-items:center; gap:6px; font-family:var(--mono);
+  font-variant-numeric:tabular-nums; font-weight:800; color:#fff; font-size:18px; line-height:1; white-space:nowrap;}
+.dmFsPanel .dmFsStat i{font-size:15px; line-height:1;}
+.dmFsSep{width:1px; height:18px; background:var(--line-hot); flex:0 0 auto;}
+.dmFsTop .dmTimerBtn{padding:7px 16px; min-height:0; font-size:11.5px;}
+.dmFsBtnRow{display:flex; align-items:center; gap:8px;}
+.dmTapCount.jump{animation:dmCountJump .3s ease;}
+@keyframes dmCountJump{0%{transform:scale(1); color:#fff;} 40%{transform:scale(1.35); color:var(--accent-txt);} 100%{transform:scale(1); color:#fff;}}
+@media (prefers-reduced-motion: reduce){.dmFsCircle .dmTapCount.jump{animation:none;}}
+.dmFsCircle{position:relative; width:100%; flex:1; border-radius:0;
+  background:transparent; border:none; cursor:pointer; padding:0;
+  display:flex; flex-direction:column; align-items:center; justify-content:center; gap:0;
+  -webkit-tap-highlight-color:transparent; touch-action:manipulation;}
+.dmFsCircle .dmTapRing, .dmFsCircle .dmTapFlame{display:none;}
+.dmFsCircle .dmTapCount{position:relative; bottom:auto; font-size:min(48vw,38vh); font-weight:400;
+  line-height:1; color:#fff; font-family:'Saira Stencil One', var(--display); font-variant-numeric:normal;
+  display:inline-block; text-shadow:none;}
+.dmFsCircle .dmTapCount::before{content:none;}
+.dmFsHint{display:none;}
+.dmFsSaveBtn{margin-top:22px; min-width:220px; min-height:54px; padding:14px 28px;
+  background:var(--ok); border:none; border-radius:var(--r-sharp); color:#0A0A0C;
+  font-family:var(--display); font-size:18px; text-transform:uppercase; letter-spacing:.03em;
+  cursor:pointer; box-shadow:0 4px 16px rgba(53,196,107,.35); -webkit-tap-highlight-color:transparent;
+  transition:transform .1s, opacity .15s;}
+.dmFsSaveBtn:active{transform:scale(.97);}
+.dmFsSaveBtn:disabled{background:var(--card2); color:var(--txt3); box-shadow:none; opacity:.6; cursor:default;}
+@media (prefers-reduced-motion: reduce){
+  .dmTapCircle.pop .dmTapFlame{animation:none;}
+  .dmFsCircle.pop .dmTapFlame{animation:none;}
+}
+.dmRepsRow{display:flex; align-items:center; gap:10px;}
+.dmRepsRow .lbl{font-family:var(--mono); font-size:9.5px; text-transform:uppercase; letter-spacing:.13em; color:var(--txt2); flex:1;}
+.dmReps{width:84px; min-height:44px; background:var(--bg2); border:1px solid var(--line); color:var(--txt);
+  border-radius:var(--r-sharp); padding:10px; font-family:var(--mono); font-variant-numeric:tabular-nums;
+  font-size:19px; font-weight:700; text-align:center;}
+.dmReps:focus{outline:none; border-color:var(--accent); box-shadow:var(--glow-sm);}
+.dmReps:disabled{color:var(--txt3);}
+.dmTempo{margin-top:9px; font-family:var(--mono); font-size:10.5px; letter-spacing:.04em; color:var(--txt3);
+  display:flex; align-items:center; gap:7px;}
+.dmTempo b{font-weight:700;}
+.dmTempo.ok{color:var(--ok);}
+.dmTempo.warn{color:var(--amber);}
+.dmTempo.elite{color:#FFD700; font-weight:800; text-shadow:0 0 8px rgba(255,215,0,.5);}
+.dmTempo.err{display:flex; justify-content:center; background:var(--accent); color:#fff;
+  font-size:15px; font-weight:900; letter-spacing:.06em; text-transform:uppercase;
+  padding:11px 14px; border-radius:var(--r-sharp); box-shadow:0 4px 16px rgba(0,0,0,.45);
+  animation:dmTempoPulse 1s ease-in-out infinite;}
+.dmTempo.err .sec{color:rgba(255,255,255,.88); font-weight:600; text-transform:none; letter-spacing:0;}
+@keyframes dmTempoPulse{0%,100%{transform:scale(1);} 50%{transform:scale(1.035);}}
+@media (prefers-reduced-motion: reduce){.dmTempo.err{animation:none;}}
+
+.dmAddCard{position:relative; background:var(--card); border:1px solid var(--line-hot); border-radius:var(--radius);
+  padding:14px 16px; margin-bottom:14px;}
+.dmMetroBtn{flex:0 0 auto; width:28px; height:28px; border-radius:var(--r-sharp); background:var(--card2);
+  border:1px solid var(--line); color:var(--txt3); font-size:13px; cursor:pointer; display:flex;
+  align-items:center; justify-content:center; -webkit-tap-highlight-color:transparent;}
+.dmMetroBtn.on{border-color:var(--amber); color:var(--amber);}
+.dmLogList{margin-bottom:14px;}
+.dmLogRow{display:flex; align-items:center; gap:10px; background:var(--card); border:1px solid var(--line);
+  border-left:2px solid var(--ok); border-radius:var(--r-sharp); padding:9px 12px; margin-bottom:7px;}
+.dmLogTime{font-family:var(--mono); font-size:12px; color:var(--txt3); flex:0 0 auto;}
+.dmLogBody{flex:1; min-width:0;}
+.dmLogReps{font-weight:700; font-size:14px;}
+.dmLogTempo{display:inline-flex; align-items:center; gap:5px; margin-top:3px; font-family:var(--mono);
+  font-size:10px; letter-spacing:.05em; text-transform:uppercase; font-weight:700;}
+.dmLogTempo .sec{font-variant-numeric:tabular-nums; color:var(--txt2); font-weight:400; text-transform:none; letter-spacing:0;}
+.dmLogTempo.err{color:var(--accent-txt);}
+.dmLogTempo.warn{color:var(--amber);}
+.dmLogTempo.ok{color:var(--ok);}
+.dmLogTempo.elite{color:#fff; text-shadow:0 1px 1px rgba(0,0,0,.5), 1px 0 1px rgba(0,0,0,.4), -1px 0 1px rgba(0,0,0,.4);}
+.dmLogTempo.elite::before{content:'⭐'; font-size:10px;}
+.dmLogDel{flex:0 0 auto; background:transparent; border:none; color:var(--txt3); font-size:12px; cursor:pointer; padding:4px 6px;}
+.dmLogDel:active{color:var(--accent);}
+.dmLogEmpty{font-size:12px; color:var(--txt3); text-align:center; padding:10px 0 4px;}
+
+.calMonthNav{display:flex; align-items:center; justify-content:space-between; margin-bottom:12px;}
+.calMonthNav button{background:var(--card2); border:1px solid var(--line); color:var(--txt2); width:40px; height:40px;
+  border-radius:var(--r-sharp); font-size:14px; cursor:pointer;}
+.calMonthNav span{font-family:var(--display); font-size:16px; text-transform:uppercase; letter-spacing:.03em; color:var(--txt);}
+.calWeekdays{display:grid; grid-template-columns:repeat(7,1fr); gap:4px; margin-bottom:6px;}
+.calWeekdays div{text-align:center; font-size:9.5px; font-weight:700; text-transform:uppercase; color:var(--txt3); letter-spacing:.04em;}
+.calGrid{display:grid; grid-template-columns:repeat(7,1fr); gap:4px;}
+.calDay{aspect-ratio:1; display:flex; align-items:center; justify-content:center; border-radius:var(--r-sharp);
+  font-family:var(--mono); font-variant-numeric:tabular-nums; font-size:11.5px;
+  font-weight:700; background:var(--bg2); border:1px solid var(--line); color:var(--txt2);}
+.calDay.otherMonth{opacity:.22; border-color:transparent;}
+.calDay.future{opacity:.35;}
+.calDay.done{background:var(--accent-deep); border-color:var(--accent); color:#fff; box-shadow:var(--glow-sm);}
+.calDay.today{border-color:var(--amber); border-width:2px;}
+/* Prawdziwy wykres slupkowy (kolumny), nie cienkie poziome paski — czytelne na pierwszy rzut oka. */
+.dmStatBars{display:flex; align-items:flex-end; gap:6px; height:150px; padding:4px 2px 0;}
+.dmStatBarRow{flex:1; min-width:0; display:flex; flex-direction:column; align-items:center;
+  justify-content:flex-end; height:100%; gap:6px;}
+.dmStatBarRow.today .dmStatBarLbl{color:var(--accent-txt); font-weight:800;}
+.dmStatBarRow.today .dmStatBarVal{color:var(--accent-txt);}
+.dmStatBarLbl{font-family:var(--mono); font-size:9.5px; color:var(--txt3);
+  text-transform:uppercase; letter-spacing:.04em;}
+.dmStatBarTrack{width:100%; max-width:30px; flex:1; display:flex; align-items:flex-end;
+  background:var(--bg2); border-radius:var(--r-sharp) var(--r-sharp) 0 0; overflow:hidden; border:1px solid var(--line); border-bottom:none;}
+.dmStatBarFill{width:100%; min-height:2px; background:linear-gradient(180deg,var(--amber),var(--accent));
+  transition:height .35s ease; border-radius:1px 1px 0 0;}
+.dmStatBarVal{font-family:var(--mono); font-size:11.5px; font-weight:700; color:var(--txt);
+  font-variant-numeric:tabular-nums;}
+.dmStatEmpty{font-size:12px; color:var(--txt3); text-align:center; padding:6px 0;}
+
+/* Dialogi (własne okna zamiast alert/confirm) */
+.dialogOverlay{position:fixed; inset:0; background:rgba(0,0,0,.6); z-index:80;
+  display:flex; align-items:center; justify-content:center; padding:18px;
+  opacity:0; pointer-events:none; transition:opacity .18s;}
+.dialogOverlay.visible{opacity:1; pointer-events:auto;}
+.dialogBox{width:100%; max-width:340px; background:var(--card); border:1px solid var(--line);
+  border-radius:var(--radius); padding:18px 16px 14px; box-shadow:0 18px 40px rgba(0,0,0,.45);}
+.dialogTitle{font-size:15px; font-weight:800; margin:0 0 8px;}
+.dialogMsg{font-size:13px; color:var(--txt2); line-height:1.45; margin:0 0 16px; white-space:pre-line;}
+.dialogActions{display:flex; gap:8px;}
+.dialogActions button{flex:1; padding:11px 8px; border-radius:var(--r-sharp); font-size:13px; font-weight:800;
+  border:1px solid var(--line); cursor:pointer; font-family:inherit;}
+.dialogBtnCancel{background:var(--card2); color:var(--txt2);}
+.dialogBtnOk{background:var(--accent); color:#fff; border-color:var(--accent);}
+
+#statusToast{position:fixed; left:50%; transform:translateX(-50%) translateY(140%);
+  bottom:calc(14px + var(--safe-b)); z-index:78; max-width:min(92vw,480px);
+  background:var(--card); border:1px solid var(--line-hot); border-radius:var(--r-sharp);
+  padding:11px 16px; font-family:var(--mono); font-size:11.5px; letter-spacing:.03em;
+  color:var(--txt); text-align:center; box-shadow:var(--glow-sm), 0 10px 30px rgba(0,0,0,.5);
+  transition:transform .22s ease; pointer-events:none;}
+#statusToast.visible{transform:translateX(-50%) translateY(0);}
+#statusToast.ok{border-color:var(--ok); color:var(--ok);}
+#statusToast.err{border-color:var(--accent); color:var(--accent-txt); box-shadow:var(--glow-md);}
+
+@keyframes stepSlide{
+  0%{opacity:0; transform:translateX(-18px);}
+  100%{opacity:1; transform:translateX(0);}
+}
+.stepSlide{opacity:0;}
+.stepSlide.go{animation:stepSlide .55s cubic-bezier(.2,.8,.3,1) both;}
+@media (prefers-reduced-motion: reduce){
+  .stepSlide, .led, #scanSweep{animation:none !important; opacity:1 !important;}
+  *{transition-duration:.01ms !important;}
+}
+
+/* ===== Ekran startowy: splash → wybór — 1:1 z Dziennika (Elitarny Atleta), zrebrandowane ===== */
+#splashScreen{position:fixed; inset:0; z-index:200; background:var(--bg);
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  text-align:center; padding:32px; opacity:1; transition:opacity .5s ease; cursor:pointer; overflow:hidden;}
+#splashScreen.hide{opacity:0; pointer-events:none;}
+/* Zdjecie w klimacie okladki "Zbuduj Forme Bez Silowni" — atleta z guma oporowa, czarno-biale, dramatyczne swiatlo. */
+.splashBgImg{position:absolute; inset:0; background-image:url('assets/splash-bg.jpg');
+  background-size:cover; background-position:top center; opacity:.5; filter:contrast(1.08); pointer-events:none;}
+#splashScreen::before{content:''; position:absolute; inset:0; z-index:1;
+  background:linear-gradient(rgba(10,10,12,.25), rgba(10,10,12,.72) 55%, rgba(10,10,12,.94)),
+    radial-gradient(ellipse at 50% 20%, rgba(200,30,44,.14), transparent 62%); pointer-events:none;}
+#splashScreen > *:not(.splashBgImg){position:relative; z-index:2;}
+.splashFrame{position:absolute; inset:18px; pointer-events:none;}
+.splashFrame .cnr{position:absolute; width:26px; height:26px; border:3px solid var(--accent);}
+.splashFrame .tl{top:0; left:0; border-right:none; border-bottom:none;}
+.splashFrame .tr{top:0; right:0; border-left:none; border-bottom:none;}
+.splashFrame .bl{bottom:0; left:0; border-right:none; border-top:none;}
+.splashFrame .br{bottom:0; right:0; border-left:none; border-top:none;}
+#splashScreen .splashTitle{font-family:'Barlow Condensed', var(--display); font-weight:800; line-height:.9; margin:0 0 22px;
+  text-transform:uppercase; position:relative; display:flex; flex-direction:column; align-items:center; gap:4px; width:100%;}
+#splashScreen .splashTitle .l1, #splashScreen .splashTitle .l2{display:block; width:100%; text-align:center;}
+#splashScreen .splashTitle .l1{font-size:clamp(54px,20vw,108px); color:#fff; letter-spacing:-.01em;}
+#splashScreen .splashTitle .l2{font-size:clamp(54px,20vw,108px); color:var(--accent-txt); letter-spacing:-.01em;}
+/* Poszarpany czerwony baner — styl okladki e-booka "Zbuduj Forme Bez Silowni" (BEZ WYMOWEK.). */
+.grungeBanner{position:relative; display:inline-block; background:var(--accent); padding:8px 24px;
+  margin:3px 0; transform:rotate(-1.4deg); box-shadow:0 10px 26px rgba(0,0,0,.55);
+  clip-path:polygon(1% 14%, 11% 0%, 91% 5%, 100% 20%, 98% 80%, 89% 100%, 9% 95%, 0% 76%);}
+.grungeBanner:last-of-type{margin-bottom:22px;}
+.grungeBanner span{font-family:'Barlow Condensed', var(--display); font-size:clamp(20px,6.8vw,28px); color:#fff;
+  text-transform:uppercase; letter-spacing:.02em; font-weight:800; display:block;
+  -webkit-text-stroke:.4px #fff;}
+#splashScreen .splashTagline{font-family:'Barlow Condensed', var(--display); font-size:clamp(19px,5.6vw,25px); color:var(--txt);
+  letter-spacing:.02em; max-width:360px; line-height:1.35; margin:0 auto 4px; text-transform:uppercase; font-weight:700;}
+#splashScreen .splashTagline2{font-family:'Barlow Condensed', var(--display); font-size:clamp(19px,5.6vw,25px);
+  letter-spacing:.02em; max-width:360px; line-height:1.35; margin:0 auto 18px; text-transform:uppercase; font-weight:800; color:#fff;}
+#splashScreen .splashSub2{font-family:'Barlow Condensed', var(--display); font-size:clamp(11.5px,3.2vw,13.5px); color:var(--txt3);
+  letter-spacing:.14em; margin:0 auto; text-transform:uppercase; font-weight:600;}
+#splashScreen .splashBar{width:60px; height:5px; border-radius:999px; background:var(--accent); margin-top:30px; opacity:.9;}
+#splashScreen .splashTap{font-size:13.5px; text-transform:uppercase; letter-spacing:.12em; color:var(--txt2);
+  font-weight:700; margin-top:18px; animation:splashPulse 1.8s ease-in-out infinite; position:relative;}
+@keyframes splashPulse{0%,100%{opacity:.4;}50%{opacity:1;}}
+/* Rozne animacje wejscia dla poszczegolnych elementow splasha — nie wszystko jednym slidem. */
+@keyframes splashPop{0%{opacity:0; transform:scale(.7);}65%{opacity:1; transform:scale(1.08);}100%{opacity:1; transform:scale(1);}}
+.splashPop{opacity:0; animation:splashPop .6s cubic-bezier(.2,.8,.3,1) both;}
+@keyframes splashSlam{0%{opacity:0; transform:translateX(-50px) rotate(-6deg);}70%{opacity:1; transform:translateX(6px) rotate(0deg);}100%{opacity:1; transform:translateX(0) rotate(-1.4deg);}}
+.splashSlam{opacity:0; animation:splashSlam .55s cubic-bezier(.2,.8,.3,1) both;}
+@keyframes splashFade{0%{opacity:0;}100%{opacity:1;}}
+.splashFade{opacity:0; animation:splashFade .7s ease both;}
+@keyframes splashGrowBar{0%{width:0; opacity:0;}100%{width:60px; opacity:.9;}}
+.splashGrowBar{width:0; animation:splashGrowBar .5s ease both;}
+/* Plomienisty wjazd — tekst "rozpala sie" od bursztynu przez czerwien do bieli, z lekkim flickerem. */
+@keyframes splashFlame{
+  0%{opacity:0; transform:translateY(10px) scale(.94); color:var(--amber); text-shadow:0 0 18px rgba(255,176,0,.9), 0 0 4px rgba(255,176,0,.9);}
+  35%{opacity:1; transform:translateY(0) scale(1.03); color:var(--accent-txt); text-shadow:0 0 28px rgba(200,30,44,.95), 0 0 8px rgba(255,176,0,.6);}
+  55%{opacity:.82; text-shadow:0 0 10px rgba(200,30,44,.5);}
+  75%{opacity:1; transform:scale(1); text-shadow:0 0 22px rgba(200,30,44,.85);}
+  100%{opacity:1; color:#fff; text-shadow:0 0 10px rgba(200,30,44,.55);}
+}
+.splashFlame{opacity:0; animation:splashFlame .9s ease-out both;}
+@keyframes splashSlide{
+  0%{opacity:0; transform:translateY(26px);}
+  100%{opacity:1; transform:translateY(0);}
+}
+.splashSlide{opacity:0; animation:splashSlide .75s cubic-bezier(.2,.8,.3,1) both;}
+
+#introFlow{position:fixed; inset:0; z-index:150; background:var(--bg); display:none; flex-direction:column;
+  opacity:1; transition:opacity .3s ease; overflow:hidden;}
+#introFlow.hide{opacity:0; pointer-events:none;}
+/* Ta sama grafika i ten sam sposob wyswietlania co na splashu — spojna tozsamosc wizualna miedzy ekranami. */
+.introBgImg{position:absolute; inset:0; background-image:url('assets/splash-bg.jpg');
+  background-size:cover; background-position:top center; opacity:.5; filter:contrast(1.1) saturate(1.5);
+  transform:scale(1.2); transform-origin:center 20%; pointer-events:none;}
+#introFlow::before{content:''; position:absolute; inset:0; z-index:1;
+  background:linear-gradient(rgba(10,10,12,.25), rgba(10,10,12,.72) 55%, rgba(10,10,12,.94)),
+    radial-gradient(ellipse at 50% 20%, rgba(200,30,44,.26), transparent 62%); pointer-events:none;}
+#introFlow > *:not(.introBgImg){position:relative; z-index:2;}
+#introHead{flex:0 0 auto; display:flex; align-items:center; gap:10px;
+  padding:calc(16px + var(--safe-t)) 16px 14px; border-bottom:1px solid var(--line);}
+#introTitle{font-family:var(--display); font-size:26px; font-weight:400; letter-spacing:.02em; text-transform:uppercase;
+  cursor:pointer; -webkit-tap-highlight-color:transparent;}
+#introBody{flex:1; overflow-y:auto; display:flex; flex-direction:column; gap:6px;
+  padding:14px 18px calc(14px + var(--safe-b));}
+.flameEntry{flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px; width:100%;
+  min-height:0; background:transparent; border:none; cursor:pointer; padding:6px 0; font-family:inherit;}
+.flameEntry + .flameEntry{border-top:1px solid var(--line);}
+.flameEntry .flameBigWrap{position:relative; display:inline-flex;}
+.flameEntry .flameBig{font-size:min(19vw,84px); line-height:1;
+  filter:drop-shadow(0 1px 0 #000) drop-shadow(0 -1px 0 #000) drop-shadow(1px 0 0 #000) drop-shadow(-1px 0 0 #000);
+  transition:transform .2s;}
+.flameEntry:hover .flameBig{transform:scale(1.07);}
+.flameEntry:active .flameBig{transform:scale(.92);}
+.flameEntry .flameLbl{font-family:var(--display); font-size:20px; text-transform:uppercase; letter-spacing:.04em;
+  color:var(--accent-txt); text-shadow:var(--glow-txt);}
+.flameEntry .flameSub{font-family:var(--mono); font-size:10.5px; letter-spacing:.12em; text-transform:uppercase; color:var(--txt3);}
+.flameEntry.done .flameLbl{color:var(--ok);}
+/* Duzy znacznik odhaczenia na plomieniu, gdy dzisiejsze minimum jest zaliczone. */
+.flameCheck{position:absolute; right:-6px; bottom:-2px; width:34%; aspect-ratio:1; border-radius:50%;
+  background:var(--ok); border:3px solid var(--bg); display:flex; align-items:center; justify-content:center;
+  color:#08170F; font-size:min(9vw,34px); font-weight:900; line-height:1; box-shadow:0 2px 10px rgba(0,0,0,.5);}
+/* Kafelek "Dodatkowa seria" — cicha, statyczna biala poswiata wokol ikonki bomby (bez animacji). */
+#introExtraBtn .flameBig{filter:drop-shadow(0 0 5px rgba(255,255,255,.55))
+    drop-shadow(0 1px 0 #000) drop-shadow(0 -1px 0 #000) drop-shadow(1px 0 0 #000) drop-shadow(-1px 0 0 #000);}
+/* Napis "Dodatkowa seria" jako warstwa na bombie — nachodzi na dolna czesc ikonki, wiekszy niz standardowy label. */
+#introExtraBtn .flameLblOverlay{margin-top:-18px; font-size:24px; position:relative; z-index:1;}
+/* Rozpocznij nowy trening / Atlas — ukryte na razie (appka ma na razie tylko Codzienne minimum),
+   zostawione w kodzie do łatwego przywrócenia, gdy te tryby trafią do Codziennego Atlety. */
+.flameEntry.futureHidden{display:none;}
+@keyframes glitchIn{
+  0%{opacity:0; clip-path:inset(0 0 100% 0); transform:translateX(0);}
+  15%{opacity:1; clip-path:inset(0 0 55% 0); transform:translateX(-3px);}
+  30%{clip-path:inset(0 55% 0 0); transform:translateX(3px);}
+  45%{clip-path:inset(0 0 0 55%); transform:translateX(-2px);}
+  60%{clip-path:inset(15% 0 15% 0); transform:translateX(2px);}
+  80%{clip-path:inset(0); transform:translateX(0);}
+  100%{opacity:1; clip-path:inset(0); transform:translateX(0);}
+}
+.glitchIn{animation:glitchIn .65s steps(3,end) both;}
+@keyframes tileMaterialize{
+  0%{opacity:0; transform:scale(.92); filter:brightness(2) blur(2px);}
+  60%{opacity:1; filter:brightness(1.4) blur(0);}
+  100%{opacity:1; transform:scale(1); filter:brightness(1);}
+}
+.tileIn{animation:tileMaterialize .5s ease-out both;}
+@media (prefers-reduced-motion: reduce){
+  .glitchIn, .tileIn, .splashSlide, .splashTap, .splashPop, .splashSlam, .splashFade, .splashFlame{animation:none !important; opacity:1 !important;}
+  .splashGrowBar{animation:none !important; width:60px !important;}
+}
+</style>
+</head>
+<body>
+
+<div id="splashScreen">
+  <div class="splashBgImg" aria-hidden="true"></div>
+  <div class="splashFrame"><span class="cnr tl"></span><span class="cnr tr"></span><span class="cnr bl"></span><span class="cnr br"></span></div>
+  <div class="splashTitle">
+    <span class="l1 splashSlide" style="animation-delay:.08s;">Codzienny</span>
+    <span class="l2 splashSlide" style="animation-delay:.3s;">Atleta</span>
+  </div>
+  <div class="splashTagline splashPop" style="animation-delay:.55s;">Jedna seria pompek.</div>
+  <div class="splashTagline2 splashFlame" style="animation-delay:.95s;">30 sekund, które<br>zmienią Twoje ciało.</div>
+  <div class="grungeBanner splashSlam" style="animation-delay:1.55s;"><span>Bez siłowni.</span></div>
+  <div class="grungeBanner splashSlam" style="animation-delay:1.75s;"><span>Bez wymówek.</span></div>
+  <div class="splashSub2 splashFade" style="animation-delay:2.0s;">One set every day.</div>
+  <div class="splashBar splashGrowBar" style="animation-delay:2.15s;"></div>
+  <div class="splashTap splashSlide" style="animation-delay:2.3s;">dotknij, aby kontynuować</div>
+</div>
+
+<div id="introFlow">
+  <div class="introBgImg" aria-hidden="true"></div>
+  <div id="introHead">
+    <div id="introTitle" role="button" tabindex="0" aria-label="Codzienny Atleta — wróć do ekranu startowego">Codzienny Atleta</div>
+  </div>
+  <div id="introBody"></div>
+</div>
+
+<button type="button" id="globalSettingsBtn" data-i18n-aria="settings_title" aria-label="Ustawienia">⚙</button>
+
+<div id="settingsOverlay">
+  <div id="settingsHead">
+    <button type="button" id="settingsCloseBtn" data-i18n-aria="back_aria" aria-label="Wstecz">←</button>
+    <h2 data-i18n="settings_title">Ustawienia</h2>
+  </div>
+  <div id="settingsBody">
+    <div class="settingsRow">
+      <div>
+        <div class="settingsLbl" data-i18n="settings_lang">Język / Language</div>
+      </div>
+      <div class="settingsLangRow" id="settingsLangRow">
+        <button type="button" class="langBtn" data-lang="pl">PL</button>
+        <button type="button" class="langBtn" data-lang="en">EN</button>
+      </div>
+    </div>
+    <div class="settingsRow">
+      <div>
+        <div class="settingsLbl" data-i18n="settings_showTempo">Pokaż tempo w pełnym ekranie</div>
+        <div class="settingsSub" data-i18n="settings_showTempoSub">Średni czas na pompkę podczas liczenia serii</div>
+      </div>
+      <button type="button" class="toggleSwitch on" id="settingsTempoToggle" role="switch" aria-checked="true" data-i18n-aria="settings_showTempo" aria-label="Pokaż tempo w pełnym ekranie"></button>
+    </div>
+    <div class="settingsRow">
+      <div>
+        <div class="settingsLbl" data-i18n="settings_metro">Metronom tempa</div>
+        <div class="settingsSub" data-i18n="settings_metroSub">Sygnał dźwiękowy co 2,5s podczas liczenia serii</div>
+      </div>
+      <button type="button" class="dmMetroBtn" id="dmMetroBtn" data-i18n-title="dm_metroTitle" data-i18n-aria="dm_metroTitle" aria-label="Metronom tempa (sygnał co 2,5s)" title="Metronom tempa">🔔</button>
+    </div>
+
+    <div class="settingsSectionLbl" data-i18n="settings_remindersSection">Przypomnienia</div>
+    <div class="settingsRow">
+      <div>
+        <div class="settingsLbl" data-i18n="settings_remindersMaster">Powiadomienia</div>
+        <div class="settingsSub" data-i18n="settings_remindersMasterSub">Poprosi o zgodę na powiadomienia w przeglądarce/telefonie</div>
+      </div>
+      <button type="button" class="toggleSwitch" id="remindersMasterToggle" role="switch" aria-checked="false" data-i18n-aria="settings_remindersMaster" aria-label="Powiadomienia"></button>
+    </div>
+    <div id="reminderSlots"></div>
+    <div class="editHint" data-i18n="settings_installHint">📲 Zainstaluj appkę na telefonie (menu przeglądarki → „Dodaj do ekranu głównego”), żeby przypomnienia działały nawet przy zamkniętej karcie.</div>
+
+    <div class="settingsSectionLbl" data-i18n="settings_backupSection">Kopia zapasowa</div>
+    <div class="actionRow" style="margin-bottom:0;">
+      <button type="button" class="actionBtn secondary" id="settingsExportBtn" data-i18n="settings_export">⬇ Eksportuj JSON</button>
+      <button type="button" class="actionBtn secondary" id="settingsImportBtn" data-i18n="settings_import">⬆ Importuj JSON</button>
+    </div>
+    <input type="file" id="settingsImportInput" accept="application/json" hidden>
+  </div>
+</div>
+
+<div id="header" class="hud">
+  <div id="headerTop">
+    <button type="button" id="backBtn" data-i18n-aria="back_aria" aria-label="Wstecz">←</button>
+    <span id="brandMark" aria-hidden="true">🔥</span>
+    <div id="headerTitleWrap">
+      <div id="headerTitle" data-i18n="appTitle">Codzienny Atleta</div>
+      <div id="headerTagline">One set every day.</div>
+    </div>
+  </div>
+</div>
+
+<div id="main">
+
+  <div id="dailyMinView">
+    <div class="sectionHead" data-i18n="dm_title">Codzienne minimum</div>
+    <div class="editHint" data-i18n="dm_hint">✎ Dokładaj serie pompek w dowolnym momencie dnia, ile chcesz — appka zapisuje każdą z godziną i sumuje. Jedna seria dziennie już liczy się do combo. Opuszczony dzień zeruje combo, licznik łączny zostaje. Tydzień liczy się od poniedziałku.</div>
+    <div class="dailyMinHero dmPoster">
+      <span class="cnr tl"></span><span class="cnr tr"></span><span class="cnr bl"></span><span class="cnr br"></span>
+      <div class="heroComboRow">
+        <span class="heroComboFlame">🔥</span>
+        <span class="heroComboNum" id="dailyMinCombo">0</span>
+        <span class="heroComboLbl" id="dailyMinComboLbl" data-i18n="dm_comboLbl_many">dni combo</span>
+      </div>
+      <div class="heroStatsRow">
+        <button type="button" class="heroStat heroStatBtn" id="heroStatToday" aria-label="Udostępnij wynik dzisiejszy">
+          <div class="heroStatNum" id="heroPushToday">0</div>
+          <div class="heroStatLbl" data-i18n="dm_heroTodayLbl">pompek dzisiaj</div>
+        </button>
+        <div class="heroStatDivider"></div>
+        <button type="button" class="heroStat heroStatBtn" id="heroStatWeek" aria-label="Udostępnij wynik tygodniowy">
+          <div class="heroStatNum" id="heroPushWeek">0</div>
+          <div class="heroStatLbl" data-i18n="dm_heroWeekLbl">w tym tygodniu</div>
+        </button>
+      </div>
+    </div>
+    <div class="dmAddCard">
+      <button type="button" class="dmFsBtn" id="dmFsOpenBtn" data-i18n="dm_fsOpen">💪 Zrób pompki!</button>
+      <div hidden aria-hidden="true">
+        <div class="dmTimerRow">
+          <button type="button" class="dmTimerBtn" id="dmNewTimerBtn" data-i18n="dm_start" data-i18n-aria="dm_timerAria" aria-label="Start/stop stopera nowej serii (opcjonalnie)">▶ Start</button>
+          <div class="dmTime" id="dmNewTime">00:00</div>
+        </div>
+        <div class="dmTapWrap">
+          <button type="button" class="dmTapCircle" id="dmTapCircle" data-i18n-aria="dm_tapAria" aria-label="Dotknij po każdej pełnej pompce, żeby doliczyć powtórzenie">
+            <svg class="dmTapRing" viewBox="0 0 120 120" aria-hidden="true">
+              <circle class="dmTapRingBg" cx="60" cy="60" r="54"></circle>
+              <circle class="dmTapRingFg" id="dmTapRingFg" cx="60" cy="60" r="54"></circle>
+            </svg>
+            <span class="dmTapFlame">🔥</span>
+            <span class="dmTapCount" id="dmTapCount" data-val="0">0</span>
+          </button>
+          <div class="dmTapHint" data-i18n="dm_tapHint">Dotknij (np. nosem) po każdej pełnej pompce — pierwsze dotknięcie startuje stoper</div>
+        </div>
+        <div class="dmRepsRow">
+          <span class="lbl" data-i18n="dm_repsLabel">Powtórzenia</span>
+          <input type="number" inputmode="numeric" min="0" class="dmReps" id="dmNewReps" placeholder="0" data-i18n-aria="dm_repsInputAria" aria-label="Powtórzenia nowej serii">
+        </div>
+        <div class="dmTempo" id="dmNewTempo"></div>
+        <button type="button" class="actionBtn primary" id="dmSaveSeriesBtn" style="width:100%; margin-top:12px;" data-i18n="dm_saveSeries">🔥 Zapisz serię</button>
+      </div>
+    </div>
+    <div class="dmFsOverlay" id="dmFsOverlay">
+      <div class="dmFsBrandStrip" aria-hidden="true"></div>
+      <button type="button" class="dmFsClose" id="dmFsCloseBtn" data-i18n-aria="dm_fsCloseAria" aria-label="Zamknij tryb pełnoekranowy">✕</button>
+      <div class="dmFsTop">
+        <div class="dmFsPanel">
+          <span class="dmFsStat"><i>🔥</i><span id="dmFsCount2">0</span></span>
+          <span class="dmFsSep"></span>
+          <span class="dmFsStat"><i>⏱</i><span id="dmFsTime">00:00</span></span>
+        </div>
+        <div class="dmFsBtnRow">
+          <button type="button" class="dmTimerBtn" id="dmFsTimerBtn" data-i18n="dm_start" data-i18n-aria="dm_timerAria" aria-label="Start/stop stopera nowej serii (opcjonalnie)">▶ Start</button>
+        </div>
+      </div>
+      <button type="button" class="dmFsCircle" id="dmFsCircle" data-i18n-aria="dm_tapAria" aria-label="Dotknij po każdej pełnej pompce, żeby doliczyć powtórzenie">
+        <svg class="dmTapRing" viewBox="0 0 120 120" aria-hidden="true">
+          <circle class="dmTapRingBg" cx="60" cy="60" r="54"></circle>
+          <circle class="dmTapRingFg" id="dmFsRingFg" cx="60" cy="60" r="54"></circle>
+        </svg>
+        <span class="dmTapFlame">🔥</span>
+        <span class="dmTapCount" id="dmFsCount" data-val="0">0</span>
+      </button>
+      <div class="dmTempo" id="dmFsTempo" style="margin-top:14px;"></div>
+      <button type="button" class="dmFsSaveBtn" id="dmFsSaveBtn" data-i18n="dm_fsSave">✓ Zapisz serię</button>
+      <div class="dmFsHint" data-i18n="dm_tapHint">Dotknij (np. nosem) po każdej pełnej pompce — pierwsze dotknięcie startuje stoper</div>
+    </div>
+    <div class="shareOverlay" id="shareOverlay">
+      <button type="button" class="shareCloseBtn" id="shareCloseBtn" data-i18n-aria="share_close" aria-label="Zamknij kartę wyniku">✕</button>
+      <div class="shareCard dmPoster" id="shareCard">
+        <span class="cnr tl"></span><span class="cnr tr"></span><span class="cnr bl"></span><span class="cnr br"></span>
+        <div class="shareBrand">🔥 CODZIENNY ATLETA</div>
+        <div class="shareBigNum" id="shareBigNum">0</div>
+        <div class="shareLbl" id="shareLbl">pompek dzisiaj</div>
+        <div class="shareBanners">
+          <div class="grungeBanner"><span id="shareBannerLine1">Jedna seria.</span></div>
+          <div class="grungeBanner"><span id="shareBannerLine2">Zero wymówek.</span></div>
+        </div>
+        <div class="shareDate" id="shareDate"></div>
+        <div class="shareTagline" data-i18n="share_tagline">Jedna seria dziennie.</div>
+      </div>
+      <button type="button" class="actionBtn primary shareBtn" id="shareBtn" data-i18n="share_btn">📤 Udostępnij</button>
+    </div>
+    <div id="pushupRecords"></div>
+    <div class="dmNavTiles">
+      <button type="button" class="dmNavTile" id="navTempoBtn" aria-label="Tempo — dzisiejsze serie">
+        <span class="dmNavTileIco">🏆</span>
+        <span class="dmNavTileLbl" data-i18n="nav_tempoLbl">Tempo</span>
+      </button>
+      <button type="button" class="dmNavTile" id="navRecordsBtn" aria-label="Kalendarz">
+        <span class="dmNavTileIco">📅</span>
+        <span class="dmNavTileLbl" data-i18n="nav_recordsLbl">Kalendarz</span>
+      </button>
+      <button type="button" class="dmNavTile" id="navStatsBtn" aria-label="Statystyki">
+        <span class="dmNavTileIco">📊</span>
+        <span class="dmNavTileLbl" data-i18n="nav_statsLbl">Statystyki</span>
+      </button>
+    </div>
+  </div>
+
+</div>
+
+<div class="dmSubScreen" id="tempoOverlay">
+  <div class="dmSubScreenBgImg" aria-hidden="true"></div>
+  <div class="dmSubScreenHead">
+    <button type="button" class="dmSubScreenBack" id="tempoBackBtn" aria-label="Wstecz">←</button>
+    <h2 data-i18n="nav_tempoLbl">Tempo</h2>
+  </div>
+  <div class="dmSubScreenBody">
+    <div class="editHint" data-i18n="tempo_hint">⏱ Tempo każdej zapisanej dziś serii — czas i szybkość wykonania powtórzeń.</div>
+    <div id="dmSeries"></div>
+  </div>
+</div>
+
+<div class="dmSubScreen" id="recordsOverlay">
+  <div class="dmSubScreenBgImg" aria-hidden="true"></div>
+  <div class="dmSubScreenHead">
+    <button type="button" class="dmSubScreenBack" id="recordsBackBtn" aria-label="Wstecz">←</button>
+    <h2 data-i18n="calendar_title">Kalendarz</h2>
+  </div>
+  <div class="dmSubScreenBody">
+    <div class="block">
+      <div class="calMonthNav">
+        <button type="button" id="calPrevBtn" data-i18n-aria="cal_prevAria" aria-label="Poprzedni miesiąc">←</button>
+        <span id="calMonthLabel">—</span>
+        <button type="button" id="calNextBtn" data-i18n-aria="cal_nextAria" aria-label="Następny miesiąc">→</button>
+      </div>
+      <div class="calWeekdays" id="calWeekdays"><div>Pn</div><div>Wt</div><div>Śr</div><div>Cz</div><div>Pt</div><div>So</div><div>Nd</div></div>
+      <div class="calGrid" id="calGrid"></div>
+    </div>
+  </div>
+</div>
+
+<div class="dmSubScreen" id="statsOverlay">
+  <div class="dmSubScreenBgImg" aria-hidden="true"></div>
+  <div class="dmSubScreenHead">
+    <button type="button" class="dmSubScreenBack" id="statsBackBtn" aria-label="Wstecz">←</button>
+    <h2 data-i18n="nav_statsLbl">Statystyki</h2>
+  </div>
+  <div class="dmSubScreenBody">
+    <div class="progresStats" style="grid-template-columns:1fr 1fr;">
+      <div class="progresStat"><div class="lbl" data-i18n="stat_totalDays">Zaliczone dni łącznie</div><div class="val" id="dailyMinTotal">0</div><div class="sub" data-i18n="stat_neverResets">nigdy się nie zeruje</div></div>
+      <div class="progresStat"><div class="lbl" data-i18n="stat_month">Ten miesiąc</div><div class="val" id="pushMonth">0</div><div class="sub" id="pushMonthSub">—</div></div>
+    </div>
+    <div class="progresStats" style="grid-template-columns:1fr;">
+      <div class="progresStat"><div class="lbl" data-i18n="stat_prevMonth">Poprzedni miesiąc</div><div class="val" id="pushPrevMonth">0</div><div class="sub" id="pushPrevMonthSub">—</div></div>
+    </div>
+    <div class="block">
+      <h3 data-i18n="stats_week_title">Statystyki — ten tydzień</h3>
+      <div class="dmStatBars" id="dmWeekBars"></div>
+    </div>
+    <div class="block">
+      <h3 data-i18n="stats_month_title">Statystyki — tygodnie tego miesiąca</h3>
+      <div class="dmStatBars" id="dmMonthBars"></div>
+    </div>
+  </div>
+</div>
+
+<div id="statusToast" aria-live="polite"></div>
+<div id="scanSweep" aria-hidden="true"></div>
+
+<div class="dialogOverlay" id="dialogOverlay">
+  <div class="dialogBox">
+    <p class="dialogTitle" id="dialogTitle">Uwaga</p>
+    <p class="dialogMsg" id="dialogMsg"></p>
+    <div class="dialogActions">
+      <button type="button" class="dialogBtnOk" id="dialogOk">OK</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ===================================================================
+// Codzienny Atleta — samodzielny klon modułu "Codzienne minimum"
+// (licznik serii pompek + podpowiedź z Atlasu) wyodrębniony z appki
+// "Elite Athlete — Dziennik treningowy". CSS/JS/zachowanie skopiowane
+// 1:1 z oryginału — jedyne zmiany to rebranding tekstów, i18n PL/EN
+// i osobny klucz localStorage (patrz STORAGE_KEY niżej).
+// ===================================================================
+
+// ---------- i18n ----------
+const I18N = {
+  pl: {
+    appTitle: 'Codzienny Atleta',
+    dm_title: 'Codzienne minimum',
+    dm_hint: '✎ Dokładaj serie pompek w dowolnym momencie dnia, ile chcesz — appka zapisuje każdą z godziną i sumuje. Jedna seria dziennie już liczy się do combo. Opuszczony dzień zeruje combo, licznik łączny zostaje. Tydzień liczy się od poniedziałku.',
+    dm_comboLbl_one: 'dzień combo',
+    dm_comboLbl_many: 'dni combo',
+    dm_heroTodayLbl: 'pompek dzisiaj',
+    dm_heroWeekLbl: 'w tym tygodniu',
+    settings_metro: 'Metronom tempa',
+    settings_metroSub: 'Sygnał dźwiękowy co 2,5s podczas liczenia serii',
+    settings_remindersSection: 'Przypomnienia',
+    settings_remindersMaster: 'Powiadomienia',
+    settings_remindersMasterSub: 'Poprosi o zgodę na powiadomienia w przeglądarce/telefonie',
+    settings_reminderN: 'Przypomnienie {n}',
+    settings_installHint: '📲 Zainstaluj appkę na telefonie (menu przeglądarki → „Dodaj do ekranu głównego”), żeby przypomnienia działały nawet przy zamkniętej karcie.',
+    settings_notifUnsupported: 'Ta przeglądarka nie obsługuje powiadomień.',
+    settings_notifDenied: 'Brak zgody na powiadomienia — włącz je w ustawieniach przeglądarki/telefonu.',
+    settings_notifBody: 'Czas na dzisiejszą serię pompek 🔥',
+    settings_backupSection: 'Kopia zapasowa',
+    settings_export: '⬇ Eksportuj JSON',
+    settings_import: '⬆ Importuj JSON',
+    settings_exportError: 'Nie udało się wyeksportować danych.',
+    settings_importOk: 'Dane zaimportowane ✓',
+    settings_importError: 'Nieprawidłowy plik kopii zapasowej.',
+    records_tab_records: 'Rekordy',
+    records_tab_stats: 'Statystyki',
+    nav_tempoLbl: 'Tempo',
+    nav_recordsLbl: 'Kalendarz',
+    nav_statsLbl: 'Statystyki',
+    tempo_hint: '⏱ Tempo każdej zapisanej dziś serii — czas i szybkość wykonania powtórzeń.',
+    calendar_title: 'Kalendarz',
+    intro_dmLbl: 'Codzienne minimum',
+    intro_dmSub: 'kliknij, by zacząć serię',
+    intro_dmDoneLbl: 'Jedna seria dziennie',
+    intro_dmDoneSub: 'zrobione — kliknij by zobaczyć',
+    intro_extraLbl: 'Dodatkowa seria',
+    intro_extraSub: 'kolejna seria dzisiaj — dla chętnych',
+    intro_recordsLbl: 'Rekordy',
+    intro_recordsSub: 'twoje najlepsze wyniki',
+    settings_title: 'Ustawienia',
+    settings_lang: 'Język',
+    settings_showTempo: 'Pokaż tempo w pełnym ekranie',
+    settings_showTempoSub: 'Średni czas na pompkę podczas liczenia serii',
+    back_aria: 'Wstecz',
+    dm_newSeries: 'Nowa seria',
+    dm_metroTitle: 'Metronom tempa (sygnał co 2,5s)',
+    dm_fsOpen: '💪 Zrób pompki!',
+    dm_start: '▶ Start',
+    dm_stop: '■ Stop',
+    dm_timerAria: 'Start/stop stopera nowej serii (opcjonalnie)',
+    dm_tapAria: 'Dotknij po każdej pełnej pompce, żeby doliczyć powtórzenie',
+    dm_tapHint: 'Dotknij (np. nosem) po każdej pełnej pompce — pierwsze dotknięcie startuje stoper',
+    dm_repsLabel: 'Powtórzenia',
+    dm_repsInputAria: 'Powtórzenia nowej serii',
+    dm_saveSeries: '🔥 Zapisz serię',
+    dm_fsCloseAria: 'Zamknij tryb pełnoekranowy',
+    dm_fsSave: '✓ Zapisz serię',
+    dm_logEmpty: 'Jeszcze żadnej serii dzisiaj — dodaj pierwszą powyżej.',
+    dm_seriesLabel: 'Seria {n} — {reps} powt.',
+    dm_seriesDelAria: 'Usuń serię {n}',
+    tempo_slow: 'ZWOLNIJ',
+    tempo_optimal: 'OPTYMALNE TEMPO',
+    tempo_good: 'BARDZO DOBRE TEMPO',
+    tempo_elite: 'TEMPO ATLETY',
+    tempo_secPerRep: '{n}s/pompka',
+    stat_today: 'Dzisiaj',
+    stat_week: 'Tydzień',
+    stat_month: 'Ten miesiąc',
+    stat_prevMonth: 'Poprzedni miesiąc',
+    stat_days_one: 'w 1 dniu',
+    stat_days_many: 'w {n} dniach',
+    stat_totalDays: 'Zaliczone dni łącznie',
+    stat_neverResets: 'nigdy się nie zeruje',
+    cal_prevAria: 'Poprzedni miesiąc',
+    cal_nextAria: 'Następny miesiąc',
+    cal_weekdays: ['Pn','Wt','Śr','Cz','Pt','So','Nd'],
+    months_full: ['Styczeń','Luty','Marzec','Kwiecień','Maj','Czerwiec','Lipiec','Sierpień','Wrzesień','Październik','Listopad','Grudzień'],
+    months_short: ['Sty','Lut','Mar','Kwi','Maj','Cze','Lip','Sie','Wrz','Paź','Lis','Gru'],
+    stats_week_title: 'Statystyki — ten tydzień',
+    stats_month_title: 'Statystyki — tygodnie tego miesiąca',
+    stats_weekN: 'Tydz {n}',
+    rec_longestSeries: 'Najdłuższa seria',
+    rec_bestDay: 'Najlepszy dzień',
+    rec_bestTempo: 'Najlepsze tempo',
+    rec_longestCombo: 'Najdłuższe combo',
+    unit_reps: 'powt.',
+    unit_day_one: 'dzień',
+    unit_day_many: 'dni',
+    records_empty: 'Brak jeszcze żadnej serii pompek — zrób pierwszą w Codziennym minimum.',
+    alert_needReps: 'Podaj liczbę powtórzeń.',
+    alert_title: 'Uwaga',
+    dialog_ok: 'OK',
+    status_seriesSaved: 'Dodano serię pompek 🔥',
+    share_todayLbl: 'Pompek dzisiaj',
+    share_weekLbl: 'W tym tygodniu',
+    share_tagline: 'Jedna seria dziennie.',
+    share_btn: '📤 Udostępnij',
+    share_close: 'Zamknij kartę wyniku'
+  },
+  en: {
+    appTitle: 'Codzienny Atleta',
+    dm_title: 'Daily minimum',
+    dm_hint: '✎ Add push-up sets any time during the day, as many as you like — the app logs each one with a timestamp and totals them. One set a day already counts toward the combo. A skipped day resets the combo, the lifetime counter stays. The week runs from Monday.',
+    dm_comboLbl_one: 'day combo',
+    dm_comboLbl_many: 'days combo',
+    dm_heroTodayLbl: 'push-ups today',
+    dm_heroWeekLbl: 'this week',
+    settings_metro: 'Tempo metronome',
+    settings_metroSub: 'Audible beep every 2.5s while counting a set',
+    settings_remindersSection: 'Reminders',
+    settings_remindersMaster: 'Notifications',
+    settings_remindersMasterSub: 'Will ask for notification permission in your browser/phone',
+    settings_reminderN: 'Reminder {n}',
+    settings_installHint: '📲 Install the app on your phone (browser menu → "Add to Home Screen") so reminders work even with the tab closed.',
+    settings_notifUnsupported: 'This browser does not support notifications.',
+    settings_notifDenied: 'Notification permission denied — enable it in your browser/phone settings.',
+    settings_notifBody: 'Time for today’s push-up set 🔥',
+    settings_backupSection: 'Backup',
+    settings_export: '⬇ Export JSON',
+    settings_import: '⬆ Import JSON',
+    settings_exportError: 'Could not export data.',
+    settings_importOk: 'Data imported ✓',
+    settings_importError: 'Invalid backup file.',
+    records_tab_records: 'Records',
+    records_tab_stats: 'Stats',
+    nav_tempoLbl: 'Tempo',
+    nav_recordsLbl: 'Calendar',
+    nav_statsLbl: 'Stats',
+    tempo_hint: '⏱ Tempo of every set logged today — duration and rep speed.',
+    calendar_title: 'Calendar',
+    intro_dmLbl: 'Daily minimum',
+    intro_dmSub: 'tap to start a set',
+    intro_dmDoneLbl: 'One set a day',
+    intro_dmDoneSub: 'done — tap to view',
+    intro_extraLbl: 'Extra set',
+    intro_extraSub: 'another set today — for the eager',
+    intro_recordsLbl: 'Records',
+    intro_recordsSub: 'your personal bests',
+    settings_title: 'Settings',
+    settings_lang: 'Language',
+    settings_showTempo: 'Show tempo in fullscreen',
+    settings_showTempoSub: 'Average time per rep while counting a set',
+    back_aria: 'Back',
+    dm_newSeries: 'New set',
+    dm_metroTitle: 'Tempo metronome (beep every 2.5s)',
+    dm_fsOpen: '💪 Do push-ups!',
+    dm_start: '▶ Start',
+    dm_stop: '■ Stop',
+    dm_timerAria: 'Start/stop the new set stopwatch (optional)',
+    dm_tapAria: 'Tap after every full push-up to count a rep',
+    dm_tapHint: 'Tap (e.g. with your nose) after every full push-up — the first tap starts the stopwatch',
+    dm_repsLabel: 'Reps',
+    dm_repsInputAria: 'Reps for the new set',
+    dm_saveSeries: '🔥 Save set',
+    dm_fsCloseAria: 'Close fullscreen mode',
+    dm_fsSave: '✓ Save set',
+    dm_logEmpty: 'No sets yet today — add the first one above.',
+    dm_seriesLabel: 'Set {n} — {reps} reps',
+    dm_seriesDelAria: 'Delete set {n}',
+    tempo_slow: 'SLOW DOWN',
+    tempo_optimal: 'OPTIMAL TEMPO',
+    tempo_good: 'VERY GOOD TEMPO',
+    tempo_elite: 'ATHLETE TEMPO',
+    tempo_secPerRep: '{n}s/rep',
+    stat_today: 'Today',
+    stat_week: 'Week',
+    stat_month: 'This month',
+    stat_prevMonth: 'Previous month',
+    stat_days_one: 'in 1 day',
+    stat_days_many: 'in {n} days',
+    stat_totalDays: 'Total days completed',
+    stat_neverResets: 'never resets',
+    cal_prevAria: 'Previous month',
+    cal_nextAria: 'Next month',
+    cal_weekdays: ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'],
+    months_full: ['January','February','March','April','May','June','July','August','September','October','November','December'],
+    months_short: ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],
+    stats_week_title: 'Stats — this week',
+    stats_month_title: 'Stats — weeks this month',
+    stats_weekN: 'Wk {n}',
+    rec_longestSeries: 'Longest set',
+    rec_bestDay: 'Best day',
+    rec_bestTempo: 'Best tempo',
+    rec_longestCombo: 'Longest combo',
+    unit_reps: 'reps',
+    unit_day_one: 'day',
+    unit_day_many: 'days',
+    records_empty: 'No push-up sets yet — do your first one in Daily Minimum.',
+    alert_needReps: 'Enter the number of reps.',
+    alert_title: 'Notice',
+    dialog_ok: 'OK',
+    status_seriesSaved: 'Push-up set added 🔥',
+    share_todayLbl: 'Push-ups today',
+    share_weekLbl: 'This week',
+    share_tagline: 'One set every day.',
+    share_btn: '📤 Share',
+    share_close: 'Close result card'
+  }
+};
+const LANG_KEY = 'codziennyAtleta_lang';
+let currentLang = 'pl';
+try{ currentLang = localStorage.getItem(LANG_KEY) === 'en' ? 'en' : 'pl'; }catch(e){}
+
+function t(key, vars){
+  let s = (I18N[currentLang] && I18N[currentLang][key] != null) ? I18N[currentLang][key] : (I18N.pl[key] || key);
+  if(vars) Object.keys(vars).forEach(k=>{ s = s.replace('{' + k + '}', vars[k]); });
+  return s;
+}
+function tPlural(oneKey, manyKey, n, vars){
+  return n === 1 ? t(oneKey, vars) : t(manyKey, vars);
+}
+
+function applyI18n(){
+  document.documentElement.lang = currentLang;
+  document.querySelectorAll('[data-i18n]').forEach(el=>{
+    el.textContent = t(el.getAttribute('data-i18n'));
+  });
+  document.querySelectorAll('[data-i18n-aria]').forEach(el=>{
+    el.setAttribute('aria-label', t(el.getAttribute('data-i18n-aria')));
+  });
+  document.querySelectorAll('[data-i18n-title]').forEach(el=>{
+    el.setAttribute('title', t(el.getAttribute('data-i18n-title')));
+  });
+  const cw = document.getElementById('calWeekdays');
+  if(cw) cw.innerHTML = t('cal_weekdays') === 'cal_weekdays' ? cw.innerHTML :
+    I18N[currentLang].cal_weekdays.map(d => '<div>' + d + '</div>').join('');
+  document.querySelectorAll('.langBtn').forEach(b=>{
+    b.classList.toggle('active', b.dataset.lang === currentLang);
+  });
+  dmMetroSetBtn();
+  const timerRunning = dmNewTimer.running;
+  ['dmNewTimerBtn','dmFsTimerBtn'].forEach(function(id){
+    const btn = document.getElementById(id);
+    if(btn) btn.textContent = timerRunning ? t('dm_stop') : t('dm_start');
+  });
+  renderDailyMin();
+  renderPushupRecords();
+  if(typeof renderReminderSlots === 'function' && document.getElementById('reminderSlots')) renderReminderSlots();
+}
+document.querySelectorAll('.langBtn').forEach(btn=>{
+  btn.addEventListener('click', function(){
+    currentLang = btn.dataset.lang;
+    try{ localStorage.setItem(LANG_KEY, currentLang); }catch(e){}
+    applyI18n();
+  });
+});
+
+// ---------- escapeHtml / czas / daty (identyczne z oryginału) ----------
+function escapeHtml(str){
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+function todayStr(){
+  const d = new Date();
+  const y = d.getFullYear(), m = String(d.getMonth()+1).padStart(2,'0'), day = String(d.getDate()).padStart(2,'0');
+  return `${y}-${m}-${day}`;
+}
+function nowTimeStr(){
+  const d = new Date();
+  return String(d.getHours()).padStart(2,'0') + ':' + String(d.getMinutes()).padStart(2,'0');
+}
+function dateKeyFromDate(d){
+  const y = d.getFullYear(), m = String(d.getMonth()+1).padStart(2,'0'), day = String(d.getDate()).padStart(2,'0');
+  return `${y}-${m}-${day}`;
+}
+
+// ---------- Wlasne dialogi (zamiast alert()) ----------
+let dialogResolver = null;
+function openDialog(message, title){
+  return new Promise(resolve=>{
+    dialogResolver = resolve;
+    document.getElementById('dialogTitle').textContent = title || t('alert_title');
+    document.getElementById('dialogMsg').textContent = message;
+    document.getElementById('dialogOk').textContent = t('dialog_ok');
+    document.getElementById('dialogOverlay').classList.add('visible');
+  });
+}
+function closeDialog(result){
+  document.getElementById('dialogOverlay').classList.remove('visible');
+  const r = dialogResolver;
+  dialogResolver = null;
+  if(r) r(result);
+}
+document.getElementById('dialogOk').addEventListener('click', ()=>closeDialog(true));
+function showAlert(message){ return openDialog(message); }
+
+function setStatus(text, kind){
+  const t2 = document.getElementById('statusToast');
+  if(!t2) return;
+  t2.textContent = text;
+  t2.className = 'visible' + (kind ? ' ' + kind : '');
+  clearTimeout(setStatus._t);
+  setStatus._t = setTimeout(()=>{ t2.className = ''; }, 2800);
+}
+
+// ---------- Trwaly zapis: WLASNY, niezalezny klucz localStorage ----------
+// Ta appka NIE dzieli danych z produkcyjnym Dziennikiem (treningLog_v1).
+const STORAGE_KEY = 'codziennyAtleta_v1';
+const BACKUP_KEY = 'codziennyAtleta_v1_bak';
+let DB = { dailyMin: {} };
+
+function storagePayload(){
+  return { version: 1, savedAt: new Date().toISOString(), DB, lang: currentLang };
+}
+function saveToStorage(){
+  const raw = JSON.stringify(storagePayload());
+  try{
+    localStorage.setItem(STORAGE_KEY, raw);
+    localStorage.setItem(BACKUP_KEY, raw);
+  }catch(e){
+    console.warn('Nie udalo sie zapisac lokalnie:', e);
+    try{ localStorage.setItem(BACKUP_KEY, raw); }catch(_e){}
+    setStatus('Uwaga: zapis lokalny pelny / zablokowany', 'err');
+    return false;
+  }
+  return true;
+}
+function applyLoadedData(data){
+  if(!data || typeof data !== 'object') return false;
+  if(data.DB && typeof data.DB === 'object'){
+    DB = { dailyMin: (data.DB.dailyMin && typeof data.DB.dailyMin === 'object') ? data.DB.dailyMin : {} };
+  }
+  return true;
+}
+function loadFromStorage(){
+  const keys = [STORAGE_KEY, BACKUP_KEY];
+  for(const key of keys){
+    let raw;
+    try{ raw = localStorage.getItem(key); }catch(e){ raw = null; }
+    if(!raw) continue;
+    try{
+      const data = JSON.parse(raw);
+      if(applyLoadedData(data)) return true;
+    }catch(e){
+      console.warn('Uszkodzone dane w', key, e);
+    }
+  }
+  return false;
+}
+if(!loadFromStorage()){
+  saveToStorage();
+} else {
+  saveToStorage();
+}
+
+// ---------- Dzienne minimum: dowolna liczba serii pompek kazdego dnia ----------
+// Wpis dnia: { series:[{reps, time, durationSec}, ...] } — 1:1 z oryginalu.
+function isDailyMinDone(v){
+  if(v === true) return true;
+  if(!v || typeof v !== 'object') return false;
+  if(Array.isArray(v.series)) return v.series.length >= 1;
+  return false;
+}
+
+function computeDailyMinStats(){
+  const map = DB.dailyMin || {};
+  const doneKeys = Object.keys(map).filter(k => isDailyMinDone(map[k]));
+  const doneSet = new Set(doneKeys);
+  const total = doneKeys.length;
+  const todayKey = todayStr();
+  const doneToday = doneSet.has(todayKey);
+
+  let combo = 0;
+  const cursor = new Date();
+  cursor.setHours(0,0,0,0);
+  if(!doneToday) cursor.setDate(cursor.getDate() - 1);
+  while(doneSet.has(dateKeyFromDate(cursor))){
+    combo++;
+    cursor.setDate(cursor.getDate() - 1);
+  }
+  return { total, combo, doneToday, todayKey, doneSet };
+}
+
+let calViewDate = new Date();
+
+function renderCalendar(stats){
+  const y = calViewDate.getFullYear(), m = calViewDate.getMonth();
+  document.getElementById('calMonthLabel').textContent = I18N[currentLang].months_full[m] + ' ' + y;
+
+  const startOffset = (new Date(y, m, 1).getDay() + 6) % 7; // tydzien od poniedzialku
+  const daysInMonth = new Date(y, m + 1, 0).getDate();
+  const daysInPrevMonth = new Date(y, m, 0).getDate();
+
+  const cells = [];
+  for(let i = 0; i < startOffset; i++){
+    cells.push(`<div class="calDay otherMonth">${daysInPrevMonth - startOffset + 1 + i}</div>`);
+  }
+  const map = DB.dailyMin || {};
+  for(let d = 1; d <= daysInMonth; d++){
+    const key = dateKeyFromDate(new Date(y, m, d));
+    const isDone = stats.doneSet.has(key);
+    const isToday = key === stats.todayKey;
+    const isFuture = key > stats.todayKey;
+    const dayCount = daySum(map[key]);
+    const cls = ['calDay'];
+    if(isDone) cls.push('done');
+    if(isToday) cls.push('today');
+    if(isFuture) cls.push('future');
+    const title = dayCount > 0 ? (key + ' — ' + dayCount) : key;
+    cells.push(`<div class="${cls.join(' ')}" title="${escapeHtml(title)}">${d}</div>`);
+  }
+  const trailing = (7 - ((startOffset + daysInMonth) % 7)) % 7;
+  for(let i = 1; i <= trailing; i++) cells.push(`<div class="calDay otherMonth">${i}</div>`);
+
+  document.getElementById('calGrid').innerHTML = cells.join('');
+}
+
+// Wpis dnia (nowy model): { series:[{reps, time, durationSec}, ...] }
+function todayEntry(){
+  return ensureDailyEntry(todayStr());
+}
+function ensureDailyEntry(key){
+  if(!DB.dailyMin) DB.dailyMin = {};
+  const existing = DB.dailyMin[key];
+  if(!existing || typeof existing !== 'object'){
+    DB.dailyMin[key] = { series: [], date: key };
+  } else if(!Array.isArray(existing.series)){
+    existing.series = [];
+  }
+  return DB.dailyMin[key];
+}
+function formatDmTime(sec){
+  const s = Math.max(0, Math.round(sec));
+  return String(Math.floor(s/60)).padStart(2,'0') + ':' + String(s%60).padStart(2,'0');
+}
+
+// Dodaje jedna serie pompek do dzisiejszego wpisu, z aktualna godzina.
+function addPushupSeries(reps, durationSec){
+  const n = Number(reps);
+  if(!n || n <= 0) return false;
+  const entry = todayEntry();
+  entry.series.push({ reps: n, time: nowTimeStr(), durationSec: durationSec || 0 });
+  saveToStorage();
+  return true;
+}
+function removePushupSeries(dateKey, idx){
+  const entry = DB.dailyMin && DB.dailyMin[dateKey];
+  if(!entry || !Array.isArray(entry.series)) return;
+  entry.series.splice(idx, 1);
+  saveToStorage();
+}
+
+// ===== Stoper nowej serii (opcjonalny) =====
+let dmNewTimer = { running:false, startedAt:0, interval:null, base:0 };
+function dmNewElapsed(){
+  return dmNewTimer.running ? dmNewTimer.base + Math.round((Date.now() - dmNewTimer.startedAt) / 1000) : dmNewTimer.base;
+}
+function dmToggleNewTimer(){
+  if(dmNewTimer.running){
+    dmNewTimer.base = dmNewElapsed();
+    clearInterval(dmNewTimer.interval);
+    dmNewTimer.running = false;
+    if(navigator.vibrate) navigator.vibrate(20);
+  } else {
+    dmNewTimer.startedAt = Date.now();
+    dmNewTimer.running = true;
+    dmMetroLastBeat = -1;
+    clearInterval(dmNewTimer.interval);
+    dmNewTimer.interval = setInterval(function(){
+      const time = formatDmTime(dmNewElapsed());
+      ['dmNewTime','dmFsTime'].forEach(function(id){ const el = document.getElementById(id); if(el) el.textContent = time; });
+      dmTapRingUpdate();
+      dmMetroTick();
+    }, 250);
+  }
+  const running = dmNewTimer.running;
+  ['dmNewTimerBtn','dmFsTimerBtn'].forEach(function(id){
+    const btn = document.getElementById(id);
+    if(btn){ btn.textContent = running ? t('dm_stop') : t('dm_start'); btn.classList.toggle('running', running); }
+  });
+}
+function dmResetNewTimer(){
+  clearInterval(dmNewTimer.interval);
+  dmNewTimer = { running:false, startedAt:0, interval:null, base:0 };
+  dmMetroLastBeat = -1;
+  const el = document.getElementById('dmNewTime'); if(el) el.textContent = '00:00';
+  const elFs = document.getElementById('dmFsTime'); if(elFs) elFs.textContent = '00:00';
+  ['dmNewTimerBtn','dmFsTimerBtn'].forEach(function(id){
+    const btn = document.getElementById(id); if(btn){ btn.textContent = t('dm_start'); btn.classList.remove('running'); }
+  });
+  dmTapCount = 0;
+  ['dmTapCount','dmFsCount','dmFsCount2'].forEach(function(id){ const el2 = document.getElementById(id); if(el2){ el2.textContent = '0'; el2.dataset.val = '0'; } });
+  dmTapRingUpdate();
+}
+
+// ===== Metronom tempa: cichy sygnal co 2,5s podczas liczenia serii =====
+const DM_METRO_INTERVAL_SEC = 2.5;
+let dmMetroOn = true;
+try{ dmMetroOn = localStorage.getItem('codziennyAtleta_metroOn') !== '0'; }catch(e){}
+let dmMetroLastBeat = -1;
+function dmMetroTick(){
+  if(!dmMetroOn) return;
+  const beat = Math.floor(dmNewElapsed() / DM_METRO_INTERVAL_SEC);
+  if(beat === dmMetroLastBeat || beat <= 0) return;
+  dmMetroLastBeat = beat;
+  try{
+    const Ctx = window.AudioContext || window.webkitAudioContext;
+    if(Ctx){
+      const ctx = new Ctx();
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.frequency.value = 660;
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      gain.gain.setValueAtTime(0.12, ctx.currentTime);
+      osc.start();
+      osc.stop(ctx.currentTime + 0.08);
+      osc.onended = ()=>ctx.close();
+    }
+  }catch(e){}
+  if(navigator.vibrate) navigator.vibrate(12);
+}
+function dmMetroSetBtn(){
+  const btn = document.getElementById('dmMetroBtn');
+  if(btn){ btn.classList.toggle('on', dmMetroOn); btn.textContent = dmMetroOn ? '🔔' : '🔕'; }
+}
+document.getElementById('dmMetroBtn').addEventListener('click', function(){
+  dmMetroOn = !dmMetroOn;
+  try{ localStorage.setItem('codziennyAtleta_metroOn', dmMetroOn ? '1' : '0'); }catch(e){}
+  dmMetroSetBtn();
+});
+
+// ===== Duze kolo dotykowe: kazde dotkniecie = +1 powtorzenie. =====
+let dmTapCount = 0;
+const DM_RING_CIRC = 339.3; // 2 * PI * 54
+function dmTapRingUpdate(){
+  const frac = (dmNewElapsed() % 60) / 60;
+  const offset = String(DM_RING_CIRC * (1 - frac));
+  ['dmTapRingFg','dmFsRingFg'].forEach(function(id){
+    const ring = document.getElementById(id); if(ring) ring.style.strokeDashoffset = offset;
+  });
+  dmLiveTempoUpdate();
+}
+let showTempoInFs = true;
+try{ showTempoInFs = localStorage.getItem('codziennyAtleta_showTempoFs') !== '0'; }catch(e){}
+function dmLiveTempoUpdate(){
+  const tt = dmTempoInfo(dmTapCount, dmNewElapsed());
+  const html = tt ? tt.label + ' <span class="sec">(' + t('tempo_secPerRep', {n: tt.perRep.toFixed(1)}) + ')</span>' : '';
+  const cls = 'dmTempo' + (tt ? ' ' + tt.cls : '');
+  ['dmNewTempo','dmFsTempo'].forEach(function(id){
+    const el = document.getElementById(id);
+    if(!el) return;
+    if(id === 'dmFsTempo' && !showTempoInFs){ el.className = 'dmTempo'; el.innerHTML = ''; return; }
+    el.className = cls; el.innerHTML = html;
+  });
+}
+function dmTap(){
+  dmTapCount++;
+  const inp = document.getElementById('dmNewReps');
+  if(inp) inp.value = String(dmTapCount);
+  ['dmTapCount','dmFsCount','dmFsCount2'].forEach(function(id){
+    const el = document.getElementById(id); if(el){ el.textContent = String(dmTapCount); el.dataset.val = String(dmTapCount); }
+  });
+  ['dmTapCircle','dmFsCircle'].forEach(function(id){
+    const circle = document.getElementById(id);
+    if(circle){ circle.classList.remove('pop'); void circle.offsetWidth; circle.classList.add('pop'); }
+  });
+  ['dmTapCount','dmFsCount'].forEach(function(id){
+    const el = document.getElementById(id);
+    if(el){ el.classList.remove('jump'); void el.offsetWidth; el.classList.add('jump'); }
+  });
+  if(navigator.vibrate) navigator.vibrate(15);
+  if(!dmNewTimer.running) dmToggleNewTimer(); // pierwsze dotkniecie samo startuje stoper
+  dmLiveTempoUpdate();
+}
+document.getElementById('dmTapCircle').addEventListener('click', dmTap);
+// Cala przestrzen ekranu w trybie pelnoekranowym liczy dotkniecie (nie tylko sam okrag) —
+// przy szybkim tempie (np. 20 pompek w 5s) uzytkownik nie trafia precyzyjnie w mniejszy przycisk.
+// pointerdown zamiast click: nizsza latencja, lepiej lapie bardzo szybkie kolejne dotkniecia.
+// Dwie niezalezne sciezki wykrywania dotkniecia (pointerdown + touchstart) z krotkim oknem
+// odrzucenia duplikatu — na czesci Androidow/WebView jedna z nich bywa opozniona lub w ogole
+// nie odpala przy bardzo krotkim/lekkim dotknieciu (np. nosem), druga to zawsze zlapie.
+let dmLastTapAt = 0;
+function dmHandleFsTouch(e){
+  if(e.target.closest('.dmFsClose, .dmFsPanel, .dmFsBtnRow, .dmFsSaveBtn')) return;
+  e.preventDefault();
+  const now = Date.now();
+  if(now - dmLastTapAt < 60) return; // odrzucenie duplikatu tego samego fizycznego dotkniecia
+  dmLastTapAt = now;
+  dmTap();
+}
+document.getElementById('dmFsOverlay').addEventListener('pointerdown', dmHandleFsTouch);
+document.getElementById('dmFsOverlay').addEventListener('touchstart', dmHandleFsTouch, { passive:false });
+document.getElementById('dmFsTimerBtn').addEventListener('click', dmToggleNewTimer);
+// Przelot linii skanujacej przy kazdej zmianie ekranu — spojny sygnal "cos sie przelacza".
+function runScanSweep(){
+  const el = document.getElementById('scanSweep');
+  el.classList.remove('run');
+  void el.offsetWidth;
+  el.classList.add('run');
+}
+function openFullscreenSet(){
+  document.getElementById('dmFsOverlay').classList.add('on');
+  runScanSweep();
+}
+document.getElementById('dmFsOpenBtn').addEventListener('click', openFullscreenSet);
+
+// ---------- Ustawienia — zawsze dostępne w prawym górnym rogu ----------
+document.getElementById('globalSettingsBtn').addEventListener('click', function(){
+  document.getElementById('settingsOverlay').classList.add('on');
+});
+document.getElementById('settingsCloseBtn').addEventListener('click', function(){
+  document.getElementById('settingsOverlay').classList.remove('on');
+});
+const settingsTempoToggle = document.getElementById('settingsTempoToggle');
+settingsTempoToggle.classList.toggle('on', showTempoInFs);
+settingsTempoToggle.setAttribute('aria-checked', String(showTempoInFs));
+settingsTempoToggle.addEventListener('click', function(){
+  showTempoInFs = !showTempoInFs;
+  try{ localStorage.setItem('codziennyAtleta_showTempoFs', showTempoInFs ? '1' : '0'); }catch(e){}
+  settingsTempoToggle.classList.toggle('on', showTempoInFs);
+  settingsTempoToggle.setAttribute('aria-checked', String(showTempoInFs));
+  dmLiveTempoUpdate();
+});
+
+// ---------- Przypomnienia — 2 konfigurowalne godziny + Notification API ----------
+const REMIND_KEY = 'codziennyAtleta_reminders';
+const REMIND_DEFAULT = [
+  { id: 'r1', enabled: false, time: '09:00', lastDate: '' },
+  { id: 'r2', enabled: false, time: '18:00', lastDate: '' }
+];
+function loadReminders(){
+  try{
+    const raw = localStorage.getItem(REMIND_KEY);
+    if(!raw) return REMIND_DEFAULT.map(function(s){ return Object.assign({}, s); });
+    const parsed = JSON.parse(raw);
+    if(!Array.isArray(parsed) || parsed.length !== REMIND_DEFAULT.length) return REMIND_DEFAULT.map(function(s){ return Object.assign({}, s); });
+    return parsed;
+  }catch(e){ return REMIND_DEFAULT.map(function(s){ return Object.assign({}, s); }); }
+}
+let reminderSlots = loadReminders();
+function saveReminders(){
+  try{ localStorage.setItem(REMIND_KEY, JSON.stringify(reminderSlots)); }catch(e){}
+}
+let remindersMasterOn = false;
+try{ remindersMasterOn = localStorage.getItem('codziennyAtleta_remindersOn') === '1'; }catch(e){}
+
+function renderReminderSlots(){
+  const wrap = document.getElementById('reminderSlots');
+  wrap.innerHTML = reminderSlots.map(function(slot, i){
+    return '<div class="reminderRow">' +
+      '<span class="reminderLbl">' + t('settings_reminderN', { n: i + 1 }) + '</span>' +
+      '<input type="time" value="' + slot.time + '" data-slot="' + slot.id + '" ' + (remindersMasterOn ? '' : 'disabled') + '>' +
+      '<button type="button" class="toggleSwitch' + (slot.enabled ? ' on' : '') + '" data-slot-toggle="' + slot.id + '" role="switch" aria-checked="' + slot.enabled + '"' + (remindersMasterOn ? '' : ' disabled') + '></button>' +
+    '</div>';
+  }).join('');
+  wrap.querySelectorAll('input[type=time]').forEach(function(inp){
+    inp.addEventListener('change', function(){
+      const slot = reminderSlots.find(function(s){ return s.id === inp.dataset.slot; });
+      if(slot){ slot.time = inp.value; saveReminders(); }
+    });
+  });
+  wrap.querySelectorAll('[data-slot-toggle]').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      const slot = reminderSlots.find(function(s){ return s.id === btn.dataset.slotToggle; });
+      if(!slot) return;
+      slot.enabled = !slot.enabled;
+      saveReminders();
+      renderReminderSlots();
+    });
+  });
+}
+renderReminderSlots();
+
+const remindersMasterToggle = document.getElementById('remindersMasterToggle');
+remindersMasterToggle.classList.toggle('on', remindersMasterOn);
+remindersMasterToggle.setAttribute('aria-checked', String(remindersMasterOn));
+remindersMasterToggle.addEventListener('click', function(){
+  if(!remindersMasterOn){
+    if(typeof Notification === 'undefined'){
+      showAlert(t('settings_notifUnsupported'));
+      return;
+    }
+    Notification.requestPermission().then(function(perm){
+      if(perm === 'granted'){
+        remindersMasterOn = true;
+        try{ localStorage.setItem('codziennyAtleta_remindersOn', '1'); }catch(e){}
+      } else {
+        showAlert(t('settings_notifDenied'));
+      }
+      remindersMasterToggle.classList.toggle('on', remindersMasterOn);
+      remindersMasterToggle.setAttribute('aria-checked', String(remindersMasterOn));
+      renderReminderSlots();
+    });
+  } else {
+    remindersMasterOn = false;
+    try{ localStorage.setItem('codziennyAtleta_remindersOn', '0'); }catch(e){}
+    remindersMasterToggle.classList.remove('on');
+    remindersMasterToggle.setAttribute('aria-checked', 'false');
+    renderReminderSlots();
+  }
+});
+
+function checkReminders(){
+  if(!remindersMasterOn) return;
+  if(typeof Notification === 'undefined' || Notification.permission !== 'granted') return;
+  const now = new Date();
+  const hhmm = String(now.getHours()).padStart(2,'0') + ':' + String(now.getMinutes()).padStart(2,'0');
+  const today = todayStr();
+  let changed = false;
+  reminderSlots.forEach(function(slot){
+    if(slot.enabled && slot.time === hhmm && slot.lastDate !== today){
+      slot.lastDate = today;
+      changed = true;
+      try{
+        new Notification(t('appTitle'), { body: t('settings_notifBody'), icon: 'icon_192.png', tag: 'codzienny-atleta-' + slot.id });
+      }catch(e){}
+    }
+  });
+  if(changed) saveReminders();
+}
+setInterval(checkReminders, 60000);
+
+// ---------- Kopia zapasowa: eksport/import JSON ----------
+document.getElementById('settingsExportBtn').addEventListener('click', function(){
+  try{
+    const blob = new Blob([JSON.stringify(storagePayload(), null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'codzienny-atleta-backup.json';
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(function(){ URL.revokeObjectURL(url); }, 2000);
+  }catch(e){ showAlert(t('settings_exportError')); }
+});
+document.getElementById('settingsImportBtn').addEventListener('click', function(){
+  document.getElementById('settingsImportInput').click();
+});
+document.getElementById('settingsImportInput').addEventListener('change', function(e){
+  const file = e.target.files && e.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = function(){
+    try{
+      const data = JSON.parse(String(reader.result));
+      if(applyLoadedData(data)){
+        saveToStorage();
+        renderDailyMin();
+        renderPushupRecords();
+        setStatus(t('settings_importOk'), 'ok');
+      } else {
+        showAlert(t('settings_importError'));
+      }
+    }catch(err){ showAlert(t('settings_importError')); }
+    e.target.value = '';
+  };
+  reader.readAsText(file);
+});
+
+// ---------- PWA: rejestracja service workera (dziala po wdrozeniu na serwer; w podglądzie Artifact brak wsparcia — bezpiecznie ignorowane) ----------
+// Unikalny query przy rejestracji + logika w sw.js wymuszaja zawsze najnowsza wersje (obejscie cache CDN Hostingera).
+if('serviceWorker' in navigator){
+  window.addEventListener('load', function(){
+    navigator.serviceWorker.register('sw.js?v=' + Date.now()).catch(function(){});
+  });
+}
+
+// ---------- Powrót do ekranu wyboru ----------
+document.getElementById('backBtn').addEventListener('click', showIntroChoice);
+
+// ---------- Trzy kafelki nawigacyjne pod "Zrob pompki" — Tempo / Rekordy / Statystyki ----------
+function openSubScreen(id){
+  document.getElementById(id).classList.add('on');
+  runScanSweep();
+}
+function closeSubScreen(id){
+  document.getElementById(id).classList.remove('on');
+  runScanSweep();
+}
+document.getElementById('navTempoBtn').addEventListener('click', function(){ openSubScreen('tempoOverlay'); });
+document.getElementById('navRecordsBtn').addEventListener('click', function(){ openSubScreen('recordsOverlay'); });
+document.getElementById('navStatsBtn').addEventListener('click', function(){ openSubScreen('statsOverlay'); });
+document.getElementById('tempoBackBtn').addEventListener('click', function(){ closeSubScreen('tempoOverlay'); });
+document.getElementById('recordsBackBtn').addEventListener('click', function(){ closeSubScreen('recordsOverlay'); });
+document.getElementById('statsBackBtn').addEventListener('click', function(){ closeSubScreen('statsOverlay'); });
+document.getElementById('dmFsCloseBtn').addEventListener('click', function(){
+  document.getElementById('dmFsOverlay').classList.remove('on');
+  runScanSweep();
+});
+document.getElementById('dmNewReps').addEventListener('input', function(e){
+  const n = Number(e.target.value) || 0;
+  dmTapCount = n;
+  ['dmTapCount','dmFsCount','dmFsCount2'].forEach(function(id){ const el = document.getElementById(id); if(el){ el.textContent = String(n); el.dataset.val = String(n); } });
+  dmLiveTempoUpdate();
+});
+
+// Zapisuje serie z formularza (karta lub tryb pelnoekranowy).
+function saveNewSeriesFromForm(){
+  const inp = document.getElementById('dmNewReps');
+  const n = Number(inp && inp.value);
+  if(!n || n <= 0){ showAlert(t('alert_needReps')); return false; }
+  addPushupSeries(n, dmNewElapsed());
+  if(inp) inp.value = '';
+  dmResetNewTimer();
+  renderDailyMin();
+  setStatus(t('status_seriesSaved'), 'ok');
+  return true;
+}
+document.getElementById('dmNewTimerBtn').addEventListener('click', dmToggleNewTimer);
+document.getElementById('dmSaveSeriesBtn').addEventListener('click', saveNewSeriesFromForm);
+document.getElementById('dmFsSaveBtn').addEventListener('click', function(){
+  if(saveNewSeriesFromForm()) document.getElementById('dmFsCloseBtn').click();
+});
+
+// Tempo = czas serii / liczba powtorzen. <1s/powt. — zle wykonanie (ZWOLNIJ);
+// ~2s — optymalne; ~3s — bardzo dobre; ~5s+ — atleta. Progi identyczne z oryginalu.
+function dmTempoInfo(reps, durationSec){
+  const n = Number(reps), sec = Number(durationSec);
+  if(!n || n <= 0 || !sec || sec <= 0) return null;
+  const perRep = sec / n;
+  let cls, label;
+  if(perRep < 1){ cls = 'err'; label = t('tempo_slow'); }
+  else if(perRep < 2.5){ cls = 'warn'; label = t('tempo_optimal'); }
+  else if(perRep < 4){ cls = 'ok'; label = t('tempo_good'); }
+  else { cls = 'elite'; label = t('tempo_elite'); }
+  return { perRep: perRep, cls: cls, label: label };
+}
+function renderDmSeries(){
+  const wrap = document.getElementById('dmSeries');
+  if(!wrap) return;
+  const entry = todayEntry();
+  if(entry.series.length === 0){
+    wrap.innerHTML = '<div class="dmLogEmpty">' + escapeHtml(t('dm_logEmpty')) + '</div>';
+    return;
+  }
+  const key = todayStr();
+  wrap.innerHTML = '<div class="dmLogList">' + entry.series.map((s, i)=>{
+    const tt = dmTempoInfo(s.reps, s.durationSec);
+    const tempoHtml = tt ? '<div class="dmLogTempo ' + tt.cls + '">' + escapeHtml(tt.label) + ' <span class="sec">(' + t('tempo_secPerRep', {n: tt.perRep.toFixed(1)}) + ')</span></div>' : '';
+    return '<div class="dmLogRow stepSlide go" style="animation-delay:' + (Math.min(i,10)*.05) + 's"><span class="dmLogTime">' + escapeHtml(s.time || '—') + '</span>' +
+    '<span class="dmLogBody"><span class="dmLogReps">' + escapeHtml(t('dm_seriesLabel', {n: i+1, reps: s.reps})) + '</span>' + tempoHtml + '</span>' +
+    '<button type="button" class="dmLogDel" data-dm-del="' + i + '" aria-label="' + escapeHtml(t('dm_seriesDelAria', {n: i+1})) + '">✕</button></div>';
+  }).join('') + '</div>';
+  wrap.querySelectorAll('[data-dm-del]').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      removePushupSeries(key, Number(btn.dataset.dmDel));
+      renderDailyMin();
+    });
+  });
+}
+
+// Poniedzialek biezacego tygodnia.
+function mondayOfWeek(date){
+  const x = new Date(date);
+  x.setHours(0,0,0,0);
+  const dow = (x.getDay() + 6) % 7;
+  x.setDate(x.getDate() - dow);
+  return x;
+}
+function daySum(entry){
+  if(!entry || typeof entry !== 'object') return 0;
+  let sum = 0;
+  if(Array.isArray(entry.series)){
+    entry.series.forEach(s=>{ const n = Number(s && s.reps); if(!isNaN(n) && n > 0) sum += n; });
+  }
+  return sum;
+}
+function sumPushups(fromDate, toDate){
+  const map = DB.dailyMin || {};
+  const fromKey = dateKeyFromDate(fromDate);
+  const toKey = dateKeyFromDate(toDate);
+  let sum = 0, days = 0;
+  Object.keys(map).forEach(k=>{
+    if(k < fromKey || k > toKey) return;
+    const d = daySum(map[k]);
+    if(d > 0){ sum += d; days++; }
+  });
+  return { sum, days };
+}
+function renderPushupTotals(){
+  const today = new Date();
+  today.setHours(0,0,0,0);
+  const todaySum = sumPushups(today, today).sum;
+  const week = sumPushups(mondayOfWeek(today), today);
+  const monthStart = new Date(today.getFullYear(), today.getMonth(), 1);
+  const month = sumPushups(monthStart, today);
+  const prevMonthDate = new Date(today.getFullYear(), today.getMonth() - 1, 1);
+  const prevMonthStart = new Date(prevMonthDate.getFullYear(), prevMonthDate.getMonth(), 1);
+  const prevMonthEnd = new Date(prevMonthDate.getFullYear(), prevMonthDate.getMonth() + 1, 0);
+  const prevMonth = sumPushups(prevMonthStart, prevMonthEnd);
+
+  const elT = document.getElementById('pushToday');
+  const elW = document.getElementById('pushWeek');
+  const elM = document.getElementById('pushMonth');
+  const elPM = document.getElementById('pushPrevMonth');
+  const elHeroT = document.getElementById('heroPushToday');
+  const elHeroW = document.getElementById('heroPushWeek');
+  if(elT) elT.textContent = todaySum;
+  if(elHeroT) elHeroT.textContent = todaySum;
+  if(elHeroW) elHeroW.textContent = week.sum;
+  if(elW) elW.textContent = week.sum;
+  if(elM) elM.textContent = month.sum;
+  if(elPM) elPM.textContent = prevMonth.sum;
+  const subW = document.getElementById('pushWeekSub');
+  const subM = document.getElementById('pushMonthSub');
+  const subPM = document.getElementById('pushPrevMonthSub');
+  if(subW) subW.textContent = tPlural('stat_days_one','stat_days_many', week.days, {n: week.days});
+  if(subM) subM.textContent = I18N[currentLang].months_full[today.getMonth()].toLowerCase() + ' · ' +
+    tPlural('unit_day_one','unit_day_many', month.days, {}).replace(/^/, month.days + ' ');
+  if(subPM) subPM.textContent = I18N[currentLang].months_full[prevMonthDate.getMonth()].toLowerCase() + ' · ' +
+    tPlural('unit_day_one','unit_day_many', prevMonth.days, {}).replace(/^/, prevMonth.days + ' ');
+}
+
+// ---------- Karta wyniku do udostepnienia (dzisiaj / w tym tygodniu) ----------
+// Animacja wejscia banerow — maszyna do pisania + mrugajacy kursor (wariant nr 7 z picker-a).
+// Tylko na podgladzie na ekranie — wygenerowany PNG do udostepnienia ma zawsze pelny, gotowy tekst.
+function dmTypewriterLine(el, text, speed){
+  return new Promise(function(resolve){
+    let i = 0;
+    el.textContent = '';
+    const iv = setInterval(function(){
+      i++;
+      el.textContent = text.slice(0, i) + (i < text.length ? '▌' : '');
+      if(i >= text.length){ clearInterval(iv); resolve(); }
+    }, speed);
+  });
+}
+function dmAnimateShareBanners(){
+  const l1 = document.getElementById('shareBannerLine1');
+  const l2 = document.getElementById('shareBannerLine2');
+  if(!l1.dataset.full) l1.dataset.full = l1.textContent;
+  if(!l2.dataset.full) l2.dataset.full = l2.textContent;
+  l1.textContent = ''; l2.textContent = '';
+  setTimeout(function(){
+    dmTypewriterLine(l1, l1.dataset.full, 55).then(function(){
+      return dmTypewriterLine(l2, l2.dataset.full, 55);
+    });
+  }, 350);
+}
+function openShareCard(kind){
+  const today = new Date(); today.setHours(0,0,0,0);
+  const val = kind === 'week' ? sumPushups(mondayOfWeek(today), today).sum : sumPushups(today, today).sum;
+  const lbl = t(kind === 'week' ? 'share_weekLbl' : 'share_todayLbl');
+  document.getElementById('shareBigNum').textContent = val;
+  document.getElementById('shareLbl').textContent = lbl;
+  document.getElementById('shareDate').textContent = today.toLocaleDateString(currentLang === 'pl' ? 'pl-PL' : 'en-US', {day:'numeric', month:'long', year:'numeric'});
+  document.getElementById('shareOverlay').classList.add('on');
+  dmAnimateShareBanners();
+  runScanSweep();
+}
+document.getElementById('heroStatToday').addEventListener('click', function(){ openShareCard('today'); });
+document.getElementById('heroStatWeek').addEventListener('click', function(){ openShareCard('week'); });
+document.getElementById('shareCloseBtn').addEventListener('click', function(){
+  document.getElementById('shareOverlay').classList.remove('on');
+});
+
+// Renderuje karte wyniku jako PNG na canvasie 1080x1350 (format 4:5, gotowy pod Instagram/WhatsApp),
+// zeby "Udostepnij" wysylalo prawdziwy obrazek karty, a nie sam tekst.
+let dmShareBgImg = null;
+function dmLoadShareBg(){
+  if(dmShareBgImg) return Promise.resolve(dmShareBgImg);
+  return new Promise(function(resolve){
+    const img = new Image();
+    img.onload = function(){ dmShareBgImg = img; resolve(img); };
+    img.onerror = function(){ resolve(null); };
+    img.src = 'assets/splash-bg.jpg';
+  });
+}
+// Rysuje jeden "poszarpany" czerwony baner (jak grungeBanner w CSS) z tekstem na canvasie.
+function drawGrungeBanner(ctx, cx, cy, text, angleDeg){
+  ctx.save();
+  ctx.translate(cx, cy);
+  ctx.rotate(angleDeg * Math.PI / 180);
+  ctx.font = "800 46px 'Barlow Condensed', sans-serif";
+  const padX = 42, padY = 20;
+  const tw = ctx.measureText(text.toUpperCase()).width;
+  const bw = tw + padX * 2, bh = 46 + padY * 2;
+  ctx.fillStyle = '#C81E2C';
+  ctx.shadowColor = 'rgba(0,0,0,.55)';
+  ctx.shadowBlur = 24;
+  ctx.shadowOffsetY = 10;
+  ctx.beginPath();
+  ctx.moveTo(-bw/2 + bw*0.01, -bh/2 + bh*0.14);
+  ctx.lineTo(-bw/2 + bw*0.11, -bh/2);
+  ctx.lineTo(bw/2 - bw*0.09, -bh/2 + bh*0.05);
+  ctx.lineTo(bw/2, -bh/2 + bh*0.20);
+  ctx.lineTo(bw/2 - bw*0.02, bh/2 - bh*0.20);
+  ctx.lineTo(bw/2 - bw*0.11, bh/2);
+  ctx.lineTo(-bw/2 + bw*0.09, bh/2 - bh*0.05);
+  ctx.lineTo(-bw/2, bh/2 - bh*0.24);
+  ctx.closePath();
+  ctx.fill();
+  ctx.shadowBlur = 0; ctx.shadowOffsetY = 0;
+  ctx.fillStyle = '#fff';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText(text.toUpperCase(), 0, 2);
+  ctx.restore();
+}
+function renderShareCardPng(){
+  const W = 1080, H = 1920;
+  const canvas = document.createElement('canvas');
+  canvas.width = W; canvas.height = H;
+  const ctx = canvas.getContext('2d');
+  return Promise.all([dmLoadShareBg(), document.fonts.ready]).then(function(res){
+    const img = res[0];
+    ctx.fillStyle = '#101014';
+    ctx.fillRect(0, 0, W, H);
+    if(img){
+      const scale = Math.max(W / img.width, H / img.height);
+      const iw = img.width * scale, ih = img.height * scale;
+      ctx.drawImage(img, (W - iw) / 2, 0, iw, ih);
+    }
+    const grad = ctx.createLinearGradient(0, 0, 0, H);
+    grad.addColorStop(0, 'rgba(10,10,12,.32)');
+    grad.addColorStop(0.55, 'rgba(10,10,12,.82)');
+    grad.addColorStop(1, 'rgba(10,10,12,.97)');
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, W, H);
+
+    ctx.strokeStyle = '#C81E2C';
+    ctx.lineWidth = 4;
+    ctx.strokeRect(10, 10, W - 20, H - 20);
+    const cl = 50;
+    ctx.beginPath();
+    [[28,28,1,1],[W-28,28,-1,1],[28,H-28,1,-1],[W-28,H-28,-1,-1]].forEach(function(c){
+      ctx.moveTo(c[0], c[1] + cl*c[3]);
+      ctx.lineTo(c[0], c[1]);
+      ctx.lineTo(c[0] + cl*c[2], c[1]);
+    });
+    ctx.stroke();
+
+    const cx = W / 2;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'alphabetic';
+    ctx.fillStyle = '#E8394A';
+    ctx.font = "800 32px 'JetBrains Mono', monospace";
+    ctx.fillText('🔥 CODZIENNY ATLETA', cx, 300);
+
+    ctx.fillStyle = '#fff';
+    ctx.shadowColor = 'rgba(200,30,44,.75)';
+    ctx.shadowBlur = 46;
+    ctx.font = "400 380px 'Anton', Impact, sans-serif";
+    ctx.fillText(document.getElementById('shareBigNum').textContent, cx, 780);
+    ctx.shadowBlur = 0;
+
+    ctx.fillStyle = '#C8C8CC';
+    ctx.font = "700 46px 'Barlow Condensed', sans-serif";
+    ctx.fillText(document.getElementById('shareLbl').textContent.toUpperCase(), cx, 880);
+
+    const bl1 = document.getElementById('shareBannerLine1'), bl2 = document.getElementById('shareBannerLine2');
+    drawGrungeBanner(ctx, cx, 1010, bl1.dataset.full || bl1.textContent, -1.4);
+    drawGrungeBanner(ctx, cx, 1110, bl2.dataset.full || bl2.textContent, -1.4);
+
+    ctx.fillStyle = '#7A7A85';
+    ctx.font = "400 28px 'JetBrains Mono', monospace";
+    ctx.fillText(document.getElementById('shareDate').textContent, cx, 1220);
+
+    ctx.fillStyle = '#7A7A85';
+    ctx.font = "400 26px 'Barlow Condensed', sans-serif";
+    ctx.fillText(t('share_tagline'), cx, 1840);
+
+    return new Promise(function(resolve){ canvas.toBlob(resolve, 'image/png', 0.95); });
+  });
+}
+document.getElementById('shareBtn').addEventListener('click', function(){
+  const btn = document.getElementById('shareBtn');
+  const num = document.getElementById('shareBigNum').textContent;
+  const lbl = document.getElementById('shareLbl').textContent;
+  const text = '🔥 ' + num + ' — ' + lbl + '. ' + t('share_tagline');
+  const prevLabel = btn.textContent;
+  btn.disabled = true;
+  renderShareCardPng().then(function(blob){
+    btn.disabled = false; btn.textContent = prevLabel;
+    if(!blob) throw new Error('no-blob');
+    const file = new File([blob], 'codzienny-atleta-wynik.png', { type: 'image/png' });
+    if(navigator.canShare && navigator.canShare({ files: [file] })){
+      return navigator.share({ files: [file], text: text, title: 'Codzienny Atleta' }).catch(function(){});
+    }
+    if(navigator.share){
+      return navigator.share({ text: text, title: 'Codzienny Atleta' }).catch(function(){});
+    }
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = 'codzienny-atleta-wynik.png';
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(function(){ URL.revokeObjectURL(url); }, 4000);
+  }).catch(function(){
+    btn.disabled = false; btn.textContent = prevLabel;
+    if(navigator.share){
+      navigator.share({ text: text, title: 'Codzienny Atleta' }).catch(function(){});
+    }
+  });
+});
+
+const DM_WEEKDAY_KEY = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+function renderDmWeekBars(){
+  const wrap = document.getElementById('dmWeekBars');
+  if(!wrap) return;
+  const today = new Date(); today.setHours(0,0,0,0);
+  const monday = mondayOfWeek(today);
+  const todayKey = todayStr();
+  const days = [];
+  for(let i = 0; i < 7; i++){
+    const d = new Date(monday); d.setDate(d.getDate() + i);
+    days.push({ key: dateKeyFromDate(d), lbl: I18N[currentLang].cal_weekdays[i], sum: daySum(DB.dailyMin && DB.dailyMin[dateKeyFromDate(d)]), future: dateKeyFromDate(d) > todayKey });
+  }
+  const max = Math.max(1, ...days.map(x=>x.sum));
+  wrap.innerHTML = days.map(x=>
+    '<div class="dmStatBarRow' + (x.key === todayKey ? ' today' : '') + '">' +
+      '<span class="dmStatBarVal">' + (x.future ? '—' : x.sum) + '</span>' +
+      '<span class="dmStatBarTrack"><span class="dmStatBarFill" style="height:' + (x.future ? 0 : Math.round(x.sum / max * 100)) + '%"></span></span>' +
+      '<span class="dmStatBarLbl">' + escapeHtml(x.lbl) + '</span>' +
+    '</div>'
+  ).join('');
+}
+function renderDmMonthBars(){
+  const wrap = document.getElementById('dmMonthBars');
+  if(!wrap) return;
+  const today = new Date(); today.setHours(0,0,0,0);
+  const monthStart = new Date(today.getFullYear(), today.getMonth(), 1);
+  const monthEnd = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+  const weeks = [];
+  let cursor = mondayOfWeek(monthStart);
+  let weekNum = 1;
+  while(cursor <= monthEnd){
+    const weekEnd = new Date(cursor); weekEnd.setDate(weekEnd.getDate() + 6);
+    const sumFrom = cursor < monthStart ? monthStart : cursor;
+    const sumToRaw = weekEnd > monthEnd ? monthEnd : weekEnd;
+    const sumTo = sumToRaw > today ? today : sumToRaw;
+    const future = cursor > today;
+    const sum = (!future && sumTo >= sumFrom) ? sumPushups(sumFrom, sumTo).sum : 0;
+    const isCurrent = today >= cursor && today <= weekEnd;
+    weeks.push({ lbl: t('stats_weekN', { n: weekNum }), sum: sum, isCurrent: isCurrent, future: future });
+    weekNum++;
+    const next = new Date(cursor); next.setDate(next.getDate() + 7);
+    cursor = next;
+  }
+  const max = Math.max(1, ...weeks.map(x=>x.sum));
+  wrap.innerHTML = weeks.map(x=>
+    '<div class="dmStatBarRow' + (x.isCurrent ? ' today' : '') + '">' +
+      '<span class="dmStatBarVal">' + (x.future ? '—' : x.sum) + '</span>' +
+      '<span class="dmStatBarTrack"><span class="dmStatBarFill" style="height:' + (x.future ? 0 : Math.round(x.sum / max * 100)) + '%"></span></span>' +
+      '<span class="dmStatBarLbl">' + escapeHtml(x.lbl) + '</span>' +
+    '</div>'
+  ).join('');
+}
+function renderDailyMin(){
+  const stats = computeDailyMinStats();
+  document.getElementById('dailyMinCombo').textContent = stats.combo;
+  document.getElementById('dailyMinComboLbl').textContent = tPlural('dm_comboLbl_one','dm_comboLbl_many', stats.combo);
+  document.getElementById('dailyMinTotal').textContent = stats.total;
+  renderCalendar(stats);
+  renderPushupTotals();
+  renderDmWeekBars();
+  renderDmMonthBars();
+  renderDmSeries();
+}
+
+document.getElementById('calPrevBtn').addEventListener('click', ()=>{
+  calViewDate.setMonth(calViewDate.getMonth() - 1);
+  renderCalendar(computeDailyMinStats());
+});
+document.getElementById('calNextBtn').addEventListener('click', ()=>{
+  calViewDate.setMonth(calViewDate.getMonth() + 1);
+  renderCalendar(computeDailyMinStats());
+});
+
+// ---------- Rekordy pompkowe (z calej historii Codziennego minimum) ----------
+function computePushupRecords(){
+  const map = DB.dailyMin || {};
+  let bestSeries = null, bestTempo = null, bestDay = null;
+  Object.keys(map).forEach(key=>{
+    const entry = map[key];
+    const dayTotal = daySum(entry);
+    if(dayTotal > 0 && (!bestDay || dayTotal > bestDay.sum)) bestDay = { sum: dayTotal, date: key };
+    if(Array.isArray(entry.series)){
+      entry.series.forEach(s=>{
+        const reps = Number(s.reps) || 0;
+        if(reps > 0 && (!bestSeries || reps > bestSeries.reps)) bestSeries = { reps: reps, date: key };
+        const dur = Number(s.durationSec) || 0;
+        if(reps > 0 && dur > 0){
+          const perRep = dur / reps;
+          if(!bestTempo || perRep > bestTempo.perRep) bestTempo = { perRep: perRep, reps: reps, date: key };
+        }
+      });
+    }
+  });
+  const doneKeys = Object.keys(map).filter(k => isDailyMinDone(map[k])).sort();
+  let longestStreak = 0, curStreak = 0, prevDate = null;
+  doneKeys.forEach(k=>{
+    const d = new Date(k + 'T00:00:00');
+    curStreak = (prevDate && Math.round((d - prevDate) / 86400000) === 1) ? curStreak + 1 : 1;
+    if(curStreak > longestStreak) longestStreak = curStreak;
+    prevDate = d;
+  });
+  return { bestSeries, bestTempo, bestDay, longestStreak };
+}
+function renderPushupRecords(){
+  const wrap = document.getElementById('pushupRecords');
+  if(!wrap) return;
+  const r = computePushupRecords();
+  if(!r.bestSeries && !r.bestDay && !(r.longestStreak > 0)){
+    wrap.innerHTML = '<div class="archiveEmpty">' + escapeHtml(t('records_empty')) + '</div>';
+    return;
+  }
+  const dayUnit = tPlural('unit_day_one','unit_day_many', r.longestStreak);
+  const items = [
+    { ico: '💪', lbl: t('rec_longestSeries'), val: r.bestSeries ? r.bestSeries.reps + ' ' + t('unit_reps') : '—', sub: r.bestSeries ? r.bestSeries.date : '' },
+    { ico: '🔥', lbl: t('rec_bestDay'), val: r.bestDay ? r.bestDay.sum + ' ' + t('unit_reps') : '—', sub: r.bestDay ? r.bestDay.date : '' },
+    { ico: '⭐', lbl: t('rec_bestTempo'), val: r.bestTempo ? t('tempo_secPerRep', {n: r.bestTempo.perRep.toFixed(1)}) : '—', sub: r.bestTempo ? (r.bestTempo.reps + ' ' + t('unit_reps') + ' · ' + r.bestTempo.date) : '', accent: true },
+    { ico: '📅', lbl: t('rec_longestCombo'), val: r.longestStreak > 0 ? r.longestStreak + ' ' + dayUnit : '—', sub: '' }
+  ];
+  wrap.innerHTML = '<div class="recShowcase">' +
+    items.map(function(it){
+      return '<div class="recCard' + (it.accent ? ' accent' : '') + '">' +
+        '<span class="recCardIco">' + it.ico + '</span>' +
+        '<div class="recCardLbl">' + escapeHtml(it.lbl) + '</div>' +
+        '<div class="recCardVal">' + escapeHtml(it.val) + '</div>' +
+        (it.sub ? '<div class="recCardSub">' + escapeHtml(it.sub) + '</div>' : '') +
+      '</div>';
+    }).join('') +
+  '</div>';
+}
+
+// ---------- Ekran startowy: splash (czeka na dotknięcie) → wybór trybu ----------
+// Odwzorowane 1:1 z Dziennika (tam: Elitarny Atleta) — na razie tylko "Codzienne minimum"
+// jest aktywne, pozostałe dwie ikonki (trening / Atlas) są ukryte do czasu, aż appka
+// urośnie o te tryby — patrz .futureHidden w CSS.
+let splashHiding = false;
+
+function hideSplash(){
+  if(splashHiding) return;
+  splashHiding = true;
+  const el = document.getElementById('splashScreen');
+  el.classList.add('hide');
+  setTimeout(()=>{ el.style.display = 'none'; splashHiding = false; }, 500);
+  showIntroChoice();
+}
+document.getElementById('splashScreen').addEventListener('click', hideSplash);
+
+// Klik w naglowek "Codzienny Atleta" na ekranie wyboru wraca do ekranu startowego (grafika + splash) — wazny skrot marki.
+function showSplashAgain(){
+  splashHiding = false;
+  const el = document.getElementById('splashScreen');
+  el.style.display = 'flex';
+  requestAnimationFrame(()=> el.classList.remove('hide'));
+}
+document.getElementById('introTitle').addEventListener('click', showSplashAgain);
+document.getElementById('introTitle').addEventListener('keydown', function(e){
+  if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); showSplashAgain(); }
+});
+
+function showIntroFlow(){
+  const el = document.getElementById('introFlow');
+  el.style.display = 'flex';
+  requestAnimationFrame(()=> el.classList.remove('hide'));
+}
+function hideIntroFlow(){
+  const el = document.getElementById('introFlow');
+  el.classList.add('hide');
+  setTimeout(()=>{ el.style.display = 'none'; }, 300);
+}
+function glitchTitle(){
+  const elTitle = document.getElementById('introTitle');
+  elTitle.classList.remove('glitchIn');
+  void elTitle.offsetWidth;
+  elTitle.classList.add('glitchIn');
+}
+function animateIntroBody(){
+  const body = document.getElementById('introBody');
+  body.querySelectorAll('.flameEntry').forEach((el,i)=>{
+    el.classList.remove('tileIn');
+    void el.offsetWidth;
+    el.style.animationDelay = (i*60) + 'ms';
+    el.classList.add('tileIn');
+  });
+}
+function showIntroChoice(){
+  glitchTitle();
+  const body = document.getElementById('introBody');
+  const stats = computeDailyMinStats();
+  const flameLbl = stats.doneToday ? t('intro_dmDoneLbl') : t('intro_dmLbl');
+  const flameSub = stats.doneToday ? t('intro_dmDoneSub') : t('intro_dmSub');
+  body.innerHTML = `
+    <button type="button" class="flameEntry${stats.doneToday ? ' done' : ''}" id="introDailyMinBtn" aria-label="${escapeHtml(flameLbl)}">
+      <span class="flameBigWrap"><span class="flameBig">🔥</span>${stats.doneToday ? '<span class="flameCheck">✓</span>' : ''}</span>
+      <span class="flameLbl">${escapeHtml(flameLbl)}</span>
+      <span class="flameSub">${escapeHtml(flameSub)}</span>
+    </button>
+    <button type="button" class="flameEntry" id="introExtraBtn" aria-label="${escapeHtml(t('intro_extraLbl'))}">
+      <span class="flameBig">💣</span>
+      <span class="flameLbl flameLblOverlay">${escapeHtml(t('intro_extraLbl'))}</span>
+      <span class="flameSub">${escapeHtml(t('intro_extraSub'))}</span>
+    </button>
+    <button type="button" class="flameEntry" id="introRecordsBtn" aria-label="${escapeHtml(t('intro_recordsLbl'))}">
+      <span class="flameBig">🏆</span>
+      <span class="flameLbl">${escapeHtml(t('intro_recordsLbl'))}</span>
+      <span class="flameSub">${escapeHtml(t('intro_recordsSub'))}</span>
+    </button>
+    <button type="button" class="flameEntry futureHidden" id="introNewBtn" aria-label="Rozpocznij nowy trening">
+      <span class="flameBig">🏋️</span>
+      <span class="flameLbl">Rozpocznij nowy trening</span>
+      <span class="flameSub">wybierz plan i zaczynaj</span>
+    </button>
+    <button type="button" class="flameEntry futureHidden" id="introAtlasBtn" aria-label="Atlas ćwiczeń">
+      <span class="flameBig">📖</span>
+      <span class="flameLbl">Atlas ćwiczeń</span>
+      <span class="flameSub">32 ćwiczenia z gumą — pełny opis</span>
+    </button>
+  `;
+  document.getElementById('introDailyMinBtn').addEventListener('click', openFullscreenSet);
+  document.getElementById('introExtraBtn').addEventListener('click', openFullscreenSet);
+  document.getElementById('introRecordsBtn').addEventListener('click', function(){
+    hideIntroFlow();
+    runScanSweep();
+  });
+  animateIntroBody();
+  showIntroFlow();
+  runScanSweep();
+}
+
+// ---------- Start ----------
+applyI18n();
+dmResetNewTimer();
+renderDailyMin();
+renderPushupRecords();
+</script>
+
+</body>
+</html>

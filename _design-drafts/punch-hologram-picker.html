@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Punch banery + hologram liczby + punch etykieta</title>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=JetBrains+Mono:wght@400;700;800&family=Barlow+Condensed:wght@600;700;800&family=Saira+Stencil+One&display=swap">
+<style>
+:root{ --bg:#0A0A0C; --card:#141419; --line:#24242C; --txt:#E8E8EA; --txt2:#9A9AA3; --accent:#C81E2C; --accent-txt:#E8394A; color-scheme:dark; }
+*{box-sizing:border-box;}
+body{margin:0; background:var(--bg); color:var(--txt); font-family:'Barlow Condensed',sans-serif; padding:24px 16px 80px;}
+h1{font-size:20px; text-align:center; margin:0 0 6px; text-transform:uppercase; letter-spacing:.04em;}
+p.sub{text-align:center; color:var(--txt2); font-size:13px; margin:0 0 20px; max-width:560px; margin-inline:auto; line-height:1.5;}
+h2{font-size:16px; text-transform:uppercase; letter-spacing:.06em; color:var(--accent-txt); text-align:center; margin:56px 0 6px; border-top:1px solid var(--line); padding-top:36px;}
+p.h2sub{text-align:center; color:var(--txt2); font-size:12px; margin:0 0 22px;}
+.grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:16px; max-width:1300px; margin:0 auto;}
+.cell{background:var(--card); border:1px solid var(--line); border-radius:10px; padding:10px; display:flex; flex-direction:column; align-items:center; gap:7px;}
+.idx{font-family:'JetBrains Mono',monospace; font-size:11px; font-weight:800; background:var(--accent); color:#fff; border-radius:4px; padding:2px 8px; align-self:flex-start;}
+.lbl{font-size:11px; color:var(--txt2); text-align:center; line-height:1.3; min-height:44px;}
+.stage{width:100%; height:130px; border-radius:8px; overflow:hidden; position:relative; background:#0A0A0C; border:1px solid var(--line);
+  display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px;}
+button.replay{font-size:10px; padding:4px 10px; border-radius:4px; border:1px solid var(--accent); background:transparent; color:var(--accent-txt); cursor:pointer; font-family:inherit;}
+button.replay:active{background:var(--accent); color:#fff;}
+.banner{display:inline-block; background:var(--accent); color:#fff; font-family:'Barlow Condensed',sans-serif; font-weight:800; text-transform:uppercase; font-size:11px; padding:4px 10px; clip-path:polygon(2% 10%,10% 0,92% 6%,100% 22%,97% 84%,90% 100%,8% 92%,0 74%);}
+.holoNum{font-family:'Saira Stencil One',cursive; font-size:40px; line-height:1; color:#fff; -webkit-text-stroke:1.5px #000; text-shadow:0 0 12px rgba(200,30,44,.9), 0 0 26px rgba(200,30,44,.6);}
+.todayLbl{font-size:13px; font-weight:800; letter-spacing:.05em; color:#ccc; text-transform:uppercase;}
+</style>
+</head>
+<body>
+<h1>Punch banery · Hologram liczby · Punch etykieta</h1>
+<p class="sub">Wstęp = pasek segmentowy (wariant 3). Dla każdego z trzech elementów poniżej — po 10 wariacji. Kliknij "odtwórz", żeby zobaczyć ponownie. Napisz 3 numery (po jednym z każdej sekcji).</p>
+
+<h2>Sekcja A — banery "Jedna seria / Zero wymówek" jako uderzenie/pieczęć</h2>
+<p class="h2sub">Efekt: coś jak przybicie rozgrzaną pieczęcią — uderzenie, wstrząs, czasem iskry/dym.</p>
+<div class="grid" id="gridA"></div>
+
+<h2>Sekcja B — liczba jako hologram z czerwonego kółka</h2>
+<p class="h2sub">Czerwone kółko → hologram liczy w górę → tąpnięcie osadzenia. Styl liczby: biały środek, czarny kontur, ledowa poświata (już w kodzie).</p>
+<div class="grid" id="gridB"></div>
+
+<h2>Sekcja C — etykieta "POMPEK DZISIAJ" jako punch</h2>
+<p class="h2sub">Wchodzi na końcu, mocniej wyeksponowana, też z uderzeniem.</p>
+<div class="grid" id="gridC"></div>
+
+<script>
+function wait(ms){ return new Promise(r=>setTimeout(r,ms)); }
+function shakeStage(stage, amt){
+  stage.animate([
+    {transform:'translate(0,0)'},{transform:`translate(${amt}px,${-amt*.6}px)`},
+    {transform:`translate(${-amt}px,${amt*.4}px)`},{transform:'translate(0,0)'}
+  ], {duration:180, easing:'ease-out'});
+}
+function sparkBurst(stage, x, y){
+  for(let i=0;i<6;i++){
+    const s = document.createElement('span');
+    s.style.cssText = `position:absolute; left:${x}px; top:${y}px; width:3px; height:3px; background:#ffcf40; border-radius:50%; pointer-events:none;`;
+    stage.appendChild(s);
+    const ang = Math.random()*Math.PI*2, dist=14+Math.random()*18;
+    s.animate([{transform:'translate(0,0)', opacity:1},{transform:`translate(${Math.cos(ang)*dist}px, ${Math.sin(ang)*dist}px)`, opacity:0}],
+      {duration:400+Math.random()*200, easing:'ease-out'}).onfinish=()=>s.remove();
+  }
+}
+
+// ---------- Sekcja A: 10 wariantow "punch" dla banerow ----------
+const A = [
+  { name:'Uderzenie z góry + wstrząs kamery', run:async (stage)=>{
+    stage.innerHTML = '<span class="banner" style="opacity:0;">JEDNA SERIA.</span><span class="banner" style="opacity:0;">ZERO WYMÓWEK.</span>';
+    const [b1,b2] = stage.children;
+    for(const b of [b1,b2]){
+      b.style.opacity='1';
+      await b.animate([{transform:'translateY(-60px)'},{transform:'translateY(4px)'},{transform:'translateY(0)'}], {duration:220, easing:'cubic-bezier(.3,1.6,.5,1)'}).finished;
+      shakeStage(stage, 4);
+      await wait(90);
+    }
+  }},
+  { name:'Hak z boku + smuga ruchu', run:async (stage)=>{
+    stage.innerHTML = '<span class="banner" style="opacity:0;">JEDNA SERIA.</span><span class="banner" style="opacity:0;">ZERO WYMÓWEK.</span>';
+    const [b1,b2] = stage.children;
+    for(const b of [b1,b2]){
+      b.style.opacity='1'; b.style.filter='blur(4px)';
+      await b.animate([{transform:'translateX(-120px)', filter:'blur(6px)'},{transform:'translateX(6px)', filter:'blur(0)'},{transform:'translateX(0)'}], {duration:200, easing:'ease-out'}).finished;
+      b.style.filter='none'; shakeStage(stage,3); await wait(90);
+    }
+  }},
+  { name:'Rozgrzana pieczęć — żar przed uderzeniem + dym', run:async (stage)=>{
+    stage.innerHTML = '<span class="banner" style="background:#ff9d2e; opacity:0;">JEDNA SERIA.</span><span class="banner" style="background:#ff9d2e; opacity:0;">ZERO WYMÓWEK.</span>';
+    const [b1,b2]=stage.children;
+    for(const b of [b1,b2]){
+      b.style.opacity='1';
+      await b.animate([{transform:'scale(2.2)'},{transform:'scale(.95)'},{transform:'scale(1)'}],{duration:260,easing:'ease-in'}).finished;
+      b.style.background='var(--accent)';
+      sparkBurst(stage, stage.clientWidth/2, stage.clientHeight/2);
+      shakeStage(stage,5); await wait(120);
+    }
+  }},
+  { name:'Podwójne uderzenie naraz (1+2 równocześnie)', run:async (stage)=>{
+    stage.innerHTML = '<span class="banner" style="opacity:0;">JEDNA SERIA.</span><span class="banner" style="opacity:0;">ZERO WYMÓWEK.</span>';
+    const [b1,b2]=stage.children;
+    b1.style.opacity='1'; b2.style.opacity='1';
+    await Promise.all([
+      b1.animate([{transform:'translateY(-40px) scale(1.4)'},{transform:'translateY(0) scale(1)'}],{duration:220,easing:'cubic-bezier(.3,1.6,.5,1)'}).finished,
+      b2.animate([{transform:'translateY(40px) scale(1.4)'},{transform:'translateY(0) scale(1)'}],{duration:220,easing:'cubic-bezier(.3,1.6,.5,1)'}).finished
+    ]);
+    shakeStage(stage,6);
+  }},
+  { name:'Fala uderzeniowa (pierścień) na kontakt', run:async (stage)=>{
+    stage.innerHTML = '<span class="banner" style="opacity:0;">JEDNA SERIA.</span><span class="banner" style="opacity:0;">ZERO WYMÓWEK.</span>';
+    const [b1,b2]=stage.children;
+    for(const b of [b1,b2]){
+      b.style.opacity='1';
+      const ring = document.createElement('div');
+      ring.style.cssText='position:absolute; width:10px; height:10px; border:2px solid var(--accent); border-radius:50%; left:50%; top:50%; transform:translate(-50%,-50%);';
+      stage.appendChild(ring);
+      await b.animate([{transform:'scale(.4)', opacity:.4},{transform:'scale(1)', opacity:1}],{duration:180}).finished;
+      ring.animate([{width:'10px',height:'10px',opacity:1},{width:'140px',height:'140px',opacity:0}],{duration:400,easing:'ease-out'}).onfinish=()=>ring.remove();
+      await wait(120);
+    }
+  }},
+  { name:'Biały flash + mikro-trzęsienie ekranu', run:async (stage)=>{
+    stage.innerHTML = '<span class="banner" style="opacity:0;">JEDNA SERIA.</span><span class="banner" style="opacity:0;">ZERO WYMÓWEK.</span>';
+    const flash = document.createElement('div'); flash.style.cssText='position:absolute; inset:0; background:#fff; opacity:0;'; stage.appendChild(flash);
+    const [b1,b2]=stage.children;
+    for(const b of [b1,b2]){
+      flash.animate([{opacity:.9},{opacity:0}],{duration:140});
+      b.style.opacity='1'; shakeStage(stage,5); await wait(180);
+    }
+  }},
+  { name:'Odbicie (overshoot) — spada i podskakuje', run:async (stage)=>{
+    stage.innerHTML = '<span class="banner" style="opacity:0;">JEDNA SERIA.</span><span class="banner" style="opacity:0;">ZERO WYMÓWEK.</span>';
+    const [b1,b2]=stage.children;
+    for(const b of [b1,b2]){
+      b.style.opacity='1';
+      await b.animate([{transform:'translateY(-50px)'},{transform:'translateY(0)'},{transform:'translateY(-14px)'},{transform:'translateY(0)'}],{duration:420,easing:'ease-in-out'}).finished;
+      await wait(80);
+    }
+  }},
+  { name:'Obrót 180° i zatrzymanie na uderzeniu', run:async (stage)=>{
+    stage.innerHTML = '<span class="banner" style="opacity:0;">JEDNA SERIA.</span><span class="banner" style="opacity:0;">ZERO WYMÓWEK.</span>';
+    const [b1,b2]=stage.children;
+    for(const b of [b1,b2]){
+      b.style.opacity='1';
+      await b.animate([{transform:'rotate(180deg) scale(.5)'},{transform:'rotate(0deg) scale(1.08)'},{transform:'rotate(0deg) scale(1)'}],{duration:280,easing:'ease-out'}).finished;
+      shakeStage(stage,3); await wait(90);
+    }
+  }},
+  { name:'Zoom "w stronę kamery" (z bardzo dużego)', run:async (stage)=>{
+    stage.innerHTML = '<span class="banner" style="opacity:0;">JEDNA SERIA.</span><span class="banner" style="opacity:0;">ZERO WYMÓWEK.</span>';
+    const [b1,b2]=stage.children;
+    for(const b of [b1,b2]){
+      b.style.opacity='1';
+      await b.animate([{transform:'scale(4)', opacity:0},{transform:'scale(1)', opacity:1}],{duration:220,easing:'ease-in'}).finished;
+      shakeStage(stage,4); await wait(100);
+    }
+  }},
+  { name:'Podwójny stroboskop (flash-flash) na wejściu', run:async (stage)=>{
+    stage.innerHTML = '<span class="banner" style="opacity:0;">JEDNA SERIA.</span><span class="banner" style="opacity:0;">ZERO WYMÓWEK.</span>';
+    const [b1,b2]=stage.children;
+    for(const b of [b1,b2]){
+      for(let k=0;k<2;k++){ b.style.opacity = k%2===0?'1':'.15'; await wait(60); }
+      b.style.opacity='1'; shakeStage(stage,3); await wait(100);
+    }
+  }}
+];
+
+// ---------- Sekcja B: 10 wariantow hologramu liczby ----------
+const B = [
+  { name:'Kółko rośnie, liczba skanuje się od dołu do góry', run:async (stage)=>{
+    stage.innerHTML = `<div class="circ" style="width:16px; height:16px; border-radius:50%; background:var(--accent);"></div><div class="holoNum" style="opacity:0;">0</div>`;
+    const circ = stage.children[0], num = stage.children[1];
+    await circ.animate([{width:'16px',height:'16px'},{width:'70px',height:'70px'}],{duration:260,easing:'ease-out'}).finished;
+    circ.style.opacity='0'; num.style.opacity='1';
+    let n=0; const iv=setInterval(()=>{ n+=3; num.textContent=Math.min(n,45); if(n>=45){clearInterval(iv); shakeStage(stage,4);} },40);
+  }},
+  { name:'Kółko pulsuje, pęka i odsłania liczbę z migotaniem', run:async (stage)=>{
+    stage.innerHTML = `<div class="circ" style="width:50px; height:50px; border-radius:50%; background:var(--accent);"></div><div class="holoNum" style="opacity:0;">45</div>`;
+    const circ=stage.children[0], num=stage.children[1];
+    await circ.animate([{transform:'scale(1)'},{transform:'scale(1.3)'},{transform:'scale(1)'}],{duration:300}).finished;
+    circ.animate([{opacity:1, transform:'scale(1)'},{opacity:0, transform:'scale(2.4)'}],{duration:250}).onfinish=()=>circ.style.display='none';
+    for(let k=0;k<4;k++){ num.style.opacity = k%2===0?'1':'.2'; await wait(60); }
+    num.style.opacity='1'; shakeStage(stage,3);
+  }},
+  { name:'Pionowe linie skanujące budują cyfry', run:async (stage)=>{
+    stage.innerHTML = `<div class="holoNum" style="clip-path:inset(0 100% 0 0);">45</div>`;
+    const num = stage.children[0];
+    await num.animate([{clipPath:'inset(0 100% 0 0)'},{clipPath:'inset(0 0% 0 0)'}],{duration:500,easing:'steps(8)'}).finished;
+    num.style.clipPath='none'; shakeStage(stage,3);
+  }},
+  { name:'Liczba składa się z cząsteczek/pyłu', run:async (stage)=>{
+    stage.innerHTML = `<div class="holoNum" style="opacity:0; filter:blur(10px);">45</div>`;
+    const num = stage.children[0];
+    for(let i=0;i<10;i++){
+      const p=document.createElement('span');
+      p.style.cssText=`position:absolute; width:3px; height:3px; background:#fff; border-radius:50%; left:${40+Math.random()*40}%; top:${30+Math.random()*40}%;`;
+      stage.appendChild(p);
+      p.animate([{opacity:1, transform:'translate(0,0)'},{opacity:0, transform:`translate(${(Math.random()-.5)*10}px,${(Math.random()-.5)*10}px)`}],{duration:500}).onfinish=()=>p.remove();
+    }
+    await num.animate([{opacity:0, filter:'blur(10px)'},{opacity:1, filter:'blur(0)'}],{duration:500}).finished;
+    shakeStage(stage,3);
+  }},
+  { name:'Przysłona (iris) obraca się i otwiera liczbę', run:async (stage)=>{
+    stage.innerHTML = `<div class="holoNum" style="clip-path:circle(0% at 50% 50%); transform:rotate(-45deg);">45</div>`;
+    const num = stage.children[0];
+    await num.animate([{clipPath:'circle(0% at 50% 50%)', transform:'rotate(-45deg)'},{clipPath:'circle(75% at 50% 50%)', transform:'rotate(0deg)'}],{duration:400,easing:'ease-out'}).finished;
+    num.style.clipPath='none'; shakeStage(stage,3);
+  }},
+  { name:'Wiązka hologramu — liczba "wypływa" z podstawy w górę', run:async (stage)=>{
+    stage.innerHTML = `<div class="holoNum" style="opacity:0; transform:translateY(30px);">45</div>`;
+    const num = stage.children[0];
+    await num.animate([{opacity:0, transform:'translateY(30px) scaleY(1.8)'},{opacity:1, transform:'translateY(0) scaleY(1)'}],{duration:350,easing:'ease-out'}).finished;
+    shakeStage(stage,3);
+  }},
+  { name:'Glitch hologramu — migoczące przezroczystości', run:async (stage)=>{
+    stage.innerHTML = `<div class="holoNum" style="opacity:0;">45</div>`;
+    const num = stage.children[0];
+    for(let k=0;k<6;k++){ num.style.opacity = Math.random()>0.4 ? '1':'.25'; num.style.transform = `translateX(${(Math.random()-.5)*6}px)`; await wait(50); }
+    num.style.opacity='1'; num.style.transform='none'; shakeStage(stage,3);
+  }},
+  { name:'Pierścień pulsuje na zewnątrz podczas liczenia', run:async (stage)=>{
+    stage.innerHTML = `<div class="holoNum" style="opacity:0;">0</div>`;
+    const num = stage.children[0]; num.style.opacity='1';
+    const ring=document.createElement('div'); ring.style.cssText='position:absolute; width:20px; height:20px; border:2px solid var(--accent); border-radius:50%;'; stage.appendChild(ring);
+    let n=0; const iv=setInterval(()=>{ n+=5; num.textContent=Math.min(n,45);
+      ring.animate([{width:'20px',height:'20px',opacity:1},{width:'100px',height:'100px',opacity:0}],{duration:300});
+      if(n>=45){clearInterval(iv); ring.remove(); shakeStage(stage,3);} },90);
+  }},
+  { name:'Kółko "pęka jak szkło", liczba za nim', run:async (stage)=>{
+    stage.innerHTML = `<div class="circ" style="width:60px; height:60px; border-radius:50%; background:var(--accent);"></div><div class="holoNum" style="opacity:0;">45</div>`;
+    const circ=stage.children[0], num=stage.children[1];
+    await circ.animate([{transform:'scale(1) rotate(0deg)'},{transform:'scale(1.15) rotate(8deg)'}],{duration:150}).finished;
+    circ.animate([{opacity:1},{opacity:0}],{duration:200}).onfinish=()=>circ.remove();
+    num.style.opacity='1';
+    await num.animate([{transform:'scale(.6)'},{transform:'scale(1.1)'},{transform:'scale(1)'}],{duration:280,easing:'ease-out'}).finished;
+    shakeStage(stage,4);
+  }},
+  { name:'Neonowy szyld — zapala się fragmentami', run:async (stage)=>{
+    stage.innerHTML = `<div class="holoNum" style="opacity:.15;">45</div>`;
+    const num = stage.children[0];
+    for(let k=0;k<5;k++){ num.style.opacity = k%2===0 ? '1':'.2'; await wait(90); }
+    num.style.opacity='1'; shakeStage(stage,3);
+  }}
+];
+
+// ---------- Sekcja C: 10 wariantow punch dla etykiety "POMPEK DZISIAJ" ----------
+const C = [
+  { name:'Uderzenie z boku + wstrząs', run:async (stage)=>{
+    stage.innerHTML = '<div class="todayLbl" style="opacity:0;">POMPEK DZISIAJ</div>';
+    const el = stage.children[0]; el.style.opacity='1';
+    await el.animate([{transform:'translateX(-80px)'},{transform:'translateX(6px)'},{transform:'translateX(0)'}],{duration:220,easing:'ease-out'}).finished;
+    shakeStage(stage,4);
+  }},
+  { name:'Pieczęć — mocne uderzenie ze skalą', run:async (stage)=>{
+    stage.innerHTML = '<div class="todayLbl" style="opacity:0;">POMPEK DZISIAJ</div>';
+    const el = stage.children[0]; el.style.opacity='1';
+    await el.animate([{transform:'scale(2.4)'},{transform:'scale(.94)'},{transform:'scale(1)'}],{duration:240,easing:'ease-in'}).finished;
+    shakeStage(stage,5);
+  }},
+  { name:'Odbicie elastyczne (bounce)', run:async (stage)=>{
+    stage.innerHTML = '<div class="todayLbl" style="opacity:0;">POMPEK DZISIAJ</div>';
+    const el = stage.children[0]; el.style.opacity='1';
+    await el.animate([{transform:'translateY(-30px) scale(.7)'},{transform:'translateY(0) scale(1.1)'},{transform:'translateY(-6px) scale(.98)'},{transform:'translateY(0) scale(1)'}],{duration:420,easing:'ease-out'}).finished;
+  }},
+  { name:'Biały flash → osiada w kolorze', run:async (stage)=>{
+    stage.innerHTML = '<div class="todayLbl" style="opacity:0; color:#fff;">POMPEK DZISIAJ</div>';
+    const el = stage.children[0]; el.style.opacity='1';
+    await el.animate([{color:'#fff', transform:'scale(1.3)'},{color:'#ccc', transform:'scale(1)'}],{duration:260}).finished;
+    shakeStage(stage,3);
+  }},
+  { name:'Dwie połówki zderzają się w środku', run:async (stage)=>{
+    stage.innerHTML = '<div style="display:flex;"><span class="todayLbl half1" style="opacity:0;">POMPEK </span><span class="todayLbl half2" style="opacity:0;">DZISIAJ</span></div>';
+    const h1 = stage.querySelector('.half1'), h2 = stage.querySelector('.half2');
+    h1.style.opacity='1'; h2.style.opacity='1';
+    await Promise.all([
+      h1.animate([{transform:'translateX(-60px)'},{transform:'translateX(0)'}],{duration:220,easing:'ease-in'}).finished,
+      h2.animate([{transform:'translateX(60px)'},{transform:'translateX(0)'}],{duration:220,easing:'ease-in'}).finished
+    ]);
+    shakeStage(stage,4);
+  }},
+  { name:'Linia uderzenia rysuje się, potem tekst wyskakuje nad nią', run:async (stage)=>{
+    stage.innerHTML = `<div style="width:0; height:2px; background:var(--accent);" class="line"></div><div class="todayLbl" style="opacity:0;">POMPEK DZISIAJ</div>`;
+    const line = stage.children[0], el = stage.children[1];
+    await line.animate([{width:'0px'},{width:'120px'}],{duration:200}).finished;
+    el.style.opacity='1';
+    await el.animate([{transform:'translateY(10px) scale(.7)'},{transform:'translateY(0) scale(1.08)'},{transform:'translateY(0) scale(1)'}],{duration:220}).finished;
+    shakeStage(stage,3);
+  }},
+  { name:'Skala od zera z twardym zatrzymaniem', run:async (stage)=>{
+    stage.innerHTML = '<div class="todayLbl" style="opacity:0;">POMPEK DZISIAJ</div>';
+    const el = stage.children[0]; el.style.opacity='1';
+    await el.animate([{transform:'scale(0)'},{transform:'scale(1)'}],{duration:160,easing:'cubic-bezier(.2,1.8,.4,1)'}).finished;
+    shakeStage(stage,3);
+  }},
+  { name:'Litera po literze, każda z małym uderzeniem', run:async (stage)=>{
+    const text='POMPEK DZISIAJ';
+    stage.innerHTML = '<div class="todayLbl"></div>';
+    const el = stage.children[0];
+    for(const ch of text){
+      const span=document.createElement('span'); span.textContent = ch===' '?' ':ch; span.style.cssText='display:inline-block; opacity:0;'; el.appendChild(span);
+      span.animate([{opacity:0, transform:'scale(2)'},{opacity:1, transform:'scale(1)'}],{duration:90});
+      span.style.opacity='1';
+      await wait(28);
+    }
+    shakeStage(stage,2);
+  }},
+  { name:'Wstrząs + czerwony błysk tła za tekstem', run:async (stage)=>{
+    stage.innerHTML = '<div style="position:absolute; inset:0; background:var(--accent); opacity:0;" class="bgflash"></div><div class="todayLbl" style="opacity:0;">POMPEK DZISIAJ</div>';
+    const bg = stage.children[0], el = stage.children[1];
+    bg.animate([{opacity:.5},{opacity:0}],{duration:250});
+    el.style.opacity='1';
+    shakeStage(stage,5);
+  }},
+  { name:'Rotacja + twarde uderzenie na miejscu (snap)', run:async (stage)=>{
+    stage.innerHTML = '<div class="todayLbl" style="opacity:0;">POMPEK DZISIAJ</div>';
+    const el = stage.children[0]; el.style.opacity='1';
+    await el.animate([{transform:'rotate(-12deg) scale(1.4)'},{transform:'rotate(0deg) scale(1)'}],{duration:200,easing:'ease-out'}).finished;
+    shakeStage(stage,4);
+  }}
+];
+
+function buildGrid(gridId, list){
+  const grid = document.getElementById(gridId);
+  list.forEach((v,i)=>{
+    const cell = document.createElement('div'); cell.className='cell';
+    cell.innerHTML = `<span class="idx">${i+1}</span><div class="stage"></div><div class="lbl">${v.name}</div><button class="replay">▶ odtwórz</button>`;
+    grid.appendChild(cell);
+    const stage = cell.querySelector('.stage');
+    const play = ()=> v.run(stage);
+    cell.querySelector('.replay').addEventListener('click', play);
+    play();
+  });
+}
+buildGrid('gridA', A);
+buildGrid('gridB', B);
+buildGrid('gridC', C);
+</script>
+</body>
+</html>
