@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Runda 9 — 10 wariantów postrzępionych bannerów (styl okładki, -20% rozmiaru)</title>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800&display=swap">
+<style>
+:root{ --bg:#0A0A0C; --card:#141419; --line:#24242C; --txt:#E8E8EA; --txt2:#9A9AA3; --accent:#C81E2C; --accent-txt:#E8394A; color-scheme:dark; }
+*{box-sizing:border-box;}
+body{margin:0; background:var(--bg); color:var(--txt); font-family:'Barlow Condensed',sans-serif; padding:24px 16px 100px;}
+h1{font-size:19px; text-align:center; margin:0 0 6px; text-transform:uppercase; letter-spacing:.04em;}
+p.sub{text-align:center; color:var(--txt2); font-size:13px; margin:0 0 26px auto; max-width:600px; margin-inline:auto; line-height:1.6;}
+.grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:22px; max-width:1200px; margin:0 auto;}
+.cell{background:var(--card); border:1px solid var(--line); border-radius:12px; padding:16px; display:flex; flex-direction:column; align-items:center; gap:10px;}
+.idx{font-family:monospace; font-size:11px; font-weight:800; background:var(--accent); color:#fff; border-radius:4px; padding:2px 8px; align-self:flex-start;}
+.lbl{font-size:12px; color:var(--txt2); text-align:center; line-height:1.4;}
+.stage{width:100%; background:#0A0A0C; border:1px solid var(--line); border-radius:8px; padding:20px 10px; display:flex; align-items:center; justify-content:center;}
+svg text{font-family:'Barlow Condensed', sans-serif; font-weight:800; fill:#fff; text-transform:uppercase;}
+</style>
+</head>
+<body>
+<h1>Runda 9 — postrzępione banery w stylu okładki „Byku Rigger" (-20% rozmiaru)</h1>
+<p class="sub">Rozmiar zmniejszony o 20% względem obecnych banerów. Krawędzie generowane przez zakłócenie SVG (fraktalny szum), różna „agresywność" rozdarcia w każdym wariancie — od lekko poszarpanych po mocno demoniczne, spalone brzegi, inspirowane fakturą z Twojej okładki.</p>
+<div class="grid" id="grid"></div>
+
+<script>
+const VARIANTS = [
+  { name:'B1 — Lekko postrzępiony (subtelne nierówności brzegu)', bf:0.025, oct:2, scale:7, seed:3 },
+  { name:'B2 — Podarte rogi (mocniejsze zakłócenie na narożnikach)', bf:0.035, oct:2, scale:12, seed:7 },
+  { name:'B3 — Poszarpane pasy (jak rozdarty materiał)', bf:0.02, oct:3, scale:18, seed:11 },
+  { name:'B4 — Spalone brzegi (drobny, gęsty ząbek jak po ogniu)', bf:0.07, oct:3, scale:9, seed:2 },
+  { name:'B5 — Demoniczne kolce (ostre, długie wypustki)', bf:0.015, oct:2, scale:26, seed:19 },
+  { name:'B6 — Pęknięty kamień (nieregularne, kanciaste odłamki)', bf:0.03, oct:4, scale:15, seed:5 },
+  { name:'B7 — Dymne strzępy (miękkie, faliste rozmycie krawędzi)', bf:0.012, oct:2, scale:20, seed:23 },
+  { name:'B8 — Pazury/pazurowate nacięcia (asymetryczne, drapieżne)', bf:0.045, oct:2, scale:16, seed:31 },
+  { name:'B9 — Ekstremalnie postrzępiony (chaos, mocna faktura)', bf:0.06, oct:4, scale:22, seed:13 },
+  { name:'B10 — Subtelny + cień drugiej warstwy pod spodem (głębia jak na okładce)', bf:0.02, oct:3, scale:11, seed:17, shadowLayer:true }
+];
+
+function svgBanner(text, v, fontSize){
+  const W = 224, H = 66; // -20% wzgledem bazowych 280x82 (przyblizenie proporcji obecnego bannera)
+  const filterId = 'f' + Math.random().toString(36).slice(2);
+  const shadow = v.shadowLayer
+    ? '<rect x="14" y="12" width="'+(W-16)+'" height="'+(H-16)+'" fill="#6E1019" filter="url(#'+filterId+')" transform="translate(4,4)"/>'
+    : '';
+  return '<svg viewBox="0 0 '+W+' '+H+'" width="100%" style="max-width:260px" xmlns="http://www.w3.org/2000/svg">' +
+    '<defs><filter id="'+filterId+'" x="-30%" y="-30%" width="160%" height="160%">' +
+      '<feTurbulence type="fractalNoise" baseFrequency="'+v.bf+'" numOctaves="'+v.oct+'" seed="'+v.seed+'" result="noise"/>' +
+      '<feDisplacementMap in="SourceGraphic" in2="noise" scale="'+v.scale+'" xChannelSelector="R" yChannelSelector="G"/>' +
+    '</filter></defs>' +
+    shadow +
+    '<rect x="10" y="8" width="'+(W-20)+'" height="'+(H-16)+'" fill="#C81E2C" filter="url(#'+filterId+')"/>' +
+    '<text x="'+(W/2)+'" y="'+(H/2+6)+'" font-size="'+fontSize+'" text-anchor="middle" letter-spacing="1">'+text+'</text>' +
+  '</svg>';
+}
+
+const grid = document.getElementById('grid');
+VARIANTS.forEach(function(v){
+  const cell = document.createElement('div'); cell.className = 'cell';
+  cell.innerHTML = '<span class="idx">' + v.name.split(' —')[0] + '</span>' +
+    '<div class="stage">' + svgBanner('JEDNA SERIA.', v, 20) + '</div>' +
+    '<div class="stage">' + svgBanner('ZERO WYMÓWEK.', v, 17) + '</div>' +
+    '<div class="lbl">' + v.name + '</div>';
+  grid.appendChild(cell);
+});
+</script>
+</body>
+</html>
