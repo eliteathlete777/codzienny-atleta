@@ -321,8 +321,10 @@ body{display:flex;flex-direction:column;height:100vh;height:100dvh;max-width:520
     radial-gradient(ellipse at 50% 15%, rgba(200,30,44,.18), transparent 60%);}
 .shareCardScan{position:absolute; left:0; right:0; height:5px; z-index:2; top:0; pointer-events:none;
   background:linear-gradient(90deg,transparent,var(--accent-txt),transparent); box-shadow:0 0 18px var(--accent);}
-.shareSegLoader{position:absolute; top:46%; left:0; right:0; z-index:4; display:flex; gap:2px; justify-content:center; pointer-events:none;}
-.shareSegLoader span{width:1.6cqw; height:4.3cqw; background:rgba(255,255,255,.14); display:inline-block; border-radius:1px;}
+.shareSegLoader{position:absolute; top:46%; left:0; right:0; z-index:4; display:flex; flex-direction:column; align-items:center; gap:3.3cqw; pointer-events:none;}
+.shareSegLoaderTxt{font-family:var(--mono); font-size:4.33cqw; letter-spacing:.15em; color:var(--accent-txt); text-transform:uppercase;}
+.shareSegLoaderDots{display:flex; gap:2cqw;}
+.shareSegLoaderDots span{width:2.67cqw; height:2.67cqw; border-radius:50%; background:var(--accent); display:inline-block;}
 .shareBrand{position:absolute; top:5.5%; left:50%; transform:translate(-50%,-50%); text-align:center; z-index:2; white-space:nowrap; opacity:0;
   font-family:var(--mono); font-weight:800; font-size:5cqw; letter-spacing:.1em; color:var(--accent-txt); min-height:6cqw; text-shadow:0 0 14px rgba(200,30,44,.5);}
 .shareNumWrap{position:absolute; top:34.0%; left:50.3%; transform:translate(-50%,-50%) scale(1.13); z-index:2;}
@@ -1013,6 +1015,7 @@ const I18N = {
     share_todayLbl: 'Pompek dzisiaj',
     share_weekLbl: 'W tym tygodniu',
     share_tagline: 'Jedna seria dziennie.',
+    share_loading: 'ŁADOWANIE',
     share_btn: '📤 Udostępnij',
     share_close: 'Zamknij kartę wyniku'
   },
@@ -1112,6 +1115,7 @@ const I18N = {
     share_todayLbl: 'Push-ups today',
     share_weekLbl: 'This week',
     share_tagline: 'One set every day.',
+    share_loading: 'LOADING',
     share_btn: '📤 Share',
     share_close: 'Close result card'
   }
@@ -1869,26 +1873,32 @@ function dmShakeCard(card, amt){
     {transform:'translate(0,0)'}
   ], {duration:170, easing:'ease-out'}).finished;
 }
+// Loader "ŁADOWANIE" + skaczące kropki (wariant L3 z rundy 8 — ulubione: L3 (aktywny), L5 (talerze na sztandze),
+// L8 (licznik %) zapisane w _design-drafts/runda8-loader.html na wypadek gdybysmy chcieli kiedys podmienic).
 function dmSegLoader(card, duration){
   return new Promise(function(resolve){
     const wrap = document.createElement('div');
     wrap.className = 'shareSegLoader';
-    const n = 14;
-    for(let i=0;i<n;i++){ const s = document.createElement('span'); wrap.appendChild(s); }
+    const txt = document.createElement('div');
+    txt.className = 'shareSegLoaderTxt';
+    txt.textContent = t('share_loading') || 'ŁADOWANIE';
+    const dotsRow = document.createElement('div');
+    dotsRow.className = 'shareSegLoaderDots';
+    const dots = [];
+    for(let i=0;i<3;i++){ const d = document.createElement('span'); dotsRow.appendChild(d); dots.push(d); }
+    wrap.appendChild(txt); wrap.appendChild(dotsRow);
     card.appendChild(wrap);
-    const segs = wrap.children;
-    let i = 0;
-    const step = duration / n;
-    const iv = setInterval(function(){
-      i++;
-      if(segs[i-1]) segs[i-1].style.background = 'var(--accent)';
-      if(i >= n){
-        clearInterval(iv);
-        setTimeout(function(){
-          wrap.animate([{opacity:1},{opacity:0}], {duration:160}).finished.then(function(){ wrap.remove(); resolve(); });
-        }, 120);
-      }
-    }, step);
+    const cycleMs = 600;
+    const cycles = Math.max(1, Math.round(duration / cycleMs));
+    const anims = dots.map(function(d, i){
+      return d.animate(
+        [{transform:'translateY(0)', opacity:.4}, {transform:'translateY(-8px)', opacity:1}, {transform:'translateY(0)', opacity:.4}],
+        {duration:cycleMs, delay:i*150, iterations:cycles}
+      ).finished;
+    });
+    Promise.all(anims).then(function(){
+      wrap.animate([{opacity:1},{opacity:0}], {duration:160}).finished.then(function(){ wrap.remove(); resolve(); });
+    });
   });
 }
 function dmScanRevealBg(card, bg, duration){
