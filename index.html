@@ -1990,14 +1990,15 @@ function dmLoadShareBg(){
   });
 }
 // Rysuje jeden "poszarpany" czerwony baner (jak grungeBanner w CSS) z tekstem na canvasie.
-function drawGrungeBanner(ctx, cx, cy, text, angleDeg){
+function drawGrungeBanner(ctx, cx, cy, text, angleDeg, fontSize){
+  fontSize = fontSize || 46;
+  const padX = Math.round(fontSize * 0.91), padY = Math.round(fontSize * 0.43);
   ctx.save();
   ctx.translate(cx, cy);
   ctx.rotate(angleDeg * Math.PI / 180);
-  ctx.font = "800 46px 'Barlow Condensed', sans-serif";
-  const padX = 42, padY = 20;
+  ctx.font = "800 " + fontSize + "px 'Barlow Condensed', sans-serif";
   const tw = ctx.measureText(text.toUpperCase()).width;
-  const bw = tw + padX * 2, bh = 46 + padY * 2;
+  const bw = tw + padX * 2, bh = fontSize + padY * 2;
   ctx.fillStyle = '#C81E2C';
   ctx.shadowColor = 'rgba(0,0,0,.55)';
   ctx.shadowBlur = 24;
@@ -2032,7 +2033,9 @@ function renderShareCardPng(){
     if(img){
       const scale = Math.max(W / img.width, H / img.height);
       const iw = img.width * scale, ih = img.height * scale;
+      ctx.filter = 'contrast(1.08)';
       ctx.drawImage(img, (W - iw) / 2, 0, iw, ih);
+      ctx.filter = 'none';
     }
     const grad = ctx.createLinearGradient(0, 0, 0, H);
     grad.addColorStop(0, 'rgba(10,10,12,.32)');
@@ -2053,35 +2056,43 @@ function renderShareCardPng(){
     });
     ctx.stroke();
 
-    const cx = W / 2;
+    // Uklad 1:1 z zatwierdzona animacja na ekranie (te same wzgledne pozycje top/left% i skale).
     ctx.textAlign = 'center';
-    ctx.textBaseline = 'alphabetic';
+    ctx.textBaseline = 'middle';
+
     ctx.fillStyle = '#E8394A';
-    ctx.font = "800 32px 'JetBrains Mono', monospace";
-    ctx.fillText('🔥 CODZIENNY ATLETA', cx, 300);
+    ctx.font = "800 54px 'JetBrains Mono', monospace";
+    ctx.fillText('🔥 CODZIENNY ATLETA', W * 0.500, H * 0.055);
+
+    const dateCx = W * 0.521, dateCy = H * 0.108;
+    const dateText = document.getElementById('shareDate').textContent;
+    ctx.font = "400 50px 'JetBrains Mono', monospace";
+    const dateTw = ctx.measureText(dateText).width;
+    ctx.fillStyle = '#C81E2C';
+    ctx.fillRect(dateCx - dateTw/2 - 36 - 72, dateCy - 1, 72, 2);
+    ctx.fillRect(dateCx + dateTw/2 + 36, dateCy - 1, 72, 2);
+    ctx.fillStyle = '#fff';
+    ctx.fillText(dateText, dateCx, dateCy);
 
     ctx.fillStyle = '#fff';
     ctx.shadowColor = 'rgba(200,30,44,.75)';
     ctx.shadowBlur = 46;
-    ctx.font = "400 380px 'Anton', Impact, sans-serif";
-    ctx.fillText(document.getElementById('shareBigNum').textContent, cx, 780);
+    ctx.font = "400 375px 'Anton', Impact, sans-serif";
+    ctx.fillText(document.getElementById('shareBigNum').textContent, W * 0.503, H * 0.340);
     ctx.shadowBlur = 0;
 
-    ctx.fillStyle = '#C8C8CC';
-    ctx.font = "700 46px 'Barlow Condensed', sans-serif";
-    ctx.fillText(document.getElementById('shareLbl').textContent.toUpperCase(), cx, 880);
+    ctx.fillStyle = '#fff';
+    ctx.font = "400 88px 'Anton', Impact, sans-serif";
+    ctx.fillText(document.getElementById('shareLbl').textContent.toUpperCase(), W * 0.508, H * 0.507);
+
+    ctx.fillStyle = '#9A9AA3';
+    ctx.font = "700 76px 'Barlow Condensed', sans-serif";
+    ctx.fillText(document.getElementById('shareDay').textContent.toUpperCase(), W * 0.497, H * 0.601);
 
     const bl1 = document.getElementById('shareBannerLine1'), bl2 = document.getElementById('shareBannerLine2');
-    drawGrungeBanner(ctx, cx, 1010, bl1.dataset.full || bl1.textContent, -1.4);
-    drawGrungeBanner(ctx, cx, 1110, bl2.dataset.full || bl2.textContent, -1.4);
-
-    ctx.fillStyle = '#7A7A85';
-    ctx.font = "400 28px 'JetBrains Mono', monospace";
-    ctx.fillText(document.getElementById('shareDate').textContent, cx, 1220);
-
-    ctx.fillStyle = '#7A7A85';
-    ctx.font = "400 26px 'Barlow Condensed', sans-serif";
-    ctx.fillText(t('share_tagline'), cx, 1840);
+    const bannersCx = W * 0.492, bannersCy = H * 0.772;
+    drawGrungeBanner(ctx, bannersCx, bannersCy - 105, bl1.dataset.full || bl1.textContent, -1.4, 112);
+    drawGrungeBanner(ctx, bannersCx, bannersCy + 105, bl2.dataset.full || bl2.textContent, -1.4, 98);
 
     return new Promise(function(resolve){ canvas.toBlob(resolve, 'image/png', 0.95); });
   });
