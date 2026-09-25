@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Runda 5 — 12 propozycji proporcji i mixów czcionek (animacja bez zmian)</title>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=JetBrains+Mono:wght@400;700;800&family=Barlow+Condensed:wght@600;700;800&family=Saira+Stencil+One&family=Oswald:wght@500;700&display=swap">
+<style>
+:root{ --bg:#0A0A0C; --card:#141419; --line:#24242C; --txt:#E8E8EA; --txt2:#9A9AA3; --accent:#C81E2C; --accent-txt:#E8394A; color-scheme:dark; }
+*{box-sizing:border-box;}
+body{margin:0; background:var(--bg); color:var(--txt); font-family:'Barlow Condensed',sans-serif; padding:24px 16px 100px;}
+h1{font-size:19px; text-align:center; margin:0 0 6px; text-transform:uppercase; letter-spacing:.04em;}
+p.sub{text-align:center; color:var(--txt2); font-size:13px; margin:0 0 18px; max-width:640px; margin-inline:auto; line-height:1.55;}
+h2{font-size:15px; text-transform:uppercase; letter-spacing:.06em; color:var(--accent-txt); text-align:center; margin:50px 0 16px; border-top:1px solid var(--line); padding-top:30px;}
+.grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:20px; max-width:1300px; margin:0 auto;}
+.cell{background:var(--card); border:1px solid var(--line); border-radius:12px; padding:12px; display:flex; flex-direction:column; align-items:center; gap:8px;}
+.idx{font-family:'JetBrains Mono',monospace; font-size:10.5px; font-weight:800; background:var(--accent); color:#fff; border-radius:4px; padding:2px 8px; align-self:flex-start;}
+.lbl{font-size:11px; color:var(--txt2); text-align:center; line-height:1.35; min-height:44px;}
+button.replay{font-size:10.5px; padding:5px 12px; border-radius:4px; border:1px solid var(--accent); background:transparent; color:var(--accent-txt); cursor:pointer; font-family:inherit; font-weight:700;}
+button.replay:active{background:var(--accent); color:#fff;}
+
+/* ===== karta wyniku — struktura 1:1, wielkosci/fonty jako CSS custom properties per wariant ===== */
+.miniCard{
+  --f-brand:'Barlow Condensed', sans-serif; --s-brand:15px; --ls-brand:.16em; --w-brand:800;
+  --f-num:'Anton', sans-serif; --s-num:76px;
+  --f-lbl:'Anton', sans-serif; --s-lbl:18px; --ls-lbl:.03em;
+  --f-banner:'Barlow Condensed', sans-serif; --s-banner:15px; --s-banner1:17px;
+  --f-date:'Anton', sans-serif; --s-date:12px; --ls-date:.05em;
+  --f-day:'Barlow Condensed', sans-serif; --s-day:13px; --ls-day:.18em; --w-day:700;
+  --gap-content:12px; --brand-top:6%;
+  width:100%; max-width:230px; aspect-ratio:9/16; background:#141419; position:relative; overflow:hidden;
+  border:1.5px solid var(--accent); border-radius:10px; box-shadow:0 10px 30px rgba(0,0,0,.6);
+  display:flex; align-items:flex-end; justify-content:center;}
+.miniCard .cnr{position:absolute; width:14px; height:14px; border:2px solid var(--accent); pointer-events:none; z-index:3;}
+.miniCard .tl{top:5px; left:5px; border-right:none; border-bottom:none;}
+.miniCard .tr{top:5px; right:5px; border-left:none; border-bottom:none;}
+.miniCard .bl{bottom:5px; left:5px; border-right:none; border-top:none;}
+.miniCard .br{bottom:5px; right:5px; border-left:none; border-top:none;}
+.mcBg{position:absolute; inset:0; z-index:0; background-image:url('splash-bg.jpg'); background-size:cover; background-position:top center; filter:contrast(1.08); clip-path:inset(0 0 100% 0);}
+.mcGrad{position:absolute; inset:0; z-index:1; pointer-events:none;
+  background-image:linear-gradient(rgba(10,10,12,.32), rgba(10,10,12,.8) 55%, rgba(10,10,12,.97)),
+    radial-gradient(ellipse at 50% 15%, rgba(200,30,44,.18), transparent 60%);}
+.mcScan{position:absolute; left:0; right:0; height:4px; z-index:2; top:0; pointer-events:none;
+  background:linear-gradient(90deg,transparent,var(--accent-txt),transparent); box-shadow:0 0 14px var(--accent);}
+.mcBrand{position:absolute; top:var(--brand-top); left:0; right:0; text-align:center; z-index:2;
+  font-family:var(--f-brand); font-weight:var(--w-brand); font-size:var(--s-brand); letter-spacing:var(--ls-brand);
+  color:var(--accent-txt); opacity:0; text-shadow:0 0 12px rgba(200,30,44,.5);}
+.mcBrand .csr{display:inline-block; width:6px; background:var(--accent-txt); margin-left:1px; opacity:0; animation:csrBlink .55s steps(1) infinite;}
+.mcBrand.typing .csr{opacity:1;}
+@keyframes csrBlink{0%,49%{opacity:1;}50%,100%{opacity:0;}}
+.mcContent{position:relative; z-index:2; display:flex; flex-direction:column; align-items:center; gap:var(--gap-content); padding:16px 12px 20px;}
+.mcNumWrap{position:relative;}
+.mcNum{font-family:var(--f-num); font-size:var(--s-num); line-height:1; color:#fff; opacity:0;
+  text-shadow:0 0 14px rgba(200,30,44,.75), 0 0 30px rgba(200,30,44,.45);}
+.mcShock{position:absolute; left:50%; top:50%; width:30px; height:30px; margin:-15px 0 0 -15px;
+  border:2.5px solid var(--accent-txt); border-radius:50%; pointer-events:none; z-index:3; opacity:0;}
+.mcLblWrap{display:flex; flex-direction:column; align-items:center; gap:6px; opacity:0;}
+.mcLbl{font-family:var(--f-lbl); font-size:var(--s-lbl); letter-spacing:var(--ls-lbl); color:#fff; text-transform:uppercase;
+  text-shadow:0 2px 0 rgba(0,0,0,.7), 0 0 18px rgba(200,30,44,.65);}
+.mcLblBar{width:0; height:3px; border-radius:2px; background:var(--accent);}
+.mcBanners{display:flex; flex-direction:column; align-items:center; gap:4px;}
+.grungeBanner{position:relative; display:inline-block; background:var(--accent); padding:5px 13px; opacity:0;
+  clip-path:polygon(2% 10%,10% 0,92% 6%,100% 22%,97% 84%,90% 100%,8% 92%,0 74%);}
+.grungeBanner span{font-family:var(--f-banner); font-size:var(--s-banner); font-weight:800; color:#fff; text-transform:uppercase;}
+.mcB1{padding:6px 15px;}
+.mcB1 span{font-size:var(--s-banner1); letter-spacing:.02em;}
+.mcDate{font-family:var(--f-date); font-size:var(--s-date); letter-spacing:var(--ls-date); color:#fff; text-transform:uppercase;
+  opacity:0; display:flex; align-items:center; gap:7px;}
+.mcDate::before, .mcDate::after{content:''; width:13px; height:2px; background:var(--accent);}
+.mcDay{font-family:var(--f-day); font-weight:var(--w-day); font-size:var(--s-day); letter-spacing:var(--ls-day);
+  color:var(--txt2); text-transform:uppercase; margin-top:-4px; opacity:0;}
+
+/* ===== 6 propozycji proporcji/ukladu (ta sama typografia co finalna runda 4, inne rozmiary/hierarchia) ===== */
+.p1{ --s-num:72px; --s-lbl:16px; --s-banner:14px; --s-banner1:16px; --gap-content:10px; }
+.p2{ --s-num:82px; --s-lbl:19px; --s-banner:15px; --s-banner1:17px; --gap-content:14px; }
+.p3{ --s-num:64px; --s-lbl:17px; --s-banner:17px; --s-banner1:20px; --gap-content:11px; }
+.p4{ --s-num:70px; --s-lbl:16px; --s-banner:13.5px; --s-banner1:15.5px; --gap-content:18px; --brand-top:9%; }
+.p5{ --s-num:78px; --s-lbl:15px; --s-banner:13px; --s-banner1:15px; --gap-content:7px; --brand-top:5%; }
+.p6{ --s-num:96px; --s-lbl:14px; --s-banner:12.5px; --s-banner1:14.5px; --gap-content:9px; }
+
+/* ===== 6 propozycji mixu czcionek (proporcje jak w finalnej rundzie 4) ===== */
+.f1{ --f-brand:'Anton',sans-serif; --w-brand:400; --ls-brand:.1em; --f-num:'Anton',sans-serif; --f-lbl:'Anton',sans-serif; --f-banner:'Anton',sans-serif; --f-date:'Anton',sans-serif; --f-day:'Anton',sans-serif; --w-day:400; --ls-day:.12em; }
+.f2{ --f-num:'Saira Stencil One',cursive; --s-num:70px; --f-brand:'Barlow Condensed',sans-serif; --f-lbl:'Barlow Condensed',sans-serif; --w-brand:800; }
+.f3{ --f-brand:'JetBrains Mono',monospace; --s-brand:12px; --ls-brand:.1em; --f-date:'JetBrains Mono',monospace; --s-date:11px; --f-num:'Anton',sans-serif; --f-lbl:'Anton',sans-serif; --f-banner:'Barlow Condensed',sans-serif; }
+.f4{ --f-brand:'Barlow Condensed',sans-serif; --f-num:'Barlow Condensed',sans-serif; --s-num:80px; --w-brand:800; --f-lbl:'Barlow Condensed',sans-serif; --f-banner:'Barlow Condensed',sans-serif; --f-date:'Barlow Condensed',sans-serif; --f-day:'Barlow Condensed',sans-serif; }
+.f5{ --f-num:'Anton',sans-serif; --f-brand:'Barlow Condensed',sans-serif; --w-brand:800; --f-lbl:'Barlow Condensed',sans-serif; --w-lbl:800; --f-banner:'Barlow Condensed',sans-serif; --f-date:'Barlow Condensed',sans-serif; --f-day:'Barlow Condensed',sans-serif; --ls-lbl:.08em; }
+.f6{ --f-brand:'Saira Stencil One',cursive; --s-brand:13px; --ls-brand:.08em; --f-num:'Saira Stencil One',cursive; --s-num:66px; --f-lbl:'Barlow Condensed',sans-serif; --f-banner:'Barlow Condensed',sans-serif; }
+.f6 .mcLbl{ font-weight:800; }
+</style>
+</head>
+<body>
+<h1>Runda 5 — 12 propozycji: proporcje/układ + mixy czcionek</h1>
+<p class="sub">Sama animacja (kolejność, timing, skan grafiki, uderzenie, banery, data + dzień) zostaje bez zmian z Rundy 4 — tu testujemy TYLKO wielkości elementów i kombinacje fontów. „CODZIENNY ATLETA" wyżej nad grafiką, „Czwartek" pod datą — większe niż wcześniej.</p>
+
+<h2>A — 6 propozycji proporcji i układu (ta sama typografia)</h2>
+<div class="grid" id="gridP"></div>
+
+<h2>B — 6 propozycji mixu czcionek</h2>
+<div class="grid" id="gridF"></div>
+
+<script>
+function wait(ms){ return new Promise(function(r){ setTimeout(r, ms); }); }
+function escapeHtml(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+function typewriter(el, text, speed){
+  return new Promise(function(resolve){
+    el.classList.add('typing'); el.style.opacity = '1';
+    let i = 0;
+    const cursor = '<span class="csr">&nbsp;</span>';
+    const iv = setInterval(function(){
+      i++;
+      el.innerHTML = escapeHtml(text.slice(0, i)) + (i < text.length ? cursor : '');
+      if(i >= text.length){ clearInterval(iv); el.classList.remove('typing'); resolve(); }
+    }, speed);
+  });
+}
+function countUp(el, target, duration){
+  return new Promise(function(resolve){
+    const steps = Math.min(target, 26);
+    const stepTime = duration / steps;
+    let i = 0;
+    const iv = setInterval(function(){
+      i++;
+      el.textContent = String(Math.min(target, Math.round(target * (i/steps))));
+      if(i >= steps){ clearInterval(iv); el.textContent = String(target); resolve(); }
+    }, stepTime);
+  });
+}
+function shockwave(el){
+  el.style.opacity = '1';
+  return el.animate([
+    {width:'30px', height:'30px', marginTop:'-15px', marginLeft:'-15px', opacity:.9, borderWidth:'2.5px'},
+    {width:'190px', height:'190px', marginTop:'-95px', marginLeft:'-95px', opacity:0, borderWidth:'1px'}
+  ], {duration:460, easing:'cubic-bezier(.2,.7,.3,1)'}).finished.then(function(){ el.style.opacity='0'; });
+}
+function shake(el, amt){
+  return el.animate([
+    {transform:'translate(0,0)'},{transform:'translate('+amt+'px,'+(-amt*.6)+'px)'},
+    {transform:'translate('+(-amt)+'px,'+(amt*.4)+'px)'},{transform:'translate(0,0)'}
+  ], {duration:160, easing:'ease-out'}).finished;
+}
+function scanReveal(card, bg, duration){
+  return new Promise(function(resolve){
+    bg.style.clipPath = 'inset(0 0 100% 0)';
+    const light = document.createElement('div');
+    light.className = 'mcScan';
+    card.insertBefore(light, bg.nextSibling);
+    const a1 = bg.animate([{clipPath:'inset(0 0 100% 0)'},{clipPath:'inset(0 0 0% 0)'}], {duration:duration, easing:'cubic-bezier(.3,.1,.2,1)'});
+    const a2 = light.animate([{top:'0%', opacity:1},{top:'96%', opacity:1},{top:'100%', opacity:0}], {duration:duration, easing:'cubic-bezier(.3,.1,.2,1)'});
+    Promise.all([a1.finished, a2.finished]).then(function(){ light.remove(); bg.style.clipPath = 'inset(0 0 0% 0)'; resolve(); });
+  });
+}
+
+async function playSequence(root){
+  const bg = root.querySelector('.mcBg');
+  const brand = root.querySelector('.mcBrand');
+  const num = root.querySelector('.mcNum');
+  const wave = root.querySelector('.mcShock');
+  const lblWrap = root.querySelector('.mcLblWrap');
+  const lblBar = root.querySelector('.mcLblBar');
+  const b1 = root.querySelector('.mcB1'), b2 = root.querySelector('.mcB2');
+  const date = root.querySelector('.mcDate'), day = root.querySelector('.mcDay');
+
+  root.querySelectorAll('.mcScan').forEach(function(n){ n.remove(); });
+  bg.style.clipPath = 'inset(0 0 100% 0)';
+  brand.innerHTML = ''; brand.style.opacity = '0';
+  num.textContent = '0'; num.style.opacity = '0'; num.style.transform = 'scale(1)';
+  wave.style.opacity = '0'; wave.style.width='30px'; wave.style.height='30px'; wave.style.marginTop='-15px'; wave.style.marginLeft='-15px';
+  lblWrap.style.opacity = '0';
+  lblBar.style.width = '0px';
+  [b1,b2].forEach(function(b){ b.style.opacity='0'; b.style.transform='translateX(-50px) scale(1.8)'; });
+  date.style.opacity = '0'; date.style.transform = 'scale(1.3)';
+  day.style.opacity = '0'; day.style.transform = 'translateY(-6px)';
+
+  const targetVal = 45;
+
+  await scanReveal(root, bg, 1400);
+  await wait(120);
+
+  await typewriter(brand, '🔥 CODZIENNY ATLETA', 34);
+  await wait(200);
+
+  num.style.opacity = '1';
+  await countUp(num, targetVal, 850);
+  shockwave(wave);
+  await num.animate([{transform:'scale(1.28)'},{transform:'scale(1)'}], {duration:240, easing:'cubic-bezier(.2,.8,.3,1)'}).finished;
+  await shake(root, 4);
+  await wait(220);
+
+  lblWrap.style.opacity = '1';
+  await lblWrap.querySelector('.mcLbl').animate([{transform:'scale(1.6)'},{transform:'scale(1)'}], {duration:280, easing:'cubic-bezier(.2,.8,.3,1)'}).finished;
+  await lblBar.animate([{width:'0px'},{width:'40px'}], {duration:240, easing:'ease-out'}).finished;
+  lblBar.style.width = '40px';
+  await shake(root, 2);
+  await wait(240);
+
+  b1.style.opacity = '1';
+  await b1.animate([{transform:'translateX(-60px) scale(2.2)'},{transform:'translateX(0) scale(1.08)', offset:.75},{transform:'translateX(0) scale(1)'}], {duration:380, easing:'cubic-bezier(.2,.8,.3,1)'}).finished;
+  b1.style.transform = 'translateX(0) scale(1)';
+  await shake(root, 3);
+  await wait(150);
+  b2.style.opacity = '1';
+  await b2.animate([{transform:'translateX(-50px) scale(1.7)'},{transform:'translateX(0) scale(1)'}], {duration:300, easing:'cubic-bezier(.2,.8,.3,1)'}).finished;
+  b2.style.transform = 'translateX(0) scale(1)';
+  await shake(root, 2);
+
+  await wait(200);
+  date.style.transition = '280ms cubic-bezier(.2,.8,.3,1)';
+  date.style.opacity = '1'; date.style.transform = 'scale(1)';
+  await shake(root, 1);
+
+  await wait(160);
+  day.style.transition = '260ms cubic-bezier(.2,.8,.3,1)';
+  day.style.opacity = '1'; day.style.transform = 'translateY(0)';
+}
+
+function cardMarkup(){
+  return '<span class="cnr tl"></span><span class="cnr tr"></span><span class="cnr bl"></span><span class="cnr br"></span>' +
+    '<div class="mcBg"></div><div class="mcGrad"></div>' +
+    '<div class="mcBrand">🔥 <span></span></div>' +
+    '<div class="mcContent">' +
+      '<div class="mcNumWrap"><div class="mcNum">0</div><div class="mcShock"></div></div>' +
+      '<div class="mcLblWrap"><div class="mcLbl">Pompek dzisiaj</div><div class="mcLblBar"></div></div>' +
+      '<div class="mcBanners">' +
+        '<div class="grungeBanner mcB1"><span>Jedna seria.</span></div>' +
+        '<div class="grungeBanner mcB2"><span>Zero wymówek.</span></div>' +
+      '</div>' +
+      '<div class="mcDate">24 września 2026</div>' +
+      '<div class="mcDay">Czwartek</div>' +
+    '</div>';
+}
+
+const PROPS = [
+  { id:'p1', name:'P1 — kompakt: liczba i banery zrównoważone, ciasne odstępy' },
+  { id:'p2', name:'P2 — zbalansowany: trochę większa liczba i napis, luźniejsze odstępy' },
+  { id:'p3', name:'P3 — banery dominują: mniejsza liczba, duże, mocne banery-naklejki' },
+  { id:'p4', name:'P4 — przewiewny: duże odstępy między sekcjami, marka niżej nad grafiką' },
+  { id:'p5', name:'P5 — gęsty poster: minimalne odstępy, marka bardzo blisko góry' },
+  { id:'p6', name:'P6 — liczba-bohater: ogromna liczba, reszta świadomie mała' }
+];
+const FONTS = [
+  { id:'f1', name:'F1 — Anton wszędzie (spójny, plakatowy)' },
+  { id:'f2', name:'F2 — Saira Stencil One na liczbie, Barlow Condensed na reszcie' },
+  { id:'f3', name:'F3 — JetBrains Mono na marce/dacie (taktyczny), Anton na liczbie/napisie' },
+  { id:'f4', name:'F4 — Barlow Condensed wszędzie (bez Antona, spójna condensed)' },
+  { id:'f5', name:'F5 — Anton tylko na liczbie, reszta Barlow Condensed 800 wide-tracked' },
+  { id:'f6', name:'F6 — Saira Stencil One na marce I liczbie (agresywny stencil)' }
+];
+
+function buildGrid(gridId, list, prefix){
+  const grid = document.getElementById(gridId);
+  list.forEach(function(v){
+    const cell = document.createElement('div'); cell.className = 'cell';
+    cell.innerHTML = '<span class="idx">' + v.id.toUpperCase() + '</span>' +
+      '<div class="miniCard ' + v.id + '">' + cardMarkup() + '</div>' +
+      '<div class="lbl">' + v.name + '</div>' +
+      '<button class="replay">▶ odtwórz</button>';
+    grid.appendChild(cell);
+    const root = cell.querySelector('.miniCard');
+    const play = function(){ playSequence(root); };
+    cell.querySelector('.replay').addEventListener('click', play);
+    play();
+  });
+}
+buildGrid('gridP', PROPS, 'p');
+buildGrid('gridF', FONTS, 'f');
+</script>
+</body>
+</html>
