@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Runda 4 — finalna animacja karty wyniku (1:1 z appką)</title>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=JetBrains+Mono:wght@400;700;800&family=Barlow+Condensed:wght@600;700;800&display=swap">
+<style>
+:root{ --bg:#0A0A0C; --card:#141419; --line:#24242C; --txt:#E8E8EA; --txt2:#9A9AA3; --accent:#C81E2C; --accent-txt:#E8394A;
+  --display:'Anton', Impact, 'Arial Narrow Bold', sans-serif; --mono:'JetBrains Mono', monospace; color-scheme:dark; }
+*{box-sizing:border-box;}
+body{margin:0; background:var(--bg); color:var(--txt); font-family:'Barlow Condensed',sans-serif; padding:24px 16px 100px; display:flex; flex-direction:column; align-items:center;}
+h1{font-size:19px; text-align:center; margin:0 0 6px; text-transform:uppercase; letter-spacing:.04em;}
+p.sub{text-align:center; color:var(--txt2); font-size:13px; margin:0 0 26px; max-width:520px; line-height:1.55;}
+.wrap{display:flex; flex-direction:column; align-items:center; gap:16px;}
+.stageBox{position:relative;}
+
+/* ===== 1:1 kopia stylu .shareCard z appki ===== */
+.shareCard{width:300px; aspect-ratio:9/16; background:#141419; position:relative; overflow:hidden;
+  border:1.5px solid var(--accent); border-radius:10px; box-shadow:0 16px 46px rgba(0,0,0,.65), 0 0 0 6px rgba(200,30,44,.08);
+  display:flex; flex-direction:column; align-items:center; justify-content:center; gap:10px; padding:22px 18px;}
+.shareCard .cnr{position:absolute; width:18px; height:18px; border:2px solid var(--accent); pointer-events:none; z-index:3;}
+.shareCard .tl{top:6px; left:6px; border-right:none; border-bottom:none;}
+.shareCard .tr{top:6px; right:6px; border-left:none; border-bottom:none;}
+.shareCard .bl{bottom:6px; left:6px; border-right:none; border-top:none;}
+.shareCard .br{bottom:6px; right:6px; border-left:none; border-top:none;}
+.shareCardBg{position:absolute; inset:0; z-index:0; background-image:url('splash-bg.jpg'); background-size:cover; background-position:top center; filter:contrast(1.08); clip-path:inset(0 0 100% 0);}
+.shareCardGrad{position:absolute; inset:0; z-index:1; pointer-events:none;
+  background-image:linear-gradient(rgba(10,10,12,.32), rgba(10,10,12,.8) 55%, rgba(10,10,12,.96)),
+    radial-gradient(ellipse at 50% 15%, rgba(200,30,44,.18), transparent 60%);}
+.shareCardScan{position:absolute; left:0; right:0; height:5px; z-index:2; top:0; pointer-events:none;
+  background:linear-gradient(90deg,transparent,var(--accent-txt),transparent); box-shadow:0 0 18px var(--accent);}
+.shareCard > .content{position:relative; z-index:2; display:flex; flex-direction:column; align-items:center; gap:10px;}
+.shareBrand{font-family:var(--mono); font-size:11px; font-weight:800; letter-spacing:.12em; color:var(--accent-txt); min-height:14px; opacity:0;}
+.shareBrand .csr{display:inline-block; width:6px; background:var(--accent-txt); margin-left:1px; opacity:0; animation:csrBlink .55s steps(1) infinite;}
+.shareBrand.typing .csr{opacity:1;}
+@keyframes csrBlink{0%,49%{opacity:1;}50%,100%{opacity:0;}}
+.shareBigNum{font-family:var(--display); font-size:96px; line-height:1; color:#fff; opacity:0;
+  text-shadow:0 0 16px rgba(200,30,44,.75), 0 0 36px rgba(200,30,44,.45);}
+.shareLblWrap{display:flex; flex-direction:column; align-items:center; gap:7px; opacity:0;}
+.shareLbl{font-family:var(--display); font-size:23px; letter-spacing:.03em; color:#fff; text-transform:uppercase;
+  text-shadow:0 2px 0 rgba(0,0,0,.7), 0 0 22px rgba(200,30,44,.65);}
+.shareLblBar{width:0; height:4px; border-radius:2px; background:var(--accent);}
+.shareBanners{display:flex; flex-direction:column; align-items:center; margin-top:6px; gap:2px;}
+.grungeBanner{position:relative; display:inline-block; background:var(--accent); padding:6px 15px; opacity:0;
+  clip-path:polygon(2% 10%,10% 0,92% 6%,100% 22%,97% 84%,90% 100%,8% 92%,0 74%);}
+.grungeBanner span{font-family:'Barlow Condensed', sans-serif; font-size:20.8px; font-weight:800; color:#fff; text-transform:uppercase;}
+.shareDate{font-family:var(--mono); font-size:10px; color:#7A7A85; margin-top:8px; opacity:0;}
+.shareTagline{font-size:10px; color:#7A7A85; margin-top:10px; letter-spacing:.04em; opacity:0;}
+
+.replayBar{display:flex; gap:10px; align-items:center;}
+button.replay{font-size:12px; padding:8px 18px; border-radius:6px; border:1px solid var(--accent); background:transparent; color:var(--accent-txt); cursor:pointer; font-family:inherit; font-weight:700; letter-spacing:.03em;}
+button.replay:active{background:var(--accent); color:#fff;}
+.speedRow{display:flex; gap:8px; font-size:11px; color:var(--txt2);}
+.speedRow button{font-size:11px; padding:4px 10px; border-radius:4px; border:1px solid var(--line); background:var(--card); color:var(--txt2); cursor:pointer; font-family:inherit;}
+.speedRow button.active{border-color:var(--accent); color:var(--accent-txt);}
+</style>
+</head>
+<body>
+<h1>Runda 4 — finalna animacja karty wyniku (1:1 wymiary/fonty z appki)</h1>
+<p class="sub">Kolejność: zdjęcie w tle wjeżdża skanem świetlnym → „🔥 CODZIENNY ATLETA” wpisywane jak na maszynie → licznik pompek liczy w górę → mocny napis „POMPEK DZISIAJ” z rosnącą podkreślką → banery „JEDNA SERIA.” / „ZERO WYMÓWEK.” (już +30% większe) wjeżdżają na koniec. To dokładnie ten kod trafi do <code>index.html</code> po Twoim OK.</p>
+
+<div class="wrap">
+  <div class="stageBox">
+    <div class="shareCard" id="card">
+      <span class="cnr tl"></span><span class="cnr tr"></span><span class="cnr bl"></span><span class="cnr br"></span>
+      <div class="shareCardBg" id="bg"></div>
+      <div class="shareCardGrad"></div>
+      <div class="content">
+        <div class="shareBrand" id="brand"></div>
+        <div class="shareBigNum" id="num">0</div>
+        <div class="shareLblWrap" id="lblWrap">
+          <div class="shareLbl" id="lbl">Pompek dzisiaj</div>
+          <div class="shareLblBar" id="lblBar"></div>
+        </div>
+        <div class="shareBanners">
+          <div class="grungeBanner" id="b1"><span>Jedna seria.</span></div>
+          <div class="grungeBanner" id="b2"><span>Zero wymówek.</span></div>
+        </div>
+        <div class="shareDate" id="date">24 września 2026</div>
+        <div class="shareTagline" id="tagline">Jedna seria dziennie.</div>
+      </div>
+    </div>
+  </div>
+  <div class="replayBar">
+    <button class="replay" id="replayBtn">▶ odtwórz od nowa</button>
+  </div>
+  <div class="speedRow" id="speedRow">
+    <span>tempo:</span>
+    <button data-t="0.75" class="">szybciej</button>
+    <button data-t="1" class="active">normalne</button>
+    <button data-t="1.4">wolniej</button>
+  </div>
+</div>
+
+<script>
+function wait(ms){ return new Promise(function(r){ setTimeout(r, ms); }); }
+
+function typewriter(el, text, speed){
+  return new Promise(function(resolve){
+    el.classList.add('typing');
+    el.style.opacity = '1';
+    let i = 0;
+    const cursor = '<span class="csr">&nbsp;</span>';
+    const iv = setInterval(function(){
+      i++;
+      el.innerHTML = escapeHtml(text.slice(0, i)) + (i < text.length ? cursor : '');
+      if(i >= text.length){ clearInterval(iv); el.classList.remove('typing'); resolve(); }
+    }, speed);
+  });
+}
+function escapeHtml(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+function countUp(el, target, duration){
+  return new Promise(function(resolve){
+    if(target <= 0){ el.textContent = '0'; resolve(); return; }
+    const steps = Math.min(target, 28);
+    const stepTime = duration / steps;
+    let i = 0;
+    const iv = setInterval(function(){
+      i++;
+      const n = Math.min(target, Math.round(target * (i/steps)));
+      el.textContent = String(n);
+      if(i >= steps){ clearInterval(iv); el.textContent = String(target); resolve(); }
+    }, stepTime);
+  });
+}
+
+function shake(el, amt){
+  return el.animate([
+    {transform:'translate(0,0)'},
+    {transform:'translate('+amt+'px,'+(-amt*.6)+'px)'},
+    {transform:'translate('+(-amt)+'px,'+(amt*.4)+'px)'},
+    {transform:'translate(0,0)'}
+  ], {duration:170, easing:'ease-out'}).finished;
+}
+
+function scanReveal(card, bg, duration){
+  return new Promise(function(resolve){
+    bg.style.clipPath = 'inset(0 0 100% 0)';
+    const light = document.createElement('div');
+    light.className = 'shareCardScan';
+    card.insertBefore(light, bg.nextSibling);
+    const a1 = bg.animate([{clipPath:'inset(0 0 100% 0)'},{clipPath:'inset(0 0 0% 0)'}], {duration:duration, easing:'cubic-bezier(.3,.1,.2,1)'});
+    const a2 = light.animate([{top:'0%', opacity:1},{top:'96%', opacity:1},{top:'100%', opacity:0}], {duration:duration, easing:'cubic-bezier(.3,.1,.2,1)'});
+    Promise.all([a1.finished, a2.finished]).then(function(){
+      light.remove();
+      bg.style.clipPath = 'inset(0 0 0% 0)';
+      resolve();
+    });
+  });
+}
+
+let tempoMult = 1;
+
+async function playSequence(){
+  const card = document.getElementById('card');
+  const bg = document.getElementById('bg');
+  const brand = document.getElementById('brand');
+  const num = document.getElementById('num');
+  const lblWrap = document.getElementById('lblWrap');
+  const lblBar = document.getElementById('lblBar');
+  const b1 = document.getElementById('b1'), b2 = document.getElementById('b2');
+  const date = document.getElementById('date'), tagline = document.getElementById('tagline');
+
+  // reset
+  document.querySelectorAll('.shareCardScan').forEach(function(n){ n.remove(); });
+  bg.style.clipPath = 'inset(0 0 100% 0)';
+  brand.innerHTML = ''; brand.style.opacity = '0';
+  num.textContent = '0'; num.style.opacity = '0'; num.style.transform = 'scale(1)';
+  lblWrap.style.opacity = '0';
+  lblBar.style.width = '0px';
+  [b1,b2].forEach(function(b){ b.style.opacity='0'; b.style.transform='translateX(-70px) scale(1.8)'; });
+  date.style.opacity = '0'; tagline.style.opacity = '0';
+
+  const T = tempoMult;
+  const targetVal = 45;
+
+  // 1) grafika wjeżdża skanem
+  await scanReveal(card, bg, 700*T);
+  await wait(120*T);
+
+  // 2) marka wpisywana jak na maszynie
+  await typewriter(brand, '🔥 CODZIENNY ATLETA', 34*T);
+  await wait(200*T);
+
+  // 3) licznik pompek liczy w górę
+  num.style.opacity = '1';
+  await countUp(num, targetVal, Math.min(900, 260 + targetVal*13) * T);
+  await num.animate([{transform:'scale(1.22)'},{transform:'scale(1)'}], {duration:220*T, easing:'cubic-bezier(.2,.8,.3,1)'}).finished;
+  await shake(card, 5);
+  await wait(220*T);
+
+  // 4) mocny napis "POMPEK DZISIAJ" pod licznikiem, z rosnącą podkreślką
+  lblWrap.style.opacity = '1';
+  await lblWrap.querySelector('.shareLbl').animate([{transform:'scale(1.6)'},{transform:'scale(1)'}], {duration:280*T, easing:'cubic-bezier(.2,.8,.3,1)'}).finished;
+  await lblBar.animate([{width:'0px'},{width:'52px'}], {duration:240*T, easing:'ease-out'}).finished;
+  lblBar.style.width = '52px';
+  await shake(card, 3);
+  await wait(240*T);
+
+  // 5) banery na koniec
+  for(const b of [b1,b2]){
+    b.style.opacity = '1';
+    await b.animate([{transform:'translateX(-70px) scale(1.8)'},{transform:'translateX(0) scale(1)'}], {duration:320*T, easing:'cubic-bezier(.2,.8,.3,1)'}).finished;
+    b.style.transform = 'translateX(0) scale(1)';
+    await shake(card, 4);
+    await wait(120*T);
+  }
+
+  await wait(150*T);
+  date.style.transition = (300*T)+'ms'; date.style.opacity = '1';
+  await wait(200*T);
+  tagline.style.transition = (400*T)+'ms'; tagline.style.opacity = '1';
+}
+
+document.getElementById('replayBtn').addEventListener('click', playSequence);
+document.querySelectorAll('#speedRow button').forEach(function(btn){
+  btn.addEventListener('click', function(){
+    document.querySelectorAll('#speedRow button').forEach(function(b){ b.classList.remove('active'); });
+    btn.classList.add('active');
+    tempoMult = parseFloat(btn.dataset.t);
+    playSequence();
+  });
+});
+playSequence();
+</script>
+</body>
+</html>
