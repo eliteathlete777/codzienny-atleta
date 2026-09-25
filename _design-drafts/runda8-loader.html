@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Runda 8 — 10 propozycji animacji ładowania (1.5s przed wjazdem grafiki)</title>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=JetBrains+Mono:wght@400;700;800&family=Barlow+Condensed:wght@600;700;800&display=swap">
+<style>
+:root{ --bg:#0A0A0C; --card:#141419; --line:#24242C; --txt:#E8E8EA; --txt2:#9A9AA3; --accent:#C81E2C; --accent-txt:#E8394A;
+  --display:'Anton', sans-serif; --mono:'JetBrains Mono', monospace; color-scheme:dark; }
+*{box-sizing:border-box;}
+body{margin:0; background:var(--bg); color:var(--txt); font-family:'Barlow Condensed',sans-serif; padding:24px 16px 100px;}
+h1{font-size:19px; text-align:center; margin:0 0 6px; text-transform:uppercase; letter-spacing:.04em;}
+p.sub{text-align:center; color:var(--txt2); font-size:13px; margin:0 0 26px auto; max-width:600px; margin-inline:auto; line-height:1.55;}
+.grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:22px; max-width:1300px; margin:0 auto;}
+.cell{background:var(--card); border:1px solid var(--line); border-radius:12px; padding:14px; display:flex; flex-direction:column; align-items:center; gap:10px;}
+.idx{font-family:'JetBrains Mono',monospace; font-size:11px; font-weight:800; background:var(--accent); color:#fff; border-radius:4px; padding:2px 8px; align-self:flex-start;}
+.lbl{font-size:11.5px; color:var(--txt2); text-align:center; line-height:1.35; min-height:34px;}
+button.replay{font-size:11px; padding:6px 14px; border-radius:5px; border:1px solid var(--accent); background:transparent; color:var(--accent-txt); cursor:pointer; font-family:inherit; font-weight:700;}
+button.replay:active{background:var(--accent); color:#fff;}
+
+.stage{width:100%; max-width:260px; aspect-ratio:9/16; background:#141419; position:relative; overflow:hidden;
+  border:1.5px solid var(--accent); border-radius:10px; box-shadow:0 12px 34px rgba(0,0,0,.6); container-type:inline-size;
+  display:flex; align-items:center; justify-content:center;}
+.stage .cnr{position:absolute; width:16px; height:16px; border:2px solid var(--accent); pointer-events:none; z-index:5;}
+.tl{top:6px; left:6px; border-right:none; border-bottom:none;} .tr{top:6px; right:6px; border-left:none; border-bottom:none;}
+.bl{bottom:6px; left:6px; border-right:none; border-top:none;} .br{bottom:6px; right:6px; border-left:none; border-top:none;}
+.stageBg{position:absolute; inset:0; z-index:0; background-image:url('splash-bg.jpg'); background-size:cover; background-position:top center; filter:contrast(1.08); opacity:0;}
+.stageGrad{position:absolute; inset:0; z-index:1; pointer-events:none;
+  background-image:linear-gradient(rgba(10,10,12,.32), rgba(10,10,12,.8) 55%, rgba(10,10,12,.96)),
+    radial-gradient(ellipse at 50% 15%, rgba(200,30,44,.18), transparent 60%);}
+.loaderLayer{position:absolute; inset:0; z-index:3; display:flex; align-items:center; justify-content:center;}
+</style>
+</head>
+<body>
+<h1>Runda 8 — 10 propozycji animacji ładowania (1.5s)</h1>
+<p class="sub">To co widzisz PRZED wjazdem grafiki. Każda trwa ok. 1.5s, potem znika i pojawia się zdjęcie w tle (reszta sekwencji dochodzi już w appce). Wybierz numer, który najlepiej pasuje.</p>
+<div class="grid" id="grid"></div>
+
+<script>
+function wait(ms){ return new Promise(function(r){ setTimeout(r, ms); }); }
+
+/* ===== 10 propozycji loadera, kazda ~1.5s, w warstwie .loaderLayer ===== */
+function loaderSegBar(layer){
+  const wrap = document.createElement('div'); wrap.style.cssText = 'display:flex; gap:2px;';
+  const n = 14;
+  for(let i=0;i<n;i++){ const s=document.createElement('span'); s.style.cssText='width:5px; height:14px; background:rgba(255,255,255,.14); display:inline-block; border-radius:1px;'; wrap.appendChild(s); }
+  layer.appendChild(wrap);
+  return new Promise(function(resolve){
+    let i=0; const iv=setInterval(function(){ i++; if(wrap.children[i-1]) wrap.children[i-1].style.background='var(--accent)';
+      if(i>=n){ clearInterval(iv); setTimeout(resolve, 150); } }, 1500/n);
+  });
+}
+function loaderRing(layer){
+  const svgNS='http://www.w3.org/2000/svg';
+  const svg=document.createElementNS(svgNS,'svg'); svg.setAttribute('width','64'); svg.setAttribute('height','64'); svg.setAttribute('viewBox','0 0 64 64');
+  const bg=document.createElementNS(svgNS,'circle'); bg.setAttribute('cx','32'); bg.setAttribute('cy','32'); bg.setAttribute('r','26'); bg.setAttribute('fill','none'); bg.setAttribute('stroke','rgba(255,255,255,.15)'); bg.setAttribute('stroke-width','5');
+  const fg=document.createElementNS(svgNS,'circle'); fg.setAttribute('cx','32'); fg.setAttribute('cy','32'); fg.setAttribute('r','26'); fg.setAttribute('fill','none'); fg.setAttribute('stroke','var(--accent-txt)'); fg.setAttribute('stroke-width','5'); fg.setAttribute('stroke-linecap','round');
+  const circ = 2*Math.PI*26; fg.setAttribute('stroke-dasharray', circ); fg.setAttribute('stroke-dashoffset', circ); fg.style.transform='rotate(-90deg)'; fg.style.transformOrigin='32px 32px';
+  svg.appendChild(bg); svg.appendChild(fg); layer.appendChild(svg);
+  return fg.animate([{strokeDashoffset:circ},{strokeDashoffset:0}],{duration:1500,easing:'ease-in-out'}).finished.then(function(){ return wait(150); });
+}
+function loaderDots(layer){
+  const wrap=document.createElement('div'); wrap.style.cssText='font-family:var(--mono); font-size:13px; letter-spacing:.15em; color:var(--accent-txt); text-transform:uppercase; display:flex; flex-direction:column; align-items:center; gap:10px;';
+  const txt=document.createElement('div'); txt.textContent='ŁADOWANIE';
+  const dotsRow=document.createElement('div'); dotsRow.style.cssText='display:flex; gap:6px;';
+  for(let i=0;i<3;i++){ const d=document.createElement('span'); d.style.cssText='width:8px; height:8px; border-radius:50%; background:var(--accent);'; dotsRow.appendChild(d); }
+  wrap.appendChild(txt); wrap.appendChild(dotsRow); layer.appendChild(wrap);
+  const anims = [...dotsRow.children].map(function(d,i){ return d.animate([{transform:'translateY(0)',opacity:.4},{transform:'translateY(-8px)',opacity:1},{transform:'translateY(0)',opacity:.4}],{duration:600,delay:i*150,iterations:2}).finished; });
+  return Promise.all(anims).then(function(){ return wait(150); });
+}
+function loaderEkg(layer){
+  const svgNS='http://www.w3.org/2000/svg';
+  const svg=document.createElementNS(svgNS,'svg'); svg.setAttribute('width','160'); svg.setAttribute('height','50'); svg.setAttribute('viewBox','0 0 160 50');
+  const path=document.createElementNS(svgNS,'path'); path.setAttribute('d','M0,25 L35,25 L45,8 L55,42 L65,25 L100,25 L108,14 L116,25 L160,25');
+  path.setAttribute('fill','none'); path.setAttribute('stroke','var(--accent-txt)'); path.setAttribute('stroke-width','3'); path.setAttribute('stroke-linecap','round'); path.setAttribute('stroke-linejoin','round');
+  const len = 220; path.setAttribute('stroke-dasharray', len); path.setAttribute('stroke-dashoffset', len);
+  svg.appendChild(path); layer.appendChild(svg);
+  return path.animate([{strokeDashoffset:len},{strokeDashoffset:0}],{duration:1350,easing:'linear'}).finished.then(function(){ return wait(150); });
+}
+function loaderPlates(layer){
+  const wrap=document.createElement('div'); wrap.style.cssText='display:flex; align-items:center; gap:3px;';
+  const bar=document.createElement('div'); bar.style.cssText='width:60px; height:6px; background:#555; border-radius:2px;';
+  const left=document.createElement('div'); left.style.cssText='display:flex; gap:2px;';
+  const right=document.createElement('div'); right.style.cssText='display:flex; gap:2px; flex-direction:row-reverse;';
+  wrap.appendChild(left); wrap.appendChild(bar); wrap.appendChild(right);
+  layer.appendChild(wrap);
+  const sizes=[38,32,26];
+  const anims=[];
+  sizes.forEach(function(sz,i){
+    const pl=document.createElement('div'); pl.style.cssText='width:8px; height:0px; background:var(--accent); border-radius:2px; opacity:0;';
+    const pr=pl.cloneNode();
+    left.appendChild(pl); right.appendChild(pr);
+    anims.push(pl.animate([{height:'0px',opacity:0},{height:sz+'px',opacity:1}],{duration:350,delay:i*280,fill:'forwards',easing:'ease-out'}).finished);
+    anims.push(pr.animate([{height:'0px',opacity:0},{height:sz+'px',opacity:1}],{duration:350,delay:i*280,fill:'forwards',easing:'ease-out'}).finished);
+  });
+  return Promise.all(anims).then(function(){ return wait(300); });
+}
+function loaderCountdown(layer){
+  const wrap=document.createElement('div'); wrap.style.cssText='font-family:var(--display); font-size:54px; color:#fff; text-shadow:0 0 20px rgba(200,30,44,.7);';
+  layer.appendChild(wrap);
+  return (async function(){
+    for(const n of ['3','2','1']){
+      wrap.textContent = n;
+      await wrap.animate([{opacity:0,transform:'scale(1.5)'},{opacity:1,transform:'scale(1)'},{opacity:0,transform:'scale(.9)'}],{duration:480,easing:'ease-out'}).finished;
+    }
+  })();
+}
+function loaderFill(layer){
+  const box=document.createElement('div'); box.style.cssText='width:60px; height:90px; border:2px solid var(--accent-txt); border-radius:4px; position:relative; overflow:hidden;';
+  const fill=document.createElement('div'); fill.style.cssText='position:absolute; left:0; right:0; bottom:0; height:0%; background:linear-gradient(0deg, var(--accent), var(--accent-txt));';
+  box.appendChild(fill); layer.appendChild(box);
+  return fill.animate([{height:'0%'},{height:'100%'}],{duration:1500,easing:'ease-in-out'}).finished.then(function(){ return wait(150); });
+}
+function loaderPercent(layer){
+  const wrap=document.createElement('div'); wrap.style.cssText='font-family:var(--mono); font-size:46px; font-weight:800; color:var(--accent-txt); text-shadow:0 0 16px rgba(200,30,44,.6);';
+  wrap.textContent='0%'; layer.appendChild(wrap);
+  return new Promise(function(resolve){
+    let n=0; const iv=setInterval(function(){ n+=4; wrap.textContent=Math.min(n,100)+'%'; if(n>=100){ clearInterval(iv); setTimeout(resolve,150); } }, 60);
+  });
+}
+function loaderLaserScan(layer){
+  const line=document.createElement('div'); line.style.cssText='position:absolute; left:10%; right:10%; height:3px; background:linear-gradient(90deg,transparent,var(--accent-txt),transparent); box-shadow:0 0 16px var(--accent); top:0;';
+  layer.style.position='absolute'; layer.appendChild(line);
+  return line.animate([{top:'20%'},{top:'80%'},{top:'20%'}],{duration:1500,easing:'ease-in-out'}).finished.then(function(){ return wait(100); });
+}
+function loaderRepCount(layer){
+  const wrap=document.createElement('div'); wrap.style.cssText='display:flex; flex-direction:column; align-items:center; gap:8px;';
+  const num=document.createElement('div'); num.style.cssText='font-family:var(--display); font-size:52px; color:#fff; text-shadow:0 0 16px rgba(200,30,44,.6);'; num.textContent='0';
+  const lbl=document.createElement('div'); lbl.style.cssText='font-family:var(--mono); font-size:11px; letter-spacing:.15em; color:var(--txt2); text-transform:uppercase;'; lbl.textContent='przygotowanie';
+  wrap.appendChild(num); wrap.appendChild(lbl); layer.appendChild(wrap);
+  return new Promise(function(resolve){
+    let n=0; const iv=setInterval(function(){ n++; num.textContent=n; num.animate([{transform:'scale(1.3)'},{transform:'scale(1)'}],{duration:150});
+      if(n>=5){ clearInterval(iv); setTimeout(resolve,200); } }, 260);
+  });
+}
+
+const LOADERS = [
+  { name:'L1 — Pasek segmentowy (obecny)', fn:loaderSegBar },
+  { name:'L2 — Pierścień ładowania (okrąg wypełnia się 0→100%)', fn:loaderRing },
+  { name:'L3 — „ŁADOWANIE" + skaczące kropki', fn:loaderDots },
+  { name:'L4 — Linia EKG rysuje się jak puls', fn:loaderEkg },
+  { name:'L5 — Talerze wjeżdżają na sztangę (po 3 na stronę)', fn:loaderPlates },
+  { name:'L6 — Odliczanie 3-2-1 (duże cyfry)', fn:loaderCountdown },
+  { name:'L7 — Zbiornik/butla napełnia się czerwienią od dołu', fn:loaderFill },
+  { name:'L8 — Licznik procentowy 0%→100%', fn:loaderPercent },
+  { name:'L9 — Skaner laserowy przesuwa się w górę-dół', fn:loaderLaserScan },
+  { name:'L10 — Licznik powtórzeń 1-5 "przygotowanie"', fn:loaderRepCount }
+];
+
+async function playDemo(stage, fn){
+  const bg = stage.querySelector('.stageBg');
+  const layer = stage.querySelector('.loaderLayer');
+  layer.innerHTML = '';
+  bg.style.opacity = '0';
+  bg.style.transition = 'opacity .5s ease';
+  await fn(layer);
+  layer.innerHTML = '';
+  bg.style.opacity = '1';
+}
+
+function stageMarkup(){
+  return '<span class="cnr tl"></span><span class="cnr tr"></span><span class="cnr bl"></span><span class="cnr br"></span>' +
+    '<div class="stageBg"></div><div class="stageGrad"></div><div class="loaderLayer"></div>';
+}
+const grid = document.getElementById('grid');
+LOADERS.forEach(function(v){
+  const cell = document.createElement('div'); cell.className = 'cell';
+  cell.innerHTML = '<span class="idx">' + v.name.split(' —')[0] + '</span>' +
+    '<div class="stage"></div><div class="lbl">' + v.name + '</div><button class="replay">▶ odtwórz</button>';
+  grid.appendChild(cell);
+  const stage = cell.querySelector('.stage');
+  stage.innerHTML = stageMarkup();
+  const play = function(){ playDemo(stage, v.fn); };
+  cell.querySelector('.replay').addEventListener('click', play);
+  play();
+});
+</script>
+</body>
+</html>
