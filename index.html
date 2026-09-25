@@ -347,9 +347,11 @@ body{display:flex;flex-direction:column;height:100vh;height:100dvh;max-width:520
 .shareDate{font-family:var(--mono); font-size:4.67cqw; letter-spacing:.08em; color:#fff; text-transform:uppercase;
   opacity:0; display:flex; align-items:center; gap:3.3cqw; white-space:nowrap;}
 .shareDate::before, .shareDate::after{content:''; width:6.67cqw; height:2px; background:var(--accent);}
-.shareDayWrap{position:absolute; top:56.5%; left:49.7%; transform:translate(-50%,-50%) scale(1.32); z-index:2;}
+.shareDayWrap{position:absolute; top:59%; left:49.7%; transform:translate(-50%,-50%) scale(1.32); z-index:2;}
 .shareDay{font-family:'Barlow Condensed', sans-serif; font-weight:700; font-size:5.33cqw; letter-spacing:.2em;
-  color:var(--txt2); text-transform:uppercase; opacity:0; white-space:nowrap;}
+  color:var(--txt2); text-transform:uppercase; opacity:0; white-space:nowrap;
+  display:flex; align-items:center; gap:2.7cqw;}
+.shareDay::before, .shareDay::after{content:''; width:5.3cqw; height:2px; background:var(--accent);}
 .shareBtn{width:100%; max-width:300px; flex:0 0 auto;}
 .dmFsBrandStrip{display:none;}
 .dmFsClose{position:absolute; top:calc(14px + var(--safe-t)); left:16px; width:38px; height:38px;
@@ -2118,9 +2120,14 @@ function renderShareCardPng(){
     ctx.font = "400 88px 'Anton', Impact, sans-serif";
     ctx.fillText(document.getElementById('shareLbl').textContent.toUpperCase(), W * 0.508, H * 0.507);
 
-    ctx.fillStyle = '#9A9AA3';
+    const dayCx = W * 0.497, dayCy = H * 0.59, dayText = document.getElementById('shareDay').textContent.toUpperCase();
     ctx.font = "700 76px 'Barlow Condensed', sans-serif";
-    ctx.fillText(document.getElementById('shareDay').textContent.toUpperCase(), W * 0.497, H * 0.565);
+    const dayTw = ctx.measureText(dayText).width;
+    ctx.fillStyle = '#C81E2C';
+    ctx.fillRect(dayCx - dayTw/2 - 29 - 57, dayCy - 1, 57, 2);
+    ctx.fillRect(dayCx + dayTw/2 + 29, dayCy - 1, 57, 2);
+    ctx.fillStyle = '#9A9AA3';
+    ctx.fillText(dayText, dayCx, dayCy);
 
     const bl1 = document.getElementById('shareBannerLine1'), bl2 = document.getElementById('shareBannerLine2');
     const bannersCx = W * 0.492, bannersCy = H * 0.772;
