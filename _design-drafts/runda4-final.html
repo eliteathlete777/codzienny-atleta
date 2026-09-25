@@ -31,7 +31,7 @@ p.sub{text-align:center; color:var(--txt2); font-size:13px; margin:0 0 26px; max
 .shareCardScan{position:absolute; left:0; right:0; height:5px; z-index:2; top:0; pointer-events:none;
   background:linear-gradient(90deg,transparent,var(--accent-txt),transparent); box-shadow:0 0 18px var(--accent);}
 /* ===== Oficjalna, zatwierdzona kompozycja — pozycje i skale ustalone w interaktywnym edytorze (Runda 6) ===== */
-.shareBrand{position:absolute; top:5.5%; left:50%; transform:translate(-50%,-50%) scale(1.00); text-align:center; z-index:2;
+.shareBrand{position:absolute; top:5.5%; left:50%; transform:translate(-50%,-50%) scale(1.00); text-align:center; z-index:2; white-space:nowrap;
   font-family:var(--mono); font-weight:800; font-size:15px; letter-spacing:.1em; color:var(--accent-txt); min-height:18px; opacity:0; text-shadow:0 0 14px rgba(200,30,44,.5);}
 .shareBrand .csr{display:inline-block; width:7px; background:var(--accent-txt); margin-left:1px; opacity:0; animation:csrBlink .55s steps(1) infinite;}
 .shareBrand.typing .csr{opacity:1;}
@@ -42,7 +42,7 @@ p.sub{text-align:center; color:var(--txt2); font-size:13px; margin:0 0 26px; max
 .shareLblWrap{position:absolute; top:50.7%; left:50.8%; transform:translate(-50%,-50%) scale(1.16); z-index:2;
   display:flex; flex-direction:column; align-items:center; gap:9px; opacity:0;}
 .shareLbl{font-family:var(--display); font-size:21px; letter-spacing:.03em; color:#fff; text-transform:uppercase;
-  text-shadow:0 2px 0 rgba(0,0,0,.7), 0 0 22px rgba(200,30,44,.65);}
+  text-shadow:0 2px 0 rgba(0,0,0,.7), 0 0 22px rgba(200,30,44,.65); white-space:nowrap;}
 .shareLblBar{width:0; height:4px; border-radius:2px; background:var(--accent);}
 .shareBanners{position:absolute; top:77.2%; left:49.2%; transform:translate(-50%,-50%) scale(1.54); z-index:2;
   display:flex; flex-direction:column; align-items:center; gap:5px;}
@@ -55,11 +55,11 @@ p.sub{text-align:center; color:var(--txt2); font-size:13px; margin:0 0 26px; max
   border:3px solid var(--accent-txt); border-radius:50%; pointer-events:none; z-index:3; opacity:0;}
 .dateWrap{position:absolute; top:10.8%; left:52.1%; transform:translate(-50%,-50%) scale(1.00); z-index:2;}
 .shareDate{font-family:var(--mono); font-size:14px; letter-spacing:.08em; color:#fff; text-transform:uppercase;
-  opacity:0; display:flex; align-items:center; gap:10px;}
+  opacity:0; display:flex; align-items:center; gap:10px; white-space:nowrap;}
 .shareDate::before, .shareDate::after{content:''; width:20px; height:2px; background:var(--accent);}
 .dayWrap{position:absolute; top:60.1%; left:49.7%; transform:translate(-50%,-50%) scale(1.32); z-index:2;}
 .shareDay{font-family:'Barlow Condensed', sans-serif; font-weight:700; font-size:16px; letter-spacing:.2em;
-  color:var(--txt2); text-transform:uppercase; opacity:0;}
+  color:var(--txt2); text-transform:uppercase; opacity:0; white-space:nowrap;}
 
 .replayBar{display:flex; gap:10px; align-items:center;}
 button.replay{font-size:12px; padding:8px 18px; border-radius:6px; border:1px solid var(--accent); background:transparent; color:var(--accent-txt); cursor:pointer; font-family:inherit; font-weight:700; letter-spacing:.03em;}
@@ -205,7 +205,6 @@ async function playSequence(){
 
   // 1) grafika wjeżdża skanem
   await scanReveal(card, bg, 1400*T);
-  await wait(120*T);
 
   // 2) marka wpisywana jak na maszynie
   await typewriter(brand, '🔥 CODZIENNY ATLETA', 34*T);
