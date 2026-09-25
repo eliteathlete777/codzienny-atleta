@@ -17,8 +17,11 @@ p.sub{text-align:center; color:var(--txt2); font-size:13px; margin:0 0 26px; max
 .stageBox{position:relative;}
 
 /* ===== 1:1 kopia stylu .shareCard z appki ===== */
-.shareCard{width:300px; aspect-ratio:9/16; background:#141419; position:relative; overflow:hidden;
-  border:1.5px solid var(--accent); border-radius:10px; box-shadow:0 16px 46px rgba(0,0,0,.65), 0 0 0 6px rgba(200,30,44,.08);}
+.shareCard{width:100%; max-width:300px; aspect-ratio:9/16; background:#141419; position:relative; overflow:hidden;
+  border:1.5px solid var(--accent); border-radius:10px; box-shadow:0 16px 46px rgba(0,0,0,.65), 0 0 0 6px rgba(200,30,44,.08);
+  container-type:inline-size; container-name:shareCard;}
+/* Wszystkie rozmiary tekstu/elementow ponizej sa w cqw (procent szerokosci samej karty),
+   wiec skaluja sie 1:1 z realnym rozmiarem karty na dowolnym ekranie telefonu — nie tylko z jej pozycja (%). */
 .shareCard .cnr{position:absolute; width:18px; height:18px; border:2px solid var(--accent); pointer-events:none; z-index:3;}
 .shareCard .tl{top:6px; left:6px; border-right:none; border-bottom:none;}
 .shareCard .tr{top:6px; right:6px; border-left:none; border-bottom:none;}
@@ -32,33 +35,33 @@ p.sub{text-align:center; color:var(--txt2); font-size:13px; margin:0 0 26px; max
   background:linear-gradient(90deg,transparent,var(--accent-txt),transparent); box-shadow:0 0 18px var(--accent);}
 /* ===== Oficjalna, zatwierdzona kompozycja — pozycje i skale ustalone w interaktywnym edytorze (Runda 6) ===== */
 .shareBrand{position:absolute; top:5.5%; left:50%; transform:translate(-50%,-50%) scale(1.00); text-align:center; z-index:2; white-space:nowrap;
-  font-family:var(--mono); font-weight:800; font-size:15px; letter-spacing:.1em; color:var(--accent-txt); min-height:18px; opacity:0; text-shadow:0 0 14px rgba(200,30,44,.5);}
-.shareBrand .csr{display:inline-block; width:7px; background:var(--accent-txt); margin-left:1px; opacity:0; animation:csrBlink .55s steps(1) infinite;}
+  font-family:var(--mono); font-weight:800; font-size:5cqw; letter-spacing:.1em; color:var(--accent-txt); min-height:6cqw; opacity:0; text-shadow:0 0 14px rgba(200,30,44,.5);}
+.shareBrand .csr{display:inline-block; width:2.3cqw; background:var(--accent-txt); margin-left:1px; opacity:0; animation:csrBlink .55s steps(1) infinite;}
 .shareBrand.typing .csr{opacity:1;}
 @keyframes csrBlink{0%,49%{opacity:1;}50%,100%{opacity:0;}}
 .numWrap{position:absolute; top:34.0%; left:50.3%; transform:translate(-50%,-50%) scale(1.13); z-index:2;}
-.shareBigNum{font-family:var(--display); font-size:92px; line-height:1; color:#fff; opacity:0;
+.shareBigNum{font-family:var(--display); font-size:30.7cqw; line-height:1; color:#fff; opacity:0;
   text-shadow:0 0 18px rgba(200,30,44,.75), 0 0 40px rgba(200,30,44,.45);}
 .shareLblWrap{position:absolute; top:50.7%; left:50.8%; transform:translate(-50%,-50%) scale(1.16); z-index:2;
-  display:flex; flex-direction:column; align-items:center; gap:9px; opacity:0;}
-.shareLbl{font-family:var(--display); font-size:21px; letter-spacing:.03em; color:#fff; text-transform:uppercase;
+  display:flex; flex-direction:column; align-items:center; gap:3cqw; opacity:0;}
+.shareLbl{font-family:var(--display); font-size:7cqw; letter-spacing:.03em; color:#fff; text-transform:uppercase;
   text-shadow:0 2px 0 rgba(0,0,0,.7), 0 0 22px rgba(200,30,44,.65); white-space:nowrap;}
-.shareLblBar{width:0; height:4px; border-radius:2px; background:var(--accent);}
+.shareLblBar{width:0; height:1.33cqw; border-radius:2px; background:var(--accent);}
 .shareBanners{position:absolute; top:77.2%; left:49.2%; transform:translate(-50%,-50%) scale(1.54); z-index:2;
-  display:flex; flex-direction:column; align-items:center; gap:5px;}
-.grungeBanner{position:relative; display:inline-block; background:var(--accent); padding:6px 15px; opacity:0;
+  display:flex; flex-direction:column; align-items:center; gap:1.7cqw;}
+.grungeBanner{position:relative; display:inline-block; background:var(--accent); padding:2cqw 5cqw; opacity:0;
   clip-path:polygon(2% 10%,10% 0,92% 6%,100% 22%,97% 84%,90% 100%,8% 92%,0 74%);}
-.grungeBanner span{font-family:'Barlow Condensed', sans-serif; font-size:17.6px; font-weight:800; color:#fff; text-transform:uppercase;}
-#b1{padding:7px 18px; box-shadow:0 0 0 0 rgba(200,30,44,0);}
-#b1 span{font-size:20.2px; letter-spacing:.02em; text-shadow:0 2px 0 rgba(0,0,0,.35);}
-.shockwave{position:absolute; left:50%; top:50%; width:40px; height:40px; margin:-20px 0 0 -20px;
+.grungeBanner span{font-family:'Barlow Condensed', sans-serif; font-size:5.87cqw; font-weight:800; color:#fff; text-transform:uppercase;}
+#b1{padding:2.33cqw 6cqw; box-shadow:0 0 0 0 rgba(200,30,44,0);}
+#b1 span{font-size:6.73cqw; letter-spacing:.02em; text-shadow:0 2px 0 rgba(0,0,0,.35);}
+.shockwave{position:absolute; left:50%; top:50%; width:13.3cqw; height:13.3cqw; margin:-6.65cqw 0 0 -6.65cqw;
   border:3px solid var(--accent-txt); border-radius:50%; pointer-events:none; z-index:3; opacity:0;}
 .dateWrap{position:absolute; top:10.8%; left:52.1%; transform:translate(-50%,-50%) scale(1.00); z-index:2;}
-.shareDate{font-family:var(--mono); font-size:14px; letter-spacing:.08em; color:#fff; text-transform:uppercase;
-  opacity:0; display:flex; align-items:center; gap:10px; white-space:nowrap;}
-.shareDate::before, .shareDate::after{content:''; width:20px; height:2px; background:var(--accent);}
+.shareDate{font-family:var(--mono); font-size:4.67cqw; letter-spacing:.08em; color:#fff; text-transform:uppercase;
+  opacity:0; display:flex; align-items:center; gap:3.3cqw; white-space:nowrap;}
+.shareDate::before, .shareDate::after{content:''; width:6.67cqw; height:2px; background:var(--accent);}
 .dayWrap{position:absolute; top:60.1%; left:49.7%; transform:translate(-50%,-50%) scale(1.32); z-index:2;}
-.shareDay{font-family:'Barlow Condensed', sans-serif; font-weight:700; font-size:16px; letter-spacing:.2em;
+.shareDay{font-family:'Barlow Condensed', sans-serif; font-weight:700; font-size:5.33cqw; letter-spacing:.2em;
   color:var(--txt2); text-transform:uppercase; opacity:0; white-space:nowrap;}
 
 .replayBar{display:flex; gap:10px; align-items:center;}
@@ -143,8 +146,8 @@ function countUp(el, target, duration){
 function shockwave(el){
   el.style.opacity = '1';
   return el.animate([
-    {width:'40px', height:'40px', marginTop:'-20px', marginLeft:'-20px', opacity:.9, borderWidth:'3px'},
-    {width:'260px', height:'260px', marginTop:'-130px', marginLeft:'-130px', opacity:0, borderWidth:'1px'}
+    {width:'13.3cqw', height:'13.3cqw', marginTop:'-6.65cqw', marginLeft:'-6.65cqw', opacity:.9, borderWidth:'3px'},
+    {width:'86.7cqw', height:'86.7cqw', marginTop:'-43.3cqw', marginLeft:'-43.3cqw', opacity:0, borderWidth:'1px'}
   ], {duration:480, easing:'cubic-bezier(.2,.7,.3,1)'}).finished.then(function(){ el.style.opacity='0'; });
 }
 function shake(el, amt){
@@ -191,7 +194,7 @@ async function playSequence(){
   bg.style.clipPath = 'inset(0 0 100% 0)';
   brand.innerHTML = ''; brand.style.opacity = '0';
   num.textContent = '0'; num.style.opacity = '0'; num.style.transform = 'scale(1)';
-  wave.style.opacity = '0'; wave.style.width='40px'; wave.style.height='40px'; wave.style.marginTop='-20px'; wave.style.marginLeft='-20px';
+  wave.style.opacity = '0'; wave.style.width='13.3cqw'; wave.style.height='13.3cqw'; wave.style.marginTop='-6.65cqw'; wave.style.marginLeft='-6.65cqw';
   lblWrap.style.opacity = '0';
   lblBar.style.width = '0px';
   [b1,b2].forEach(function(b){ b.style.opacity='0'; b.style.transform='translateX(-70px) scale(1.8)'; });
@@ -221,8 +224,8 @@ async function playSequence(){
   // 4) mocny napis "POMPEK DZISIAJ" pod licznikiem, z rosnącą podkreślką
   lblWrap.style.opacity = '1';
   await lblWrap.querySelector('.shareLbl').animate([{transform:'scale(1.6)'},{transform:'scale(1)'}], {duration:280*T, easing:'cubic-bezier(.2,.8,.3,1)'}).finished;
-  await lblBar.animate([{width:'0px'},{width:'52px'}], {duration:240*T, easing:'ease-out'}).finished;
-  lblBar.style.width = '52px';
+  await lblBar.animate([{width:'0px'},{width:'17.3cqw'}], {duration:240*T, easing:'ease-out'}).finished;
+  lblBar.style.width = '17.3cqw';
   await shake(card, 3);
   await wait(240*T);
 
