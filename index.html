@@ -313,22 +313,39 @@ body{display:flex;flex-direction:column;height:100vh;height:100dvh;max-width:520
 .shareCloseBtn:active{transform:scale(.94);}
 .shareCard{width:100%; max-width:300px; aspect-ratio:9/16; background:var(--bg2); position:relative; overflow:hidden;
   border:1.5px solid var(--accent); border-radius:10px; box-shadow:0 12px 40px rgba(0,0,0,.6), 0 0 0 6px rgba(200,30,44,.08);
-  display:flex; flex-direction:column; align-items:center; justify-content:center; gap:10px; padding:22px 18px;}
-.shareCard::before{content:''; position:absolute; inset:0;
+  container-type:inline-size; container-name:shareCard;}
+/* Karta wyniku — pozycje/skale ustalone w interaktywnym edytorze, rozmiary w cqw skaluja sie z realna szerokoscia karty. */
+.shareCardBg{position:absolute; inset:0; z-index:0; background-image:url('assets/splash-bg.jpg'); background-size:cover; background-position:top center; filter:contrast(1.08); clip-path:inset(0 0 100% 0); pointer-events:none;}
+.shareCardGrad{position:absolute; inset:0; z-index:1; pointer-events:none;
   background-image:linear-gradient(rgba(10,10,12,.32), rgba(10,10,12,.8) 55%, rgba(10,10,12,.96)),
-    radial-gradient(ellipse at 50% 15%, rgba(200,30,44,.18), transparent 60%),
-    url('assets/splash-bg.jpg');
-  background-size:cover; background-position:top center; filter:contrast(1.08); pointer-events:none;}
-.shareCard > *{position:relative;}
-.shareBrand{font-family:var(--mono); font-size:11px; font-weight:800; letter-spacing:.12em; color:var(--accent-txt);}
-.shareBigNum{font-family:var(--display); font-size:min(24vw,96px); line-height:1; color:#fff;
-  text-shadow:0 0 16px rgba(200,30,44,.75), 0 0 36px rgba(200,30,44,.45);}
-.shareLbl{font-size:14px; text-transform:uppercase; letter-spacing:.06em; color:var(--txt2); font-weight:700;}
-.shareBanners{display:flex; flex-direction:column; align-items:center; margin-top:10px;}
-.shareBanners .grungeBanner{margin:2px 0;}
-.shareBanners .grungeBanner span{font-size:clamp(13px,3.6vw,16px);}
-.shareDate{font-family:var(--mono); font-size:10px; color:var(--txt3); margin-top:8px;}
-.shareTagline{font-size:10px; color:var(--txt3); margin-top:12px; letter-spacing:.04em;}
+    radial-gradient(ellipse at 50% 15%, rgba(200,30,44,.18), transparent 60%);}
+.shareCardScan{position:absolute; left:0; right:0; height:5px; z-index:2; top:0; pointer-events:none;
+  background:linear-gradient(90deg,transparent,var(--accent-txt),transparent); box-shadow:0 0 18px var(--accent);}
+.shareBrand{position:absolute; top:5.5%; left:50%; transform:translate(-50%,-50%); text-align:center; z-index:2; white-space:nowrap; opacity:0;
+  font-family:var(--mono); font-weight:800; font-size:5cqw; letter-spacing:.1em; color:var(--accent-txt); min-height:6cqw; text-shadow:0 0 14px rgba(200,30,44,.5);}
+.shareNumWrap{position:absolute; top:34.0%; left:50.3%; transform:translate(-50%,-50%) scale(1.13); z-index:2;}
+.shareBigNum{font-family:var(--display); font-size:30.7cqw; line-height:1; color:#fff; opacity:0;
+  text-shadow:0 0 18px rgba(200,30,44,.75), 0 0 40px rgba(200,30,44,.45);}
+.shareShockwave{position:absolute; left:50%; top:50%; width:13.3cqw; height:13.3cqw; margin:-6.65cqw 0 0 -6.65cqw;
+  border:3px solid var(--accent-txt); border-radius:50%; pointer-events:none; z-index:3; opacity:0;}
+.shareLblWrap{position:absolute; top:50.7%; left:50.8%; transform:translate(-50%,-50%) scale(1.16); z-index:2; opacity:0;
+  display:flex; flex-direction:column; align-items:center; gap:3cqw;}
+.shareLbl{font-family:var(--display); font-size:7cqw; letter-spacing:.03em; color:#fff; text-transform:uppercase; font-weight:400;
+  text-shadow:0 2px 0 rgba(0,0,0,.7), 0 0 22px rgba(200,30,44,.65); white-space:nowrap;}
+.shareLblBar{width:0; height:1.33cqw; border-radius:2px; background:var(--accent);}
+.shareBanners{position:absolute; top:77.2%; left:49.2%; transform:translate(-50%,-50%) scale(1.54); z-index:2;
+  display:flex; flex-direction:column; align-items:center; gap:1.7cqw; width:max-content;}
+.shareBanners .grungeBanner{padding:2cqw 5cqw; opacity:0;}
+.shareBanners .grungeBanner span{font-size:5.87cqw; white-space:nowrap;}
+#shareB1{padding:2.33cqw 6cqw;}
+#shareB1 span{font-size:6.73cqw; letter-spacing:.02em; text-shadow:0 2px 0 rgba(0,0,0,.35);}
+.shareDateWrap{position:absolute; top:10.8%; left:52.1%; transform:translate(-50%,-50%); z-index:2;}
+.shareDate{font-family:var(--mono); font-size:4.67cqw; letter-spacing:.08em; color:#fff; text-transform:uppercase;
+  opacity:0; display:flex; align-items:center; gap:3.3cqw; white-space:nowrap;}
+.shareDate::before, .shareDate::after{content:''; width:6.67cqw; height:2px; background:var(--accent);}
+.shareDayWrap{position:absolute; top:60.1%; left:49.7%; transform:translate(-50%,-50%) scale(1.32); z-index:2;}
+.shareDay{font-family:'Barlow Condensed', sans-serif; font-weight:700; font-size:5.33cqw; letter-spacing:.2em;
+  color:var(--txt2); text-transform:uppercase; opacity:0; white-space:nowrap;}
 .shareBtn{width:100%; max-width:300px; flex:0 0 auto;}
 .dmFsBrandStrip{display:none;}
 .dmFsClose{position:absolute; top:calc(14px + var(--safe-t)); left:16px; width:38px; height:38px;
@@ -779,15 +796,23 @@ body{display:flex;flex-direction:column;height:100vh;height:100dvh;max-width:520
       <button type="button" class="shareCloseBtn" id="shareCloseBtn" data-i18n-aria="share_close" aria-label="Zamknij kartę wyniku">✕</button>
       <div class="shareCard dmPoster" id="shareCard">
         <span class="cnr tl"></span><span class="cnr tr"></span><span class="cnr bl"></span><span class="cnr br"></span>
-        <div class="shareBrand">🔥 CODZIENNY ATLETA</div>
-        <div class="shareBigNum" id="shareBigNum">0</div>
-        <div class="shareLbl" id="shareLbl">pompek dzisiaj</div>
-        <div class="shareBanners">
-          <div class="grungeBanner"><span id="shareBannerLine1">Jedna seria.</span></div>
-          <div class="grungeBanner"><span id="shareBannerLine2">Zero wymówek.</span></div>
+        <div class="shareCardBg" id="shareCardBg"></div>
+        <div class="shareCardGrad"></div>
+        <div class="shareBrand" id="shareBrand"></div>
+        <div class="shareNumWrap" id="shareNumWrap">
+          <div class="shareBigNum" id="shareBigNum">0</div>
+          <div class="shareShockwave" id="shareShockwave"></div>
         </div>
-        <div class="shareDate" id="shareDate"></div>
-        <div class="shareTagline" data-i18n="share_tagline">Jedna seria dziennie.</div>
+        <div class="shareLblWrap" id="shareLblWrap">
+          <div class="shareLbl" id="shareLbl">pompek dzisiaj</div>
+          <div class="shareLblBar" id="shareLblBar"></div>
+        </div>
+        <div class="shareBanners" id="shareBanners">
+          <div class="grungeBanner" id="shareB1"><span id="shareBannerLine1">Jedna seria.</span></div>
+          <div class="grungeBanner" id="shareB2"><span id="shareBannerLine2">Zero wymówek.</span></div>
+        </div>
+        <div class="shareDateWrap" id="shareDateWrap"><div class="shareDate" id="shareDate"></div></div>
+        <div class="shareDayWrap" id="shareDayWrap"><div class="shareDay" id="shareDay"></div></div>
       </div>
       <button type="button" class="actionBtn primary shareBtn" id="shareBtn" data-i18n="share_btn">📤 Udostępnij</button>
     </div>
@@ -1797,8 +1822,11 @@ function renderPushupTotals(){
 }
 
 // ---------- Karta wyniku do udostepnienia (dzisiaj / w tym tygodniu) ----------
-// Animacja wejscia banerow — maszyna do pisania + mrugajacy kursor (wariant nr 7 z picker-a).
+// Pelna animacja wejscia ustalona i zatwierdzona w rundach projektowych: skan grafiki w tle →
+// marka wpisywana jak na maszynie → licznik liczy w gore + fala uderzeniowa → mocny napis
+// "POMPEK DZISIAJ" z rosnaca podkreslka → banery (JEDNA SERIA mocniej) → data → dzien tygodnia.
 // Tylko na podgladzie na ekranie — wygenerowany PNG do udostepnienia ma zawsze pelny, gotowy tekst.
+function dmWait(ms){ return new Promise(function(r){ setTimeout(r, ms); }); }
 function dmTypewriterLine(el, text, speed){
   return new Promise(function(resolve){
     let i = 0;
@@ -1810,27 +1838,136 @@ function dmTypewriterLine(el, text, speed){
     }, speed);
   });
 }
-function dmAnimateShareBanners(){
-  const l1 = document.getElementById('shareBannerLine1');
-  const l2 = document.getElementById('shareBannerLine2');
+function dmCountUp(el, target, duration){
+  return new Promise(function(resolve){
+    if(target <= 0){ el.textContent = '0'; resolve(); return; }
+    const steps = Math.min(target, 26);
+    const stepTime = duration / steps;
+    let i = 0;
+    const iv = setInterval(function(){
+      i++;
+      el.textContent = String(Math.min(target, Math.round(target * (i/steps))));
+      if(i >= steps){ clearInterval(iv); el.textContent = String(target); resolve(); }
+    }, stepTime);
+  });
+}
+function dmShockwave(el){
+  el.style.opacity = '1';
+  return el.animate([
+    {width:'13.3cqw', height:'13.3cqw', marginTop:'-6.65cqw', marginLeft:'-6.65cqw', opacity:.9, borderWidth:'3px'},
+    {width:'86.7cqw', height:'86.7cqw', marginTop:'-43.3cqw', marginLeft:'-43.3cqw', opacity:0, borderWidth:'1px'}
+  ], {duration:460, easing:'cubic-bezier(.2,.7,.3,1)'}).finished.then(function(){ el.style.opacity = '0'; });
+}
+function dmShakeCard(card, amt){
+  return card.animate([
+    {transform:'translate(0,0)'},
+    {transform:'translate('+amt+'px,'+(-amt*.6)+'px)'},
+    {transform:'translate('+(-amt)+'px,'+(amt*.4)+'px)'},
+    {transform:'translate(0,0)'}
+  ], {duration:170, easing:'ease-out'}).finished;
+}
+function dmScanRevealBg(card, bg, duration){
+  return new Promise(function(resolve){
+    bg.style.clipPath = 'inset(0 0 100% 0)';
+    const light = document.createElement('div');
+    light.className = 'shareCardScan';
+    card.insertBefore(light, bg.nextSibling);
+    const a1 = bg.animate([{clipPath:'inset(0 0 100% 0)'},{clipPath:'inset(0 0 0% 0)'}], {duration:duration, easing:'cubic-bezier(.3,.1,.2,1)'});
+    const a2 = light.animate([{top:'0%',opacity:1},{top:'96%',opacity:1},{top:'100%',opacity:0}], {duration:duration, easing:'cubic-bezier(.3,.1,.2,1)'});
+    Promise.all([a1.finished, a2.finished]).then(function(){ light.remove(); bg.style.clipPath = 'inset(0 0 0% 0)'; resolve(); });
+  });
+}
+let dmShareCardPlaying = false;
+async function dmPlayShareCardAnimation(targetVal){
+  if(dmShareCardPlaying) return;
+  dmShareCardPlaying = true;
+  const card = document.getElementById('shareCard');
+  const bg = document.getElementById('shareCardBg');
+  const brand = document.getElementById('shareBrand');
+  const num = document.getElementById('shareBigNum');
+  const wave = document.getElementById('shareShockwave');
+  const lblWrap = document.getElementById('shareLblWrap');
+  const lblBar = document.getElementById('shareLblBar');
+  const b1 = document.getElementById('shareB1'), b2 = document.getElementById('shareB2');
+  const l1 = document.getElementById('shareBannerLine1'), l2 = document.getElementById('shareBannerLine2');
+  const dateWrap = document.getElementById('shareDateWrap');
+  const date = document.getElementById('shareDate');
+  const dayWrap = document.getElementById('shareDayWrap');
+  const day = document.getElementById('shareDay');
+
   if(!l1.dataset.full) l1.dataset.full = l1.textContent;
   if(!l2.dataset.full) l2.dataset.full = l2.textContent;
+
+  card.querySelectorAll('.shareCardScan').forEach(function(n){ n.remove(); });
+  bg.style.clipPath = 'inset(0 0 100% 0)';
+  brand.textContent = ''; brand.style.opacity = '0';
+  num.textContent = '0'; num.style.opacity = '0'; num.style.transform = 'scale(1)';
+  wave.style.opacity = '0';
+  lblWrap.style.opacity = '0';
+  lblBar.style.width = '0px';
+  [b1,b2].forEach(function(b){ b.style.opacity = '0'; b.style.transform = 'translateX(-70px) scale(1.8)'; });
   l1.textContent = ''; l2.textContent = '';
-  setTimeout(function(){
-    dmTypewriterLine(l1, l1.dataset.full, 55).then(function(){
-      return dmTypewriterLine(l2, l2.dataset.full, 55);
-    });
-  }, 350);
+  date.style.opacity = '0'; date.style.transform = 'scale(1.3)';
+  day.style.opacity = '0'; day.style.transform = 'translateY(-6px)';
+
+  await dmScanRevealBg(card, bg, 1400);
+
+  brand.style.opacity = '1';
+  await dmTypewriterLine(brand, '🔥 CODZIENNY ATLETA', 34);
+  await dmWait(200);
+
+  num.style.opacity = '1';
+  await dmCountUp(num, targetVal, Math.min(900, 260 + targetVal*13));
+  dmShockwave(wave);
+  await num.animate([{transform:'scale(1.28)'},{transform:'scale(1)'}], {duration:240, easing:'cubic-bezier(.2,.8,.3,1)'}).finished;
+  await dmShakeCard(card, 6);
+  await dmWait(220);
+
+  lblWrap.style.opacity = '1';
+  await lblWrap.querySelector('.shareLbl').animate([{transform:'scale(1.6)'},{transform:'scale(1)'}], {duration:280, easing:'cubic-bezier(.2,.8,.3,1)'}).finished;
+  await lblBar.animate([{width:'0px'},{width:'17.3cqw'}], {duration:240, easing:'ease-out'}).finished;
+  lblBar.style.width = '17.3cqw';
+  await dmShakeCard(card, 3);
+  await dmWait(240);
+
+  b1.style.opacity = '1';
+  const b1anim = b1.animate([{transform:'translateX(-90px) scale(2.2)'},{transform:'translateX(0) scale(1.08)', offset:.75},{transform:'translateX(0) scale(1)'}], {duration:380, easing:'cubic-bezier(.2,.8,.3,1)'}).finished;
+  await dmTypewriterLine(l1, l1.dataset.full, 40);
+  await b1anim;
+  b1.style.transform = 'translateX(0) scale(1)';
+  await dmShakeCard(card, 5);
+  await dmWait(150);
+  b2.style.opacity = '1';
+  const b2anim = b2.animate([{transform:'translateX(-70px) scale(1.7)'},{transform:'translateX(0) scale(1)'}], {duration:300, easing:'cubic-bezier(.2,.8,.3,1)'}).finished;
+  await dmTypewriterLine(l2, l2.dataset.full, 40);
+  await b2anim;
+  b2.style.transform = 'translateX(0) scale(1)';
+  await dmShakeCard(card, 3);
+
+  await dmWait(200);
+  date.style.opacity = '1';
+  await date.animate([{transform:'scale(1.3)'},{transform:'scale(1)'}], {duration:280, easing:'cubic-bezier(.2,.8,.3,1)'}).finished;
+  date.style.transform = 'scale(1)';
+  await dmShakeCard(card, 2);
+
+  await dmWait(160);
+  day.style.opacity = '1';
+  await day.animate([{transform:'translateY(-6px)'},{transform:'translateY(0)'}], {duration:260, easing:'cubic-bezier(.2,.8,.3,1)'}).finished;
+  day.style.transform = 'translateY(0)';
+
+  dmShareCardPlaying = false;
 }
 function openShareCard(kind){
   const today = new Date(); today.setHours(0,0,0,0);
   const val = kind === 'week' ? sumPushups(mondayOfWeek(today), today).sum : sumPushups(today, today).sum;
   const lbl = t(kind === 'week' ? 'share_weekLbl' : 'share_todayLbl');
+  const locale = currentLang === 'pl' ? 'pl-PL' : 'en-US';
   document.getElementById('shareBigNum').textContent = val;
   document.getElementById('shareLbl').textContent = lbl;
-  document.getElementById('shareDate').textContent = today.toLocaleDateString(currentLang === 'pl' ? 'pl-PL' : 'en-US', {day:'numeric', month:'long', year:'numeric'});
+  document.getElementById('shareDate').textContent = today.toLocaleDateString(locale, {day:'numeric', month:'long', year:'numeric'});
+  document.getElementById('shareDay').textContent = today.toLocaleDateString(locale, {weekday:'long'});
   document.getElementById('shareOverlay').classList.add('on');
-  dmAnimateShareBanners();
+  dmPlayShareCardAnimation(val);
   runScanSweep();
 }
 document.getElementById('heroStatToday').addEventListener('click', function(){ openShareCard('today'); });
