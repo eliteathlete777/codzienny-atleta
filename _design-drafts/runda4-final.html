@@ -18,8 +18,7 @@ p.sub{text-align:center; color:var(--txt2); font-size:13px; margin:0 0 26px; max
 
 /* ===== 1:1 kopia stylu .shareCard z appki ===== */
 .shareCard{width:300px; aspect-ratio:9/16; background:#141419; position:relative; overflow:hidden;
-  border:1.5px solid var(--accent); border-radius:10px; box-shadow:0 16px 46px rgba(0,0,0,.65), 0 0 0 6px rgba(200,30,44,.08);
-  display:flex; flex-direction:column; align-items:center; justify-content:center; gap:10px; padding:30px 20px;}
+  border:1.5px solid var(--accent); border-radius:10px; box-shadow:0 16px 46px rgba(0,0,0,.65), 0 0 0 6px rgba(200,30,44,.08);}
 .shareCard .cnr{position:absolute; width:18px; height:18px; border:2px solid var(--accent); pointer-events:none; z-index:3;}
 .shareCard .tl{top:6px; left:6px; border-right:none; border-bottom:none;}
 .shareCard .tr{top:6px; right:6px; border-left:none; border-bottom:none;}
@@ -31,19 +30,22 @@ p.sub{text-align:center; color:var(--txt2); font-size:13px; margin:0 0 26px; max
     radial-gradient(ellipse at 50% 15%, rgba(200,30,44,.18), transparent 60%);}
 .shareCardScan{position:absolute; left:0; right:0; height:5px; z-index:2; top:0; pointer-events:none;
   background:linear-gradient(90deg,transparent,var(--accent-txt),transparent); box-shadow:0 0 18px var(--accent);}
-.shareCard > .content{position:relative; z-index:2; display:flex; flex-direction:column; align-items:center; gap:24px;}
-.shareBrand{position:absolute; top:5.5%; left:0; right:0; text-align:center; z-index:2;
+/* ===== Oficjalna, zatwierdzona kompozycja — pozycje i skale ustalone w interaktywnym edytorze (Runda 6) ===== */
+.shareBrand{position:absolute; top:5.5%; left:50%; transform:translate(-50%,-50%) scale(1.00); text-align:center; z-index:2;
   font-family:var(--mono); font-weight:800; font-size:15px; letter-spacing:.1em; color:var(--accent-txt); min-height:18px; opacity:0; text-shadow:0 0 14px rgba(200,30,44,.5);}
 .shareBrand .csr{display:inline-block; width:7px; background:var(--accent-txt); margin-left:1px; opacity:0; animation:csrBlink .55s steps(1) infinite;}
 .shareBrand.typing .csr{opacity:1;}
 @keyframes csrBlink{0%,49%{opacity:1;}50%,100%{opacity:0;}}
+.numWrap{position:absolute; top:34.0%; left:50.3%; transform:translate(-50%,-50%) scale(1.13); z-index:2;}
 .shareBigNum{font-family:var(--display); font-size:92px; line-height:1; color:#fff; opacity:0;
   text-shadow:0 0 18px rgba(200,30,44,.75), 0 0 40px rgba(200,30,44,.45);}
-.shareLblWrap{display:flex; flex-direction:column; align-items:center; gap:9px; opacity:0;}
+.shareLblWrap{position:absolute; top:50.7%; left:50.8%; transform:translate(-50%,-50%) scale(1.16); z-index:2;
+  display:flex; flex-direction:column; align-items:center; gap:9px; opacity:0;}
 .shareLbl{font-family:var(--display); font-size:21px; letter-spacing:.03em; color:#fff; text-transform:uppercase;
   text-shadow:0 2px 0 rgba(0,0,0,.7), 0 0 22px rgba(200,30,44,.65);}
 .shareLblBar{width:0; height:4px; border-radius:2px; background:var(--accent);}
-.shareBanners{display:flex; flex-direction:column; align-items:center; gap:5px;}
+.shareBanners{position:absolute; top:77.2%; left:49.2%; transform:translate(-50%,-50%) scale(1.54); z-index:2;
+  display:flex; flex-direction:column; align-items:center; gap:5px;}
 .grungeBanner{position:relative; display:inline-block; background:var(--accent); padding:6px 15px; opacity:0;
   clip-path:polygon(2% 10%,10% 0,92% 6%,100% 22%,97% 84%,90% 100%,8% 92%,0 74%);}
 .grungeBanner span{font-family:'Barlow Condensed', sans-serif; font-size:17.6px; font-weight:800; color:#fff; text-transform:uppercase;}
@@ -51,11 +53,13 @@ p.sub{text-align:center; color:var(--txt2); font-size:13px; margin:0 0 26px; max
 #b1 span{font-size:20.2px; letter-spacing:.02em; text-shadow:0 2px 0 rgba(0,0,0,.35);}
 .shockwave{position:absolute; left:50%; top:50%; width:40px; height:40px; margin:-20px 0 0 -20px;
   border:3px solid var(--accent-txt); border-radius:50%; pointer-events:none; z-index:3; opacity:0;}
+.dateWrap{position:absolute; top:10.8%; left:52.1%; transform:translate(-50%,-50%) scale(1.00); z-index:2;}
 .shareDate{font-family:var(--mono); font-size:14px; letter-spacing:.08em; color:#fff; text-transform:uppercase;
   opacity:0; display:flex; align-items:center; gap:10px;}
 .shareDate::before, .shareDate::after{content:''; width:20px; height:2px; background:var(--accent);}
+.dayWrap{position:absolute; top:60.1%; left:49.7%; transform:translate(-50%,-50%) scale(1.32); z-index:2;}
 .shareDay{font-family:'Barlow Condensed', sans-serif; font-weight:700; font-size:16px; letter-spacing:.2em;
-  color:var(--txt2); text-transform:uppercase; margin-top:-6px; opacity:0;}
+  color:var(--txt2); text-transform:uppercase; opacity:0;}
 
 .replayBar{display:flex; gap:10px; align-items:center;}
 button.replay{font-size:12px; padding:8px 18px; border-radius:6px; border:1px solid var(--accent); background:transparent; color:var(--accent-txt); cursor:pointer; font-family:inherit; font-weight:700; letter-spacing:.03em;}
@@ -75,23 +79,21 @@ button.replay:active{background:var(--accent); color:#fff;}
       <span class="cnr tl"></span><span class="cnr tr"></span><span class="cnr bl"></span><span class="cnr br"></span>
       <div class="shareCardBg" id="bg"></div>
       <div class="shareCardGrad"></div>
-      <div class="content">
-        <div class="shareBrand" id="brand"></div>
-        <div style="position:relative;">
-          <div class="shareBigNum" id="num">0</div>
-          <div class="shockwave" id="shockwave"></div>
-        </div>
-        <div class="shareLblWrap" id="lblWrap">
-          <div class="shareLbl" id="lbl">Pompek dzisiaj</div>
-          <div class="shareLblBar" id="lblBar"></div>
-        </div>
-        <div class="shareBanners">
-          <div class="grungeBanner" id="b1"><span>Jedna seria.</span></div>
-          <div class="grungeBanner" id="b2"><span>Zero wymówek.</span></div>
-        </div>
-        <div class="shareDate" id="date">24 września 2026</div>
-        <div class="shareDay" id="day">Czwartek</div>
+      <div class="shareBrand" id="brand"></div>
+      <div class="numWrap" id="numWrap">
+        <div class="shareBigNum" id="num">0</div>
+        <div class="shockwave" id="shockwave"></div>
       </div>
+      <div class="shareLblWrap" id="lblWrap">
+        <div class="shareLbl" id="lbl">Pompek dzisiaj</div>
+        <div class="shareLblBar" id="lblBar"></div>
+      </div>
+      <div class="shareBanners" id="banners">
+        <div class="grungeBanner" id="b1"><span>Jedna seria.</span></div>
+        <div class="grungeBanner" id="b2"><span>Zero wymówek.</span></div>
+      </div>
+      <div class="dateWrap" id="dateWrap"><div class="shareDate" id="date">24 września 2026</div></div>
+      <div class="dayWrap" id="dayWrap"><div class="shareDay" id="day">Czwartek</div></div>
     </div>
   </div>
   <div class="replayBar">
@@ -195,6 +197,8 @@ async function playSequence(){
   [b1,b2].forEach(function(b){ b.style.opacity='0'; b.style.transform='translateX(-70px) scale(1.8)'; });
   date.style.opacity = '0'; date.style.transform = 'scale(1.3)';
   day.style.opacity = '0'; day.style.transform = 'translateY(-6px)';
+  // uwaga: date/day animuja WLASNA (wewnetrzna) transformacje — pozycja+skala calej karty
+  // siedzi na .dateWrap/.dayWrap i nigdy nie jest nadpisywana
 
   const T = tempoMult;
   const targetVal = 45;
