@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Runda 7 — 10 nowych pomysłów na wjazd grafiki (aktualna kolejność animacji)</title>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=JetBrains+Mono:wght@400;700;800&family=Barlow+Condensed:wght@600;700;800&display=swap">
+<style>
+:root{ --bg:#0A0A0C; --card:#141419; --line:#24242C; --txt:#E8E8EA; --txt2:#9A9AA3; --accent:#C81E2C; --accent-txt:#E8394A;
+  --display:'Anton', sans-serif; --mono:'JetBrains Mono', monospace; color-scheme:dark; }
+*{box-sizing:border-box;}
+body{margin:0; background:var(--bg); color:var(--txt); font-family:'Barlow Condensed',sans-serif; padding:24px 16px 100px;}
+h1{font-size:19px; text-align:center; margin:0 0 6px; text-transform:uppercase; letter-spacing:.04em;}
+p.sub{text-align:center; color:var(--txt2); font-size:13px; margin:0 0 26px auto; max-width:640px; margin-inline:auto; line-height:1.55;}
+.heroGrid{display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:22px; max-width:1300px; margin:0 auto;}
+.heroCell{background:var(--card); border:1px solid var(--line); border-radius:12px; padding:14px; display:flex; flex-direction:column; align-items:center; gap:10px;}
+.idx{font-family:'JetBrains Mono',monospace; font-size:11px; font-weight:800; background:var(--accent); color:#fff; border-radius:4px; padding:2px 8px; align-self:flex-start;}
+.lbl{font-size:11.5px; color:var(--txt2); text-align:center; line-height:1.35; min-height:48px;}
+button.replay{font-size:11px; padding:6px 14px; border-radius:5px; border:1px solid var(--accent); background:transparent; color:var(--accent-txt); cursor:pointer; font-family:inherit; font-weight:700;}
+button.replay:active{background:var(--accent); color:#fff;}
+
+.shareCard{width:100%; max-width:260px; aspect-ratio:9/16; background:#141419; position:relative; overflow:hidden;
+  border:1.5px solid var(--accent); border-radius:10px; box-shadow:0 12px 34px rgba(0,0,0,.6);
+  container-type:inline-size;}
+.shareCard .cnr{position:absolute; width:16px; height:16px; border:2px solid var(--accent); pointer-events:none; z-index:5;}
+.tl{top:6px; left:6px; border-right:none; border-bottom:none;} .tr{top:6px; right:6px; border-left:none; border-bottom:none;}
+.bl{bottom:6px; left:6px; border-right:none; border-top:none;} .br{bottom:6px; right:6px; border-left:none; border-top:none;}
+.shareCardBg{position:absolute; inset:0; z-index:0; background-image:url('splash-bg.jpg'); background-size:cover; background-position:top center; filter:contrast(1.08); opacity:1;}
+.shareCardGrad{position:absolute; inset:0; z-index:1; pointer-events:none;
+  background-image:linear-gradient(rgba(10,10,12,.32), rgba(10,10,12,.8) 55%, rgba(10,10,12,.96)),
+    radial-gradient(ellipse at 50% 15%, rgba(200,30,44,.18), transparent 60%);}
+.shareBrand{position:absolute; top:5.5%; left:50%; transform:translate(-50%,-50%); text-align:center; z-index:3; white-space:nowrap; opacity:0;
+  font-family:var(--mono); font-weight:800; font-size:5cqw; letter-spacing:.1em; color:var(--accent-txt); text-shadow:0 0 14px rgba(200,30,44,.5);}
+.dateWrap{position:absolute; top:10.8%; left:52.1%; transform:translate(-50%,-50%); z-index:3;}
+.shareDate{font-family:var(--mono); font-size:4.67cqw; letter-spacing:.08em; color:#fff; text-transform:uppercase;
+  opacity:0; display:flex; align-items:center; gap:3.3cqw; white-space:nowrap;}
+.shareDate::before, .shareDate::after{content:''; width:6.67cqw; height:2px; background:var(--accent);}
+.numWrap{position:absolute; top:34.0%; left:50.3%; transform:translate(-50%,-50%) scale(1.13); z-index:3;}
+.shareBigNum{font-family:var(--display); font-size:30.7cqw; line-height:1; color:#fff; opacity:0;
+  text-shadow:0 0 18px rgba(200,30,44,.75), 0 0 40px rgba(200,30,44,.45);}
+.shockwave{position:absolute; left:50%; top:50%; width:13.3cqw; height:13.3cqw; margin:-6.65cqw 0 0 -6.65cqw;
+  border:3px solid var(--accent-txt); border-radius:50%; pointer-events:none; z-index:4; opacity:0;}
+.lblWrap{position:absolute; top:50.7%; left:50.8%; transform:translate(-50%,-50%) scale(1.16); z-index:3; opacity:0;
+  display:flex; flex-direction:column; align-items:center; gap:3cqw;}
+.lbl2{font-family:var(--display); font-size:7cqw; letter-spacing:.03em; color:#fff; text-transform:uppercase; white-space:nowrap;
+  text-shadow:0 2px 0 rgba(0,0,0,.7), 0 0 22px rgba(200,30,44,.65);}
+.lblBar{width:0; height:1.33cqw; border-radius:2px; background:var(--accent);}
+.dayWrap{position:absolute; top:56.5%; left:49.7%; transform:translate(-50%,-50%) scale(1.32); z-index:3;}
+.day2{font-family:'Barlow Condensed', sans-serif; font-weight:700; font-size:5.33cqw; letter-spacing:.2em;
+  color:var(--txt2); text-transform:uppercase; opacity:0; white-space:nowrap;}
+.banners{position:absolute; top:77.2%; left:49.2%; transform:translate(-50%,-50%) scale(1.54); z-index:3;
+  display:flex; flex-direction:column; align-items:center; gap:1.7cqw; width:max-content;}
+.grungeBanner{position:relative; display:inline-block; background:var(--accent); padding:2cqw 5cqw; opacity:0;
+  clip-path:polygon(2% 10%,10% 0,92% 6%,100% 22%,97% 84%,90% 100%,8% 92%,0 74%);}
+.grungeBanner span{font-family:'Barlow Condensed', sans-serif; font-size:5.87cqw; font-weight:800; color:#fff; text-transform:uppercase; white-space:nowrap;}
+#pb1{padding:2.33cqw 6cqw;}
+#pb1 span{font-size:6.73cqw; letter-spacing:.02em; text-shadow:0 2px 0 rgba(0,0,0,.35);}
+</style>
+</head>
+<body>
+<h1>Runda 7 — 10 nowych pomysłów na wjazd grafiki</h1>
+<p class="sub">Reszta animacji identyczna z aktualną appką: skan/wjazd grafiki → marka (typewriter) → data → licznik + fala uderzeniowa → „POMPEK DZISIAJ" → dzień tygodnia → banery (bez maszyny do pisania, „JEDNA SERIA." mocniej). Zmienia się TYLKO sposób w jaki na starcie wjeżdża samo zdjęcie w tle — 10 świeżych, innych niż poprzednio, pomysłów w naszym stylu.</p>
+
+<div class="heroGrid" id="grid"></div>
+
+<script>
+function wait(ms){ return new Promise(function(r){ setTimeout(r, ms); }); }
+function escapeHtml(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function typewriter(el, text, speed){
+  return new Promise(function(resolve){
+    el.style.opacity = '1'; let i = 0;
+    const iv = setInterval(function(){
+      i++; el.textContent = text.slice(0, i) + (i < text.length ? '▌' : '');
+      if(i >= text.length){ clearInterval(iv); resolve(); }
+    }, speed);
+  });
+}
+function countUp(el, target, duration){
+  return new Promise(function(resolve){
+    const steps = Math.min(target, 26); const stepTime = duration/steps; let i=0;
+    const iv = setInterval(function(){ i++; el.textContent = String(Math.min(target, Math.round(target*(i/steps))));
+      if(i>=steps){ clearInterval(iv); el.textContent=String(target); resolve(); } }, stepTime);
+  });
+}
+function shockwave(el){
+  el.style.opacity='1';
+  return el.animate([
+    {width:'13.3cqw',height:'13.3cqw',marginTop:'-6.65cqw',marginLeft:'-6.65cqw',opacity:.9,borderWidth:'3px'},
+    {width:'86.7cqw',height:'86.7cqw',marginTop:'-43.3cqw',marginLeft:'-43.3cqw',opacity:0,borderWidth:'1px'}
+  ],{duration:460,easing:'cubic-bezier(.2,.7,.3,1)'}).finished.then(function(){ el.style.opacity='0'; });
+}
+function shake(card, amt){
+  return card.animate([{transform:'translate(0,0)'},{transform:'translate('+amt+'px,'+(-amt*.6)+'px)'},
+    {transform:'translate('+(-amt)+'px,'+(amt*.4)+'px)'},{transform:'translate(0,0)'}],{duration:170,easing:'ease-out'}).finished;
+}
+
+/* ===== 10 NOWYCH pomyslow na wjazd grafiki w tle ===== */
+function revealHeartbeat(card, bg){
+  bg.style.opacity = '0';
+  const ring = document.createElement('div');
+  ring.style.cssText = 'position:absolute; left:50%; top:38%; width:20%; height:12%; margin:-6% 0 0 -10%; border:2px solid var(--accent-txt); border-radius:50%; z-index:2; opacity:0;';
+  card.appendChild(ring);
+  const beat = function(op){ return ring.animate([{opacity:0,transform:'scale(.6)'},{opacity:.8,transform:'scale(1.15)'},{opacity:0,transform:'scale(1.4)'}],{duration:340,easing:'ease-out'}).finished; };
+  return (async function(){
+    for(let i=0;i<3;i++){ await beat(); await wait(90); }
+    await bg.animate([{opacity:0},{opacity:1}],{duration:500,easing:'ease-out'}).finished;
+    bg.style.opacity='1'; ring.remove();
+  })();
+}
+function revealDust(card, bg){
+  bg.style.opacity = '0';
+  const dust = document.createElement('canvas'); dust.width=48; dust.height=85;
+  dust.style.cssText = 'position:absolute; inset:0; width:100%; height:100%; z-index:2; image-rendering:pixelated; mix-blend-mode:screen;';
+  const ctx = dust.getContext('2d'); const id = ctx.createImageData(48,85);
+  for(let i=0;i<id.data.length;i+=4){ const v=200+Math.random()*55; id.data[i]=v;id.data[i+1]=v;id.data[i+2]=v; id.data[i+3]=Math.random()*255; }
+  ctx.putImageData(id,0,0); card.appendChild(dust);
+  const a1 = bg.animate([{opacity:0},{opacity:1}],{duration:900,easing:'ease-out'});
+  const a2 = dust.animate([{opacity:.9,transform:'scale(1)'},{opacity:0,transform:'scale(1.3)'}],{duration:900,easing:'ease-out'});
+  return Promise.all([a1.finished,a2.finished]).then(function(){ bg.style.opacity='1'; dust.remove(); });
+}
+function revealBarbellDrop(card, bg){
+  bg.style.opacity = '0';
+  bg.style.clipPath = 'circle(0% at 50% 8%)';
+  const bar = document.createElement('div');
+  bar.style.cssText = 'position:absolute; left:6%; right:6%; top:-14%; height:5%; background:linear-gradient(90deg,#333,#888,#333); border-radius:3px; z-index:3; box-shadow:0 0 10px rgba(0,0,0,.6);';
+  card.appendChild(bar);
+  return bar.animate([{top:'-14%'},{top:'6%'}],{duration:420,easing:'cubic-bezier(.6,0,.9,.4)'}).finished.then(function(){
+    bg.style.opacity='1';
+    shake(card,7);
+    return bg.animate([{clipPath:'circle(0% at 50% 8%)'},{clipPath:'circle(120% at 50% 8%)'}],{duration:650,easing:'ease-out'}).finished;
+  }).then(function(){ bg.style.clipPath='none'; bar.remove(); });
+}
+function revealHeatShimmer(card, bg){
+  bg.style.opacity = '1';
+  const steps = []; const n = 14;
+  for(let i=0;i<=n;i++){ const p=i/n; steps.push({filter:'blur('+(14*(1-p))+'px) contrast(1.08)', transform:'translateX('+(Math.sin(p*18)*10*(1-p))+'px) scale('+(1.05-0.05*p)+')', opacity: 0.3+0.7*p, offset:p}); }
+  return bg.animate(steps, {duration:900, easing:'linear'}).finished.then(function(){ bg.style.filter='contrast(1.08)'; bg.style.transform='none'; bg.style.opacity='1'; });
+}
+function revealCountdown(card, bg){
+  bg.style.opacity = '0';
+  const ghost = document.createElement('div');
+  ghost.style.cssText = 'position:absolute; inset:0; display:flex; align-items:center; justify-content:center; z-index:2; font-family:var(--display); font-size:40cqw; color:rgba(255,255,255,.9); text-shadow:0 0 30px rgba(200,30,44,.8);';
+  card.appendChild(ghost);
+  return (async function(){
+    for(const n of ['3','2','1']){
+      ghost.textContent = n;
+      await ghost.animate([{opacity:0,transform:'scale(1.6)'},{opacity:1,transform:'scale(1)'},{opacity:0,transform:'scale(.9)'}],{duration:260,easing:'ease-out'}).finished;
+    }
+    ghost.remove();
+    bg.style.opacity='1';
+    await bg.animate([{opacity:0},{opacity:1}],{duration:200}).finished;
+  })();
+}
+function revealCrack(card, bg){
+  bg.style.opacity = '1';
+  bg.style.clipPath = 'polygon(50% 50%,50% 50%,50% 50%,50% 50%)';
+  const shapes = [
+    'polygon(50% 50%,55% 35%,48% 20%,50% 50%)',
+    'polygon(50% 50%,55% 35%,80% 30%,90% 45%,60% 55%,50% 50%)',
+    'polygon(50% 50%,48% 20%,30% 10%,10% 30%,25% 55%,50% 50%)',
+    'polygon(50% 50%,60% 55%,90% 45%,100% 80%,60% 90%,50% 50%)',
+    'polygon(50% 50%,25% 55%,10% 30%,0% 60%,20% 100%,50% 90%,50% 50%)',
+    'inset(-10% -10% -10% -10%)'
+  ];
+  return bg.animate(shapes.map(function(s){ return {clipPath:s}; }), {duration:750, easing:'cubic-bezier(.3,.2,.2,1)'}).finished.then(function(){
+    bg.style.clipPath='none'; shake(card,4);
+  });
+}
+function revealVenetianDiag(card, bg){
+  bg.style.opacity = '1';
+  const wrap = document.createElement('div'); wrap.style.cssText='position:absolute; inset:-20% -20%; display:flex; z-index:2; transform:rotate(-8deg);';
+  const n=10; for(let i=0;i<n;i++){ const s=document.createElement('div'); s.style.cssText='flex:1; background:#0A0A0C; transform-origin:'+(i%2?'left':'right')+';'; wrap.appendChild(s); }
+  card.appendChild(wrap);
+  const anims = [...wrap.children].map(function(b,i){ return b.animate([{transform:'scaleX(1)'},{transform:'scaleX(0)'}],{duration:300,delay:i*45,easing:'ease-in',fill:'forwards'}); });
+  return Promise.all(anims.map(function(a){return a.finished;})).then(function(){ wrap.remove(); });
+}
+function revealSonarRings(card, bg){
+  bg.style.opacity = '0';
+  const rings = [];
+  for(let i=0;i<3;i++){ const r=document.createElement('div'); r.style.cssText='position:absolute; left:50%; top:45%; width:10%; height:6%; margin:-3% 0 0 -5%; border:2px solid var(--accent-txt); border-radius:50%; z-index:2; opacity:.9;'; card.appendChild(r); rings.push(r); }
+  const anims = rings.map(function(r,i){ return r.animate([{transform:'scale(1)',opacity:.9},{transform:'scale('+(9+i*2)+')',opacity:0}],{duration:750,delay:i*160,easing:'ease-out'}).finished; });
+  bg.animate([{opacity:0},{opacity:1}],{duration:700,delay:250,easing:'ease-out'});
+  return Promise.all(anims).then(function(){ bg.style.opacity='1'; rings.forEach(function(r){r.remove();}); });
+}
+function revealIrisShutter(card, bg){
+  bg.style.opacity = '1';
+  const n=7; const wrap = document.createElement('div'); wrap.style.cssText='position:absolute; inset:0; z-index:2;';
+  card.appendChild(wrap);
+  const blades = [];
+  for(let i=0;i<n;i++){
+    const ang = (360/n)*i;
+    const b = document.createElement('div');
+    b.style.cssText = 'position:absolute; left:50%; top:50%; width:150%; height:150%; background:#0A0A0C; transform-origin:0 0; transform:rotate('+ang+'deg) skewY(35deg);';
+    wrap.appendChild(b); blades.push(b);
+  }
+  const anims = blades.map(function(b){ return b.animate([{opacity:1},{opacity:1,offset:.7},{opacity:0}],{duration:650,easing:'ease-in'}).finished; });
+  return Promise.all(anims).then(function(){ wrap.remove(); });
+}
+function revealFlashCapture(card, bg){
+  bg.style.opacity = '0';
+  const flash = document.createElement('div'); flash.style.cssText='position:absolute; inset:0; background:#fff; z-index:3; opacity:0;';
+  card.appendChild(flash);
+  return flash.animate([{opacity:0},{opacity:1},{opacity:0}],{duration:260,easing:'ease-out'}).finished.then(function(){
+    bg.style.opacity='1'; flash.remove(); shake(card,5);
+  });
+}
+
+const REVEALS = [
+  { name:'R1 — Puls tętna (2 uderzenia pierścienia jak monitor pracy serca), potem zdjęcie', fn:revealHeartbeat },
+  { name:'R2 — Pył/kreda opada (jak po ciężkiej serii), zza niego wyłania się zdjęcie', fn:revealDust },
+  { name:'R3 — Sztanga spada z góry z hukiem, od miejsca uderzenia rozlewa się zdjęcie', fn:revealBarbellDrop },
+  { name:'R4 — Fala gorąca/rozedrgane powietrze uspokaja się w ostre zdjęcie', fn:revealHeatShimmer },
+  { name:'R5 — Odliczanie 3-2-1 (duże cyfry-widma), na "1" odsłania się zdjęcie', fn:revealCountdown },
+  { name:'R6 — Pęknięcie/rysa rozchodzi się i rozłamuje ciemność, odsłaniając zdjęcie', fn:revealCrack },
+  { name:'R7 — Ukośne żaluzje (przekątna) rozjeżdżają się i znikają', fn:revealVenetianDiag },
+  { name:'R8 — Fale sonaru (3 rozchodzące się pierścienie) odsłaniają zdjęcie', fn:revealSonarRings },
+  { name:'R9 — Migawka aparatu (7 łopatek przysłony) otwiera się jak obiektyw', fn:revealIrisShutter },
+  { name:'R10 — Flesz aparatu (biały błysk + wstrząs) — zdjęcie zostaje jak "zrobione zdjęcie"', fn:revealFlashCapture }
+];
+
+async function playSequence(root, revealFn){
+  const bg = root.querySelector('.shareCardBg');
+  const brand = root.querySelector('.shareBrand');
+  const dateEl = root.querySelector('.shareDate');
+  const num = root.querySelector('.shareBigNum');
+  const wave = root.querySelector('.shockwave');
+  const lblWrap = root.querySelector('.lblWrap');
+  const lblBar = root.querySelector('.lblBar');
+  const day = root.querySelector('.day2');
+  const b1 = root.querySelector('#pb1'), b2 = root.querySelector('#pb2');
+
+  root.querySelectorAll('.tmpReveal').forEach(function(n){ n.remove(); });
+  bg.style.opacity = '0'; bg.style.clipPath='none'; bg.style.filter='contrast(1.08)'; bg.style.transform='none';
+  brand.textContent=''; brand.style.opacity='0';
+  dateEl.style.opacity='0'; dateEl.style.transform='scale(1.3)';
+  num.textContent='0'; num.style.opacity='0'; num.style.transform='scale(1)';
+  wave.style.opacity='0';
+  lblWrap.style.opacity='0'; lblBar.style.width='0px';
+  day.style.opacity='0'; day.style.transform='translateY(-6px)';
+  [b1,b2].forEach(function(b){ b.style.opacity='0'; b.style.transform='translateX(-70px) scale(1.8)'; });
+
+  await revealFn(root, bg);
+
+  brand.style.opacity='1';
+  await typewriter(brand, '🔥 CODZIENNY ATLETA', 34);
+  await wait(160);
+
+  dateEl.style.opacity='1';
+  await dateEl.animate([{transform:'scale(1.3)'},{transform:'scale(1)'}],{duration:280,easing:'cubic-bezier(.2,.8,.3,1)'}).finished;
+  dateEl.style.transform='scale(1)';
+  await shake(root,2);
+  await wait(200);
+
+  num.style.opacity='1';
+  await countUp(num, 45, 700);
+  shockwave(wave);
+  await num.animate([{transform:'scale(1.28)'},{transform:'scale(1)'}],{duration:240,easing:'cubic-bezier(.2,.8,.3,1)'}).finished;
+  await shake(root,6);
+  await wait(220);
+
+  lblWrap.style.opacity='1';
+  await lblWrap.querySelector('.lbl2').animate([{transform:'scale(1.6)'},{transform:'scale(1)'}],{duration:280,easing:'cubic-bezier(.2,.8,.3,1)'}).finished;
+  await lblBar.animate([{width:'0px'},{width:'17.3cqw'}],{duration:240,easing:'ease-out'}).finished;
+  lblBar.style.width='17.3cqw';
+  await shake(root,3);
+  await wait(240);
+
+  day.style.opacity='1';
+  await day.animate([{transform:'translateY(-6px)'},{transform:'translateY(0)'}],{duration:260,easing:'cubic-bezier(.2,.8,.3,1)'}).finished;
+  day.style.transform='translateY(0)';
+  await wait(240);
+
+  b1.style.opacity='1';
+  await b1.animate([{transform:'translateX(-90px) scale(2.2)'},{transform:'translateX(0) scale(1.08)',offset:.75},{transform:'translateX(0) scale(1)'}],{duration:380,easing:'cubic-bezier(.2,.8,.3,1)'}).finished;
+  b1.style.transform='translateX(0) scale(1)';
+  await shake(root,5);
+  await wait(150);
+  b2.style.opacity='1';
+  await b2.animate([{transform:'translateX(-70px) scale(1.7)'},{transform:'translateX(0) scale(1)'}],{duration:300,easing:'cubic-bezier(.2,.8,.3,1)'}).finished;
+  b2.style.transform='translateX(0) scale(1)';
+  await shake(root,3);
+}
+
+function cardMarkup(){
+  return '<span class="cnr tl"></span><span class="cnr tr"></span><span class="cnr bl"></span><span class="cnr br"></span>' +
+    '<div class="shareCardBg"></div><div class="shareCardGrad"></div>' +
+    '<div class="shareBrand"></div>' +
+    '<div class="dateWrap"><div class="shareDate">25 września 2026</div></div>' +
+    '<div class="numWrap"><div class="shareBigNum">0</div><div class="shockwave"></div></div>' +
+    '<div class="lblWrap"><div class="lbl2">Pompek dzisiaj</div><div class="lblBar"></div></div>' +
+    '<div class="dayWrap"><div class="day2">Piątek</div></div>' +
+    '<div class="banners"><div class="grungeBanner" id="pb1"><span>Jedna seria.</span></div><div class="grungeBanner" id="pb2"><span>Zero wymówek.</span></div></div>';
+}
+
+const grid = document.getElementById('grid');
+REVEALS.forEach(function(v){
+  const cell = document.createElement('div'); cell.className = 'heroCell';
+  cell.innerHTML = '<span class="idx">' + v.name.split(' —')[0] + '</span>' +
+    '<div class="shareCard"></div><div class="lbl">' + v.name + '</div><button class="replay">▶ odtwórz</button>';
+  grid.appendChild(cell);
+  const card = cell.querySelector('.shareCard');
+  card.innerHTML = cardMarkup();
+  const play = function(){ playSequence(card, v.fn); };
+  cell.querySelector('.replay').addEventListener('click', play);
+  play();
+});
+</script>
+</body>
+</html>
