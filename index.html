@@ -1714,6 +1714,7 @@ function saveNewSeriesFromForm(){
   dmResetNewTimer();
   renderDailyMin();
   setStatus(t('status_seriesSaved'), 'ok');
+  openShareCard('today');
   return true;
 }
 document.getElementById('dmNewTimerBtn').addEventListener('click', dmToggleNewTimer);
