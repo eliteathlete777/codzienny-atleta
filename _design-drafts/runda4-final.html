@@ -31,27 +31,27 @@ p.sub{text-align:center; color:var(--txt2); font-size:13px; margin:0 0 26px; max
     radial-gradient(ellipse at 50% 15%, rgba(200,30,44,.18), transparent 60%);}
 .shareCardScan{position:absolute; left:0; right:0; height:5px; z-index:2; top:0; pointer-events:none;
   background:linear-gradient(90deg,transparent,var(--accent-txt),transparent); box-shadow:0 0 18px var(--accent);}
-.shareCard > .content{position:relative; z-index:2; display:flex; flex-direction:column; align-items:center; gap:18px;}
-.shareBrand{position:absolute; top:7%; left:0; right:0; text-align:center; z-index:2;
-  font-family:'Barlow Condensed', sans-serif; font-weight:800; font-size:15px; letter-spacing:.16em; color:var(--accent-txt); min-height:18px; opacity:0; text-shadow:0 0 14px rgba(200,30,44,.5);}
+.shareCard > .content{position:relative; z-index:2; display:flex; flex-direction:column; align-items:center; gap:24px;}
+.shareBrand{position:absolute; top:9%; left:0; right:0; text-align:center; z-index:2;
+  font-family:var(--mono); font-weight:800; font-size:15px; letter-spacing:.1em; color:var(--accent-txt); min-height:18px; opacity:0; text-shadow:0 0 14px rgba(200,30,44,.5);}
 .shareBrand .csr{display:inline-block; width:7px; background:var(--accent-txt); margin-left:1px; opacity:0; animation:csrBlink .55s steps(1) infinite;}
 .shareBrand.typing .csr{opacity:1;}
 @keyframes csrBlink{0%,49%{opacity:1;}50%,100%{opacity:0;}}
-.shareBigNum{font-family:var(--display); font-size:112px; line-height:1; color:#fff; opacity:0;
+.shareBigNum{font-family:var(--display); font-size:92px; line-height:1; color:#fff; opacity:0;
   text-shadow:0 0 18px rgba(200,30,44,.75), 0 0 40px rgba(200,30,44,.45);}
 .shareLblWrap{display:flex; flex-direction:column; align-items:center; gap:9px; opacity:0;}
-.shareLbl{font-family:var(--display); font-size:26px; letter-spacing:.03em; color:#fff; text-transform:uppercase;
+.shareLbl{font-family:var(--display); font-size:21px; letter-spacing:.03em; color:#fff; text-transform:uppercase;
   text-shadow:0 2px 0 rgba(0,0,0,.7), 0 0 22px rgba(200,30,44,.65);}
 .shareLblBar{width:0; height:4px; border-radius:2px; background:var(--accent);}
 .shareBanners{display:flex; flex-direction:column; align-items:center; gap:5px;}
-.grungeBanner{position:relative; display:inline-block; background:var(--accent); padding:7px 17px; opacity:0;
+.grungeBanner{position:relative; display:inline-block; background:var(--accent); padding:6px 15px; opacity:0;
   clip-path:polygon(2% 10%,10% 0,92% 6%,100% 22%,97% 84%,90% 100%,8% 92%,0 74%);}
-.grungeBanner span{font-family:'Barlow Condensed', sans-serif; font-size:20.8px; font-weight:800; color:#fff; text-transform:uppercase;}
-#b1{padding:9px 22px; box-shadow:0 0 0 0 rgba(200,30,44,0);}
-#b1 span{font-size:27px; letter-spacing:.02em; text-shadow:0 2px 0 rgba(0,0,0,.35);}
+.grungeBanner span{font-family:'Barlow Condensed', sans-serif; font-size:17.6px; font-weight:800; color:#fff; text-transform:uppercase;}
+#b1{padding:7px 18px; box-shadow:0 0 0 0 rgba(200,30,44,0);}
+#b1 span{font-size:20.2px; letter-spacing:.02em; text-shadow:0 2px 0 rgba(0,0,0,.35);}
 .shockwave{position:absolute; left:50%; top:50%; width:40px; height:40px; margin:-20px 0 0 -20px;
   border:3px solid var(--accent-txt); border-radius:50%; pointer-events:none; z-index:3; opacity:0;}
-.shareDate{font-family:var(--display); font-size:17px; letter-spacing:.05em; color:#fff; text-transform:uppercase;
+.shareDate{font-family:var(--mono); font-size:14px; letter-spacing:.08em; color:#fff; text-transform:uppercase;
   opacity:0; display:flex; align-items:center; gap:10px;}
 .shareDate::before, .shareDate::after{content:''; width:20px; height:2px; background:var(--accent);}
 .shareDay{font-family:'Barlow Condensed', sans-serif; font-weight:700; font-size:16px; letter-spacing:.2em;
