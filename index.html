@@ -646,7 +646,8 @@ body{display:flex;flex-direction:column;height:100vh;height:100dvh;max-width:520
 #splashScreen .splashPaint:last-of-type{margin-bottom:18px;}
 /* Wybor na starcie: numer + tytul Anton na farbie + biala belka */
 .flameEntry{gap:10px; position:relative;}
-.flameEntry .flameIdx{font-family:'Saira Stencil One', var(--display); font-size:13px; letter-spacing:.3em; color:var(--accent-txt);}
+.flameEntry .flameIdx{font-size:min(13vw,56px); line-height:1; filter:drop-shadow(0 4px 14px rgba(200,30,44,.55)); transition:transform .2s;}
+.flameEntry:hover .flameIdx{transform:scale(1.08);}
 .flameEntry .flameTitleWrap{position:relative; display:flex; align-items:center; justify-content:center; width:min(86vw,380px);}
 .flameEntry .flameStroke{position:absolute; left:0; right:0; top:50%; transform:translateY(-50%); opacity:.92; pointer-events:none; transition:transform .2s;}
 .flameEntry .flameLbl{position:relative; white-space:nowrap; font-family:var(--display); font-weight:400; font-size:clamp(26px,8.4vw,40px); line-height:1;
@@ -997,9 +998,9 @@ const I18N = {
     tempo_hint: '⏱ Tempo każdej zapisanej dziś serii — czas i szybkość wykonania powtórzeń.',
     calendar_title: 'Kalendarz',
     intro_dmLbl: 'Codzienne minimum',
-    intro_dmSub: 'kliknij, by zacząć serię',
+    intro_dmSub: 'jedna seria dziennie',
     intro_dmDoneLbl: 'Jedna seria dziennie',
-    intro_dmDoneSub: 'zrobione — kliknij by zobaczyć',
+    intro_dmDoneSub: 'jedna seria dziennie',
     intro_extraLbl: 'Dodatkowa seria',
     intro_extraSub: 'kolejna seria dzisiaj — dla chętnych',
     intro_recordsLbl: 'Rekordy',
@@ -1100,9 +1101,9 @@ const I18N = {
     tempo_hint: '⏱ Tempo of every set logged today — duration and rep speed.',
     calendar_title: 'Calendar',
     intro_dmLbl: 'Daily minimum',
-    intro_dmSub: 'tap to start a set',
+    intro_dmSub: 'one set every day',
     intro_dmDoneLbl: 'One set a day',
-    intro_dmDoneSub: 'done — tap to view',
+    intro_dmDoneSub: 'one set every day',
     intro_extraLbl: 'Extra set',
     intro_extraSub: 'another set today — for the eager',
     intro_recordsLbl: 'Records',
@@ -1271,7 +1272,9 @@ function setStatus(text, kind){
 
 // ---------- Trwaly zapis: WLASNY, niezalezny klucz localStorage ----------
 // Ta appka NIE dzieli danych z produkcyjnym Dziennikiem (treningLog_v1).
-const STORAGE_KEY = 'codziennyAtleta_v1';
+const STORAGE_KEY = 'codziennyAtleta_v1'; // NIE ZMIENIAC — zmiana klucza = utrata danych uzytkownikow po aktualizacji.
+// Prosi przegladarke o trwale przechowywanie, zeby nie czyscila danych (serie, combo) przy braku miejsca.
+try{ if(navigator.storage && navigator.storage.persist) navigator.storage.persist(); }catch(e){}
 const BACKUP_KEY = 'codziennyAtleta_v1_bak';
 let DB = { dailyMin: {} };
 
@@ -2564,17 +2567,17 @@ function showIntroChoice(){
   const flameSub = stats.doneToday ? t('intro_dmDoneSub') : t('intro_dmSub');
   body.innerHTML = `
     <button type="button" class="flameEntry${stats.doneToday ? ' done' : ''}" id="introDailyMinBtn" aria-label="${escapeHtml(flameLbl)}">
-      <span class="flameIdx">01</span>
-      <span class="flameTitleWrap"><span class="flameStroke pbSvg" data-pb-stroke="31"></span><span class="flameLbl">${escapeHtml(flameLbl)}</span>${stats.doneToday ? '<span class="flameCheck">' + escapeHtml(t('share_stamp')) + '</span>' : ''}</span>
+      <span class="flameIdx">🔥</span>
+      <span class="flameTitleWrap"><span class="flameStroke pbSvg" data-pb-stroke="31"></span><span class="flameLbl">${escapeHtml(flameLbl)}</span></span>
       <span class="flameSub">${escapeHtml(flameSub)}</span>
     </button>
     <button type="button" class="flameEntry" id="introExtraBtn" aria-label="${escapeHtml(t('intro_extraLbl'))}">
-      <span class="flameIdx">02</span>
+      <span class="flameIdx">💣</span>
       <span class="flameTitleWrap"><span class="flameStroke pbSvg" data-pb-stroke="47"></span><span class="flameLbl">${escapeHtml(t('intro_extraLbl'))}</span></span>
       <span class="flameSub">${escapeHtml(t('intro_extraSub'))}</span>
     </button>
     <button type="button" class="flameEntry" id="introRecordsBtn" aria-label="${escapeHtml(t('intro_recordsLbl'))}">
-      <span class="flameIdx">03</span>
+      <span class="flameIdx">🏆</span>
       <span class="flameTitleWrap"><span class="flameStroke pbSvg" data-pb-stroke="59"></span><span class="flameLbl">${escapeHtml(t('intro_recordsLbl'))}</span></span>
       <span class="flameSub">${escapeHtml(t('intro_recordsSub'))}</span>
     </button>
