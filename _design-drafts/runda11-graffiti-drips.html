@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Runda 11 — 20 wariantów graficiarskich, kapiących banerów</title>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800&display=swap">
+<style>
+:root{ --bg:#0A0A0C; --card:#141419; --line:#24242C; --txt:#E8E8EA; --txt2:#9A9AA3; --accent:#C81E2C; --accent-txt:#E8394A; color-scheme:dark; }
+*{box-sizing:border-box;}
+body{margin:0; background:var(--bg); color:var(--txt); font-family:'Barlow Condensed',sans-serif; padding:24px 16px 100px;}
+h1{font-size:19px; text-align:center; margin:0 0 6px; text-transform:uppercase; letter-spacing:.04em;}
+p.sub{text-align:center; color:var(--txt2); font-size:13px; margin:0 0 26px auto; max-width:640px; margin-inline:auto; line-height:1.6;}
+.grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(230px,1fr)); gap:20px; max-width:1300px; margin:0 auto;}
+.cell{background:var(--card); border:1px solid var(--line); border-radius:12px; padding:14px; display:flex; flex-direction:column; align-items:center; gap:8px;}
+.idx{font-family:monospace; font-size:11px; font-weight:800; background:var(--accent); color:#fff; border-radius:4px; padding:2px 8px; align-self:flex-start;}
+.lbl{font-size:11.5px; color:var(--txt2); text-align:center; line-height:1.35; min-height:44px;}
+.stage{width:100%; background:#0A0A0C; border:1px solid var(--line); border-radius:8px; padding:14px 8px 4px; display:flex; align-items:center; justify-content:center; min-height:110px; overflow:visible;}
+svg text{font-family:'Barlow Condensed', sans-serif; font-weight:800; fill:#fff; text-transform:uppercase;}
+</style>
+</head>
+<body>
+<h1>Runda 11 — 20 wariantów: prawdziwie kapiące, graficiarskie banery</h1>
+<p class="sub">Prawdziwe krople farby zwisające z dołu banera (nie poszarpana krawędź) — różna liczba, długość, grubość, kształt końcówki (ostra/kropla) i rozmieszczenie kropel w każdym wariancie.</p>
+<div class="grid" id="grid"></div>
+
+<script>
+function seededRandom(seed){
+  let t = seed >>> 0;
+  return function(){
+    t += 0x6D2B79F5;
+    let r = Math.imul(t ^ t >>> 15, 1 | t);
+    r ^= r + Math.imul(r ^ r >>> 7, 61 | r);
+    return ((r ^ r >>> 14) >>> 0) / 4294967296;
+  };
+}
+
+const W = 300, BANNER_TOP = 10, BANNER_H = 60, BANNER_BOTTOM = BANNER_TOP + BANNER_H;
+
+function edgePath(rand, rough){
+  if(!rough) return 'M 4,'+BANNER_TOP+' L '+(W-4)+','+BANNER_TOP+' L '+(W-4)+','+BANNER_BOTTOM+' L 4,'+BANNER_BOTTOM+' Z';
+  const n = 10; let top = 'M ';
+  for(let i=0;i<=n;i++){ const x = 4 + (i/n)*(W-8); const y = BANNER_TOP + (i===0||i===n?0:(rand()*5)); top += x.toFixed(1)+','+y.toFixed(1)+' L '; }
+  let bot = '';
+  for(let i=n;i>=0;i--){ const x = 4 + (i/n)*(W-8); const y = BANNER_BOTTOM - (i===0||i===n?0:(rand()*5)); bot += x.toFixed(1)+','+y.toFixed(1)+' L '; }
+  return top + bot.slice(0,-2) + 'Z';
+}
+
+function dripPath(x, w, len, bulb, wavy, rand){
+  const baseY = BANNER_BOTTOM - 2;
+  const tipY = baseY + len;
+  const midY = baseY + len*0.65;
+  const wob = wavy ? (rand()-0.5)*w*0.8 : 0;
+  let d = 'M ' + (x-w/2) + ',' + baseY + ' ';
+  d += 'C ' + (x-w/2) + ',' + (baseY+len*0.2) + ' ' + (x-w*0.35+wob) + ',' + midY + ' ' + (x-w*0.15) + ',' + (bulb?tipY-w*0.55:tipY) + ' ';
+  if(bulb){
+    d += 'A ' + (w*0.55) + ' ' + (w*0.55) + ' 0 1 0 ' + (x+w*0.15) + ',' + (tipY-w*0.55) + ' ';
+  } else {
+    d += 'L ' + x + ',' + tipY + ' L ' + (x+w*0.15) + ',' + (tipY - (bulb?w*0.55:0)) + ' ';
+  }
+  d += 'C ' + (x+w*0.35+wob) + ',' + midY + ' ' + (x+w/2) + ',' + (baseY+len*0.2) + ' ' + (x+w/2) + ',' + baseY + ' Z';
+  return d;
+}
+
+function renderBanner(cfg, text, fontSize){
+  const rand = seededRandom(cfg.seed);
+  const svgNS = 'http://www.w3.org/2000/svg';
+  const maxLen = cfg.lenMax + (cfg.dripsFromCorners ? 0 : 0);
+  const totalH = BANNER_BOTTOM + maxLen + 14;
+  const svg = document.createElementNS(svgNS,'svg');
+  svg.setAttribute('viewBox', '0 0 ' + W + ' ' + totalH);
+  svg.setAttribute('width', '100%'); svg.setAttribute('style','max-width:250px; overflow:visible;');
+
+  const mainPath = document.createElementNS(svgNS,'path');
+  mainPath.setAttribute('d', edgePath(rand, cfg.edge === 'rough'));
+  mainPath.setAttribute('fill', cfg.rotate ? '#C81E2C' : '#C81E2C');
+  if(cfg.rotate) svg.style.transform = 'rotate(' + cfg.rotate + 'deg)';
+  svg.appendChild(mainPath);
+
+  const positions = [];
+  const rand2 = seededRandom(cfg.seed + 500);
+  if(cfg.dripsFromCorners){
+    positions.push(18, W-18);
+    for(let i=2;i<cfg.dripCount;i++) positions.push(18 + rand2()*(W-36));
+  } else {
+    for(let i=0;i<cfg.dripCount;i++) positions.push(20 + rand2()*(W-40));
+  }
+  positions.sort(function(a,b){return a-b;});
+
+  positions.forEach(function(x, i){
+    const len = cfg.lenMin + rand2()*(cfg.lenMax - cfg.lenMin);
+    const w = cfg.dripW * (0.7 + rand2()*0.6);
+    const p = document.createElementNS(svgNS,'path');
+    p.setAttribute('d', dripPath(x, w, len, cfg.bulb, cfg.wavy, rand2));
+    p.setAttribute('fill', cfg.colorVariant && i % 3 === 0 ? '#E8394A' : '#C81E2C');
+    p.setAttribute('opacity', cfg.colorVariant && i % 4 === 1 ? '.75' : '1');
+    svg.appendChild(p);
+  });
+
+  const t = document.createElementNS(svgNS,'text');
+  t.setAttribute('x', W/2); t.setAttribute('y', BANNER_TOP + BANNER_H/2 + fontSize*0.35);
+  t.setAttribute('font-size', fontSize); t.setAttribute('text-anchor','middle'); t.setAttribute('letter-spacing','1');
+  t.textContent = text;
+  svg.appendChild(t);
+  return svg;
+}
+
+const VARIANTS = [
+  { name:'G1 — Klasyczne, cienkie krople (3 krótkie)', dripCount:3, lenMin:10, lenMax:22, dripW:7, bulb:true },
+  { name:'G2 — Gęste kapanie (7 kropel, różna długość)', dripCount:7, lenMin:6, lenMax:30, dripW:6, bulb:true },
+  { name:'G3 — Długie, ociekające sople farby', dripCount:4, lenMin:28, lenMax:50, dripW:8, bulb:true },
+  { name:'G4 — Grube, ciężkie krople (jak świeży spray)', dripCount:4, lenMin:14, lenMax:26, dripW:14, bulb:true },
+  { name:'G5 — Bardzo cienkie, nitkowate zacieki', dripCount:9, lenMin:12, lenMax:34, dripW:3, bulb:false },
+  { name:'G6 — Krople tylko z narożników (klasyk graffiti)', dripCount:4, lenMin:16, lenMax:28, dripW:9, bulb:true, dripsFromCorners:true },
+  { name:'G7 — Faliste, nierówne sznury farby', dripCount:5, lenMin:18, lenMax:32, dripW:7, bulb:true, wavy:true },
+  { name:'G8 — Rzadkie krople, duża przestrzeń między nimi', dripCount:2, lenMin:20, lenMax:36, dripW:10, bulb:true },
+  { name:'G9 — Dwukolorowe krople (świeża + zaschnięta farba)', dripCount:6, lenMin:10, lenMax:26, dripW:7, bulb:true, colorVariant:true },
+  { name:'G10 — Postrzępiona krawędź + krople (kombo)', dripCount:5, lenMin:12, lenMax:24, dripW:7, bulb:true, edge:'rough' },
+  { name:'G11 — Mikro-kapanie (dużo bardzo krótkich kropelek)', dripCount:12, lenMin:4, lenMax:12, dripW:5, bulb:true },
+  { name:'G12 — Ostre sople bez bąbelka (surowe, drapieżne)', dripCount:6, lenMin:16, lenMax:34, dripW:6, bulb:false },
+  { name:'G13 — Jedna dominująca długa kropla + drobne reszty', dripCount:5, lenMin:8, lenMax:44, dripW:8, bulb:true },
+  { name:'G14 — Symetryczne krople po równo rozmieszczone', dripCount:6, lenMin:18, lenMax:18, dripW:7, bulb:true },
+  { name:'G15 — Przechylony baner + krople (dynamiczny)', dripCount:5, lenMin:14, lenMax:26, dripW:7, bulb:true, rotate:-3 },
+  { name:'G16 — Bardzo długie, cienkie strużki (świeży spray)', dripCount:8, lenMin:20, lenMax:48, dripW:4, bulb:false, wavy:true },
+  { name:'G17 — Grube krople tylko na dole-środku (ciężar w centrum)', dripCount:3, lenMin:22, lenMax:38, dripW:13, bulb:true },
+  { name:'G18 — Faliste + dwukolorowe (najbardziej "graffiti")', dripCount:7, lenMin:12, lenMax:30, dripW:6, bulb:true, wavy:true, colorVariant:true },
+  { name:'G19 — Ekstremalnie gęste kapanie (chaos, mokra ściana)', dripCount:14, lenMin:6, lenMax:26, dripW:5, bulb:true },
+  { name:'G20 — Minimalne, eleganckie 2 krople (subtelny akcent)', dripCount:2, lenMin:12, lenMax:16, dripW:8, bulb:true }
+];
+
+VARIANTS.forEach(function(v,i){ v.seed = v.seed || (i*13+1); });
+
+const grid = document.getElementById('grid');
+VARIANTS.forEach(function(v){
+  const cell = document.createElement('div'); cell.className = 'cell';
+  cell.innerHTML = '<span class="idx">' + v.name.split(' —')[0] + '</span>';
+  const stage1 = document.createElement('div'); stage1.className = 'stage';
+  stage1.appendChild(renderBanner(v, 'JEDNA SERIA.', 20));
+  const stage2 = document.createElement('div'); stage2.className = 'stage';
+  stage2.appendChild(renderBanner(Object.assign({}, v, {seed: v.seed+77}), 'ZERO WYMÓWEK.', 17));
+  const lbl = document.createElement('div'); lbl.className = 'lbl'; lbl.textContent = v.name;
+  cell.appendChild(stage1); cell.appendChild(stage2); cell.appendChild(lbl);
+  grid.appendChild(cell);
+});
+</script>
+</body>
+</html>
