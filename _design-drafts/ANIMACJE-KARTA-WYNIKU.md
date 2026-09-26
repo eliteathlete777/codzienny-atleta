@@ -18,3 +18,7 @@
 
 Pozycje (top/left % karty 9:16): marka 5.5% · data 10.8% · liczba 41.5% (32.5cqw) · belka 51.5% · dzień 57.5% (5.9cqw) · banery od 68% · stempel 26%/70% (8.5cqw, nad liczbą — NIE może jej zasłaniać).
 PNG do udostępniania (`renderShareCardPng`) odwzorowuje ten sam układ 1:1 (1080×1920, 1cqw = 10.8 px).
+
+---
+## Oficjalne wersje aplikacji
+- **v1 (oficjalna)** — commit `c2b141e`, cache `codzienny-atleta-v9`. Karta wyniku V5 + S10 + ZALICZONE + choreografia A10. Powrót: `git checkout c2b141e -- index.html sw.js`.
