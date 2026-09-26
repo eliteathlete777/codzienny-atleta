@@ -2,7 +2,7 @@
 // Wzorowane na sprawdzonym mechanizmie z Dziennika: Hostinger CDN potrafi trzymac stara wersje strony w
 // cache do 7 dni niezaleznie od tego, co jest wgrane, wiec zadania HTML zawsze ida do sieci z cache:'no-store'
 // i doklejonym _swbust, a odpowiedz i tak jest zapisywana pod oryginalnym adresem (offline nadal dziala).
-const CACHE = 'codzienny-atleta-v9';
+const CACHE = 'codzienny-atleta-v10';
 const CORE_ASSETS = [
   './',
   './index.html',

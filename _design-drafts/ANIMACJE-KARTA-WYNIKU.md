@@ -22,3 +22,4 @@ PNG do udostępniania (`renderShareCardPng`) odwzorowuje ten sam układ 1:1 (108
 ---
 ## Oficjalne wersje aplikacji
 - **v1 (oficjalna)** — commit `c2b141e`, cache `codzienny-atleta-v9`. Karta wyniku V5 + S10 + ZALICZONE + choreografia A10. Powrót: `git checkout c2b141e -- index.html sw.js`.
+- **v2 (w testach)** — system wizualny v2 w całej appce: splash z banerami S10 i tytułem Anton, ekran wyboru (01/02/03 + tytuł na farbie S10 + biała belka, zero emotek), panel główny (liczby Anton, białe belki, ikony SVG), przyciski akcji jako czerwona farba, licznik Anton. Cache `codzienny-atleta-v10`.

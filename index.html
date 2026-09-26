@@ -634,6 +634,46 @@ body{display:flex;flex-direction:column;height:100vh;height:100dvh;max-width:520
   .glitchIn, .tileIn, .splashSlide, .splashTap, .splashPop, .splashSlam, .splashFade, .splashFlame{animation:none !important; opacity:1 !important;}
   .splashGrowBar{animation:none !important; width:60px !important;}
 }
+
+/* ================= SYSTEM WIZUALNY v2 — spojny z karta wyniku =================
+   Anton (liczby, tytuly) · biala belka z czarnym tekstem (opisy) · czerwona farba S10 (akcenty) · zero emotek. */
+.pbSvg svg{width:100%; height:auto; display:block; overflow:visible;}
+.pbSvg text{font-family:'Barlow Condensed', sans-serif; font-weight:800; fill:#fff;}
+/* Splash */
+#splashScreen .splashTitle{font-family:var(--display); font-weight:400; line-height:.88; gap:0;}
+#splashScreen .splashTitle .l1, #splashScreen .splashTitle .l2{font-size:clamp(60px,21vw,112px); letter-spacing:.01em; text-shadow:0 1.2vw 5vw #000;}
+#splashScreen .splashPaint{width:min(92vw,420px); margin:-3.5vw 0; opacity:0;}
+#splashScreen .splashPaint:last-of-type{margin-bottom:18px;}
+/* Wybor na starcie: numer + tytul Anton na farbie + biala belka */
+.flameEntry{gap:10px; position:relative;}
+.flameEntry .flameIdx{font-family:'Saira Stencil One', var(--display); font-size:13px; letter-spacing:.3em; color:var(--accent-txt);}
+.flameEntry .flameTitleWrap{position:relative; display:flex; align-items:center; justify-content:center; width:min(86vw,380px);}
+.flameEntry .flameStroke{position:absolute; left:0; right:0; top:50%; transform:translateY(-50%); opacity:.92; pointer-events:none; transition:transform .2s;}
+.flameEntry .flameLbl{position:relative; white-space:nowrap; font-family:var(--display); font-weight:400; font-size:clamp(26px,8.4vw,40px); line-height:1;
+  color:#fff; letter-spacing:.02em; text-shadow:0 2px 3px rgba(0,0,0,.6); transform:rotate(-2deg); padding:8px 0;}
+.flameEntry .flameSub{display:inline-block; background:#fff; color:#000; font-family:'Barlow Condensed', sans-serif; font-weight:800;
+  font-size:12.5px; letter-spacing:.14em; padding:3px 10px;}
+.flameEntry:hover .flameStroke{transform:translateY(-50%) scale(1.04);}
+.flameEntry:active .flameTitleWrap{transform:scale(.96);}
+.flameEntry.done .flameLbl{color:#fff;}
+.flameEntry .flameCheck{position:absolute; top:-6px; right:4%; z-index:2; font-family:'Saira Stencil One', var(--display); font-size:13px; color:var(--accent-txt);
+  border:3px double var(--accent-txt); padding:2px 8px; border-radius:6px; transform:rotate(12deg); mix-blend-mode:screen; background:none; width:auto; height:auto;}
+/* Panel glowny */
+.heroStatNum{font-family:var(--display) !important; font-weight:400 !important; font-size:clamp(48px,15vw,64px) !important; line-height:.95; color:#fff !important;
+  text-shadow:0 2px 14px rgba(0,0,0,.7) !important;}
+.heroStatLbl{display:inline-block; background:#fff; color:#000 !important; font-family:'Barlow Condensed', sans-serif; font-weight:800; font-size:11.5px; letter-spacing:.12em; padding:2px 8px; margin-top:8px;}
+.heroComboNum{font-family:var(--display) !important; font-weight:400 !important; font-size:20px !important;}
+.dmNavTileIco svg{width:28px; height:28px; display:block; stroke:var(--accent-txt); fill:none; stroke-width:2; stroke-linecap:square;}
+.dmNavTileLbl{color:#fff; font-size:13px; letter-spacing:.06em;}
+/* Przyciski akcji: czerwona farba z poszarpanym brzegiem */
+.dmFsBtn, .dmFsSaveBtn{position:relative; background:var(--accent) !important; color:#fff !important; border:none !important; border-radius:0 !important;
+  font-family:var(--display) !important; letter-spacing:.06em; text-shadow:0 2px 2px rgba(0,0,0,.35);
+  clip-path:polygon(0 8%,6% 0,20% 5%,38% 1%,55% 6%,72% 0,88% 5%,100% 2%,99% 45%,100% 92%,84% 100%,66% 95%,48% 100%,30% 94%,14% 100%,0 95%,1% 50%);
+  box-shadow:none !important; filter:drop-shadow(0 6px 16px rgba(200,30,44,.45));
+  background-image:repeating-linear-gradient(180deg, rgba(0,0,0,.0) 0 3px, rgba(0,0,0,.09) 3px 4px) !important;}
+.dmFsSaveBtn{font-size:22px !important; min-width:240px; min-height:60px;}
+.dmFsSaveBtn:disabled{background:var(--card2) !important; color:var(--txt3) !important; filter:none;}
+.dmFsCircle .dmTapCount{font-family:var(--display) !important; text-shadow:0 0 40px rgba(200,30,44,.35);}
 </style>
 </head>
 <body>
@@ -647,8 +687,8 @@ body{display:flex;flex-direction:column;height:100vh;height:100dvh;max-width:520
   </div>
   <div class="splashTagline splashPop" style="animation-delay:.55s;">Jedna seria pompek.</div>
   <div class="splashTagline2 splashFlame" style="animation-delay:.95s;">30 sekund, które<br>zmienią Twoje ciało.</div>
-  <div class="grungeBanner splashSlam" style="animation-delay:1.55s;"><span>Bez siłowni.</span></div>
-  <div class="grungeBanner splashSlam" style="animation-delay:1.75s;"><span>Bez wymówek.</span></div>
+  <div class="pbSvg splashPaint splashSlam" style="animation-delay:1.55s;" data-pb="Bez siłowni." data-pb-seed="11" data-pb-fs="44"></div>
+  <div class="pbSvg splashPaint splashSlam" style="animation-delay:1.75s;" data-pb="Bez wymówek." data-pb-seed="23" data-pb-fs="42"></div>
   <div class="splashSub2 splashFade" style="animation-delay:2.0s;">One set every day.</div>
   <div class="splashBar splashGrowBar" style="animation-delay:2.15s;"></div>
   <div class="splashTap splashSlide" style="animation-delay:2.3s;">dotknij, aby kontynuować</div>
@@ -750,7 +790,7 @@ body{display:flex;flex-direction:column;height:100vh;height:100dvh;max-width:520
       </div>
     </div>
     <div class="dmAddCard">
-      <button type="button" class="dmFsBtn" id="dmFsOpenBtn" data-i18n="dm_fsOpen">💪 Zrób pompki!</button>
+      <button type="button" class="dmFsBtn" id="dmFsOpenBtn" data-i18n="dm_fsOpen">Zrób pompki!</button>
       <div hidden aria-hidden="true">
         <div class="dmTimerRow">
           <button type="button" class="dmTimerBtn" id="dmNewTimerBtn" data-i18n="dm_start" data-i18n-aria="dm_timerAria" aria-label="Start/stop stopera nowej serii (opcjonalnie)">▶ Start</button>
@@ -829,15 +869,15 @@ body{display:flex;flex-direction:column;height:100vh;height:100dvh;max-width:520
     <div id="pushupRecords"></div>
     <div class="dmNavTiles">
       <button type="button" class="dmNavTile" id="navTempoBtn" aria-label="Tempo — dzisiejsze serie">
-        <span class="dmNavTileIco">🏆</span>
+        <span class="dmNavTileIco"><svg viewBox="0 0 24 24"><circle cx="12" cy="13" r="8"/><path d="M12 13V8M9 2h6M19 5l-1.5 1.5"/></svg></span>
         <span class="dmNavTileLbl" data-i18n="nav_tempoLbl">Tempo</span>
       </button>
       <button type="button" class="dmNavTile" id="navRecordsBtn" aria-label="Kalendarz">
-        <span class="dmNavTileIco">📅</span>
+        <span class="dmNavTileIco"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16"/><path d="M3 10h18M8 2v5M16 2v5M7 14h3v3H7z"/></svg></span>
         <span class="dmNavTileLbl" data-i18n="nav_recordsLbl">Kalendarz</span>
       </button>
       <button type="button" class="dmNavTile" id="navStatsBtn" aria-label="Statystyki">
-        <span class="dmNavTileIco">📊</span>
+        <span class="dmNavTileIco"><svg viewBox="0 0 24 24"><path d="M4 21V13M10 21V8M16 21V11M22 21V4M2 21h22"/></svg></span>
         <span class="dmNavTileLbl" data-i18n="nav_statsLbl">Statystyki</span>
       </button>
     </div>
@@ -971,7 +1011,7 @@ const I18N = {
     back_aria: 'Wstecz',
     dm_newSeries: 'Nowa seria',
     dm_metroTitle: 'Metronom tempa (sygnał co 2,5s)',
-    dm_fsOpen: '💪 Zrób pompki!',
+    dm_fsOpen: 'Zrób pompki!',
     dm_start: '▶ Start',
     dm_stop: '■ Stop',
     dm_timerAria: 'Start/stop stopera nowej serii (opcjonalnie)',
@@ -1074,7 +1114,7 @@ const I18N = {
     back_aria: 'Back',
     dm_newSeries: 'New set',
     dm_metroTitle: 'Tempo metronome (beep every 2.5s)',
-    dm_fsOpen: '💪 Do push-ups!',
+    dm_fsOpen: 'Do push-ups!',
     dm_start: '▶ Start',
     dm_stop: '■ Stop',
     dm_timerAria: 'Start/stop the new set stopwatch (optional)',
@@ -2034,6 +2074,18 @@ async function dmPaintBanner(card, b){
     d.animate([{transform:'scaleY(0)'},{transform:'scaleY(1)'}], {duration:900, delay:200+i*120, easing:'cubic-bezier(.4,0,.2,1)', fill:'backwards'});
   });
 }
+// Wypelnia sloty farby S10 poza karta: [data-pb] = baner z tekstem, [data-pb-stroke] = sama farba (tlo pod tytul).
+function fillPaintSlots(root){
+  (root || document).querySelectorAll('[data-pb]').forEach(function(el){
+    if(el.firstChild) return;
+    el.appendChild(paintBannerSvg(el.dataset.pb, +el.dataset.pbSeed || 11, +el.dataset.pbFs || 42, true));
+  });
+  (root || document).querySelectorAll('[data-pb-stroke]').forEach(function(el){
+    if(el.firstChild) return;
+    el.appendChild(paintBannerSvg('', +el.dataset.pbStroke, 40, false));
+  });
+}
+fillPaintSlots(document.getElementById('splashScreen'));
 let dmShareCardPlaying = false;
 async function dmPlayShareCardAnimation(targetVal){
   if(dmShareCardPlaying) return;
@@ -2512,18 +2564,18 @@ function showIntroChoice(){
   const flameSub = stats.doneToday ? t('intro_dmDoneSub') : t('intro_dmSub');
   body.innerHTML = `
     <button type="button" class="flameEntry${stats.doneToday ? ' done' : ''}" id="introDailyMinBtn" aria-label="${escapeHtml(flameLbl)}">
-      <span class="flameBigWrap"><span class="flameBig">🔥</span>${stats.doneToday ? '<span class="flameCheck">✓</span>' : ''}</span>
-      <span class="flameLbl">${escapeHtml(flameLbl)}</span>
+      <span class="flameIdx">01</span>
+      <span class="flameTitleWrap"><span class="flameStroke pbSvg" data-pb-stroke="31"></span><span class="flameLbl">${escapeHtml(flameLbl)}</span>${stats.doneToday ? '<span class="flameCheck">' + escapeHtml(t('share_stamp')) + '</span>' : ''}</span>
       <span class="flameSub">${escapeHtml(flameSub)}</span>
     </button>
     <button type="button" class="flameEntry" id="introExtraBtn" aria-label="${escapeHtml(t('intro_extraLbl'))}">
-      <span class="flameBig">💣</span>
-      <span class="flameLbl flameLblOverlay">${escapeHtml(t('intro_extraLbl'))}</span>
+      <span class="flameIdx">02</span>
+      <span class="flameTitleWrap"><span class="flameStroke pbSvg" data-pb-stroke="47"></span><span class="flameLbl">${escapeHtml(t('intro_extraLbl'))}</span></span>
       <span class="flameSub">${escapeHtml(t('intro_extraSub'))}</span>
     </button>
     <button type="button" class="flameEntry" id="introRecordsBtn" aria-label="${escapeHtml(t('intro_recordsLbl'))}">
-      <span class="flameBig">🏆</span>
-      <span class="flameLbl">${escapeHtml(t('intro_recordsLbl'))}</span>
+      <span class="flameIdx">03</span>
+      <span class="flameTitleWrap"><span class="flameStroke pbSvg" data-pb-stroke="59"></span><span class="flameLbl">${escapeHtml(t('intro_recordsLbl'))}</span></span>
       <span class="flameSub">${escapeHtml(t('intro_recordsSub'))}</span>
     </button>
     <button type="button" class="flameEntry futureHidden" id="introNewBtn" aria-label="Rozpocznij nowy trening">
@@ -2537,6 +2589,7 @@ function showIntroChoice(){
       <span class="flameSub">32 ćwiczenia z gumą — pełny opis</span>
     </button>
   `;
+  fillPaintSlots(body);
   document.getElementById('introDailyMinBtn').addEventListener('click', openFullscreenSet);
   document.getElementById('introExtraBtn').addEventListener('click', openFullscreenSet);
   document.getElementById('introRecordsBtn').addEventListener('click', function(){
