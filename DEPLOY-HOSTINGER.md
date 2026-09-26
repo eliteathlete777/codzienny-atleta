@@ -22,7 +22,7 @@ NIE wgrywać: `_design-drafts/`, `DEPLOY-HOSTINGER.md`, `.git/`.
 Aplikacja to statyczny PWA — zero backendu, zero bazy, zero builda. Pliki wgrywa się 1:1.
 
 ## Gdzie
-- Hostinger hPanel → Menedżer plików → folder domeny aplikacji (np. `public_html/` albo podfolder, jeśli appka ma działać pod ścieżką).
+- Hostinger hPanel → Menedżer plików → **folder `codzienny atleta`** (wg Damiana; na serwerze szukaj istniejącego folderu o tej nazwie, np. `public_html/codzienny-atleta/` lub `public_html/codzienny atleta/` — użyj DOKŁADNIE istniejącej nazwy, nie twórz nowego).
 - Domenę/folder docelowy potwierdza Damian. **Jeśli aplikacja już tam działa — nadpisać pliki w TYM SAMYM folderze.**
 - Wszystkie pliki muszą leżeć w jednym folderze (manifest ma `start_url: ./index.html`, `scope: ./`; SW musi być obok `index.html`).
 
