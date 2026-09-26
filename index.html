@@ -351,7 +351,7 @@ body{display:flex;flex-direction:column;height:100vh;height:100dvh;max-width:520
   opacity:0; display:flex; align-items:center; gap:3.3cqw; white-space:nowrap;}
 .shareDate::before, .shareDate::after{content:''; width:6.67cqw; height:2px; background:var(--accent);}
 .shareDayWrap{position:absolute; top:57.5%; left:50%; transform:translate(-50%,-50%); z-index:2;}
-.shareDay{font-family:'Barlow Condensed', sans-serif; font-weight:800; font-size:4.2cqw; letter-spacing:.3em;
+.shareDay{font-family:'Barlow Condensed', sans-serif; font-weight:800; font-size:5.9cqw; letter-spacing:.3em;
   color:#fff; text-transform:uppercase; opacity:0; white-space:nowrap;}
 .shareBtn{width:100%; max-width:300px; flex:0 0 auto;}
 .dmFsBrandStrip{display:none;}
@@ -2211,8 +2211,8 @@ function renderShareCardPng(){
     ctx.fillStyle = '#000'; ctx.fillText(lblText, W/2, H*0.515 + 2);
 
     // Dzien tygodnia
-    ctx.font = "800 " + Math.round(4.2*CQ) + "px 'Barlow Condensed', sans-serif";
-    ctx.letterSpacing = Math.round(4.2*CQ*.3) + 'px';
+    ctx.font = "800 " + Math.round(5.9*CQ) + "px 'Barlow Condensed', sans-serif";
+    ctx.letterSpacing = Math.round(5.9*CQ*.3) + 'px';
     ctx.fillStyle = '#fff';
     ctx.fillText(document.getElementById('shareDay').textContent.toUpperCase(), W/2, H*0.575);
     ctx.letterSpacing = '0px';
