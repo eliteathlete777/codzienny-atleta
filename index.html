@@ -339,9 +339,9 @@ body{display:flex;flex-direction:column;height:100vh;height:100dvh;max-width:520
 .shareLblBar{width:0; height:1.33cqw; border-radius:2px; background:var(--accent);}
 .shareBanners{position:absolute; top:77.2%; left:49.2%; transform:translate(-50%,-50%) scale(1.54); z-index:2;
   display:flex; flex-direction:column; align-items:center; gap:1.7cqw; width:max-content;}
-.shareBanners .grungeBanner{padding:2cqw 5cqw; opacity:0;}
+.shareBanners .grungeBanner{padding:2.3cqw 5cqw 4.3cqw; opacity:0;}
 .shareBanners .grungeBanner span{font-size:5.87cqw; white-space:nowrap;}
-#shareB1{padding:2.33cqw 6cqw;}
+#shareB1{padding:2.6cqw 6cqw 4.8cqw;}
 #shareB1 span{font-size:6.73cqw; letter-spacing:.02em; text-shadow:0 2px 0 rgba(0,0,0,.35);}
 .shareDateWrap{position:absolute; top:10.8%; left:52.1%; transform:translate(-50%,-50%); z-index:2;}
 .shareDate{font-family:var(--mono); font-size:4.67cqw; letter-spacing:.08em; color:#fff; text-transform:uppercase;
@@ -529,9 +529,9 @@ body{display:flex;flex-direction:column;height:100vh;height:100dvh;max-width:520
 #splashScreen .splashTitle .l1{font-size:clamp(54px,20vw,108px); color:#fff; letter-spacing:-.01em;}
 #splashScreen .splashTitle .l2{font-size:clamp(54px,20vw,108px); color:var(--accent-txt); letter-spacing:-.01em;}
 /* Poszarpany czerwony baner — styl okladki e-booka "Zbuduj Forme Bez Silowni" (BEZ WYMOWEK.). */
-.grungeBanner{position:relative; display:inline-block; background:var(--accent); padding:8px 24px;
+.grungeBanner{position:relative; display:inline-block; background:var(--accent); padding:10px 26px 20px;
   margin:3px 0; transform:rotate(-1.4deg); box-shadow:0 10px 26px rgba(0,0,0,.55);
-  clip-path:polygon(1% 14%, 11% 0%, 91% 5%, 100% 20%, 98% 80%, 89% 100%, 9% 95%, 0% 76%);}
+  clip-path:polygon(0% 10%, 8% 3%, 16% 12%, 24% 5%, 32% 11%, 40% 4%, 48% 12%, 56% 5%, 64% 11%, 72% 4%, 80% 12%, 88% 5%, 96% 10%, 100% 7%, 100% 30%, 97% 38%, 100% 46%, 100% 70%, 100% 86%, 92% 78%, 86% 100%, 80% 84%, 72% 90%, 64% 78%, 56% 96%, 48% 82%, 40% 88%, 32% 100%, 24% 84%, 16% 78%, 8% 90%, 0% 84%, 0% 60%, 3% 52%, 0% 44%);}
 .grungeBanner:last-of-type{margin-bottom:22px;}
 .grungeBanner span{font-family:'Barlow Condensed', var(--display); font-size:clamp(20px,6.8vw,28px); color:#fff;
   text-transform:uppercase; letter-spacing:.02em; font-weight:800; display:block;
@@ -2025,35 +2025,38 @@ function dmLoadShareBg(){
   });
 }
 // Rysuje jeden "poszarpany" czerwony baner (jak grungeBanner w CSS) z tekstem na canvasie.
+// Poszarpana, kapiaca farba krawedz — wzorowana na banerze "BEZ WYMOWEK." z okladki Atlasu Cwiczen.
+const GRUNGE_BANNER_PTS = [
+  [0,.10],[.08,.03],[.16,.12],[.24,.05],[.32,.11],[.40,.04],[.48,.12],[.56,.05],[.64,.11],[.72,.04],[.80,.12],[.88,.05],[.96,.10],[1,.07],
+  [1,.30],[.97,.38],[1,.46],[1,.70],
+  [1,.86],[.92,.78],[.86,1],[.80,.84],[.72,.90],[.64,.78],[.56,.96],[.48,.82],[.40,.88],[.32,1],[.24,.84],[.16,.78],[.08,.90],[0,.84],
+  [0,.60],[.03,.52],[0,.44]
+];
 function drawGrungeBanner(ctx, cx, cy, text, angleDeg, fontSize){
   fontSize = fontSize || 46;
-  const padX = Math.round(fontSize * 0.91), padY = Math.round(fontSize * 0.43);
+  const padX = Math.round(fontSize * 0.91), padY = Math.round(fontSize * 0.43), dripRoom = Math.round(fontSize * 0.4);
   ctx.save();
   ctx.translate(cx, cy);
   ctx.rotate(angleDeg * Math.PI / 180);
   ctx.font = "800 " + fontSize + "px 'Barlow Condensed', sans-serif";
   const tw = ctx.measureText(text.toUpperCase()).width;
-  const bw = tw + padX * 2, bh = fontSize + padY * 2;
+  const bw = tw + padX * 2, bh = fontSize + padY * 2 + dripRoom;
   ctx.fillStyle = '#C81E2C';
   ctx.shadowColor = 'rgba(0,0,0,.55)';
   ctx.shadowBlur = 24;
   ctx.shadowOffsetY = 10;
   ctx.beginPath();
-  ctx.moveTo(-bw/2 + bw*0.01, -bh/2 + bh*0.14);
-  ctx.lineTo(-bw/2 + bw*0.11, -bh/2);
-  ctx.lineTo(bw/2 - bw*0.09, -bh/2 + bh*0.05);
-  ctx.lineTo(bw/2, -bh/2 + bh*0.20);
-  ctx.lineTo(bw/2 - bw*0.02, bh/2 - bh*0.20);
-  ctx.lineTo(bw/2 - bw*0.11, bh/2);
-  ctx.lineTo(-bw/2 + bw*0.09, bh/2 - bh*0.05);
-  ctx.lineTo(-bw/2, bh/2 - bh*0.24);
+  GRUNGE_BANNER_PTS.forEach(function(p, i){
+    const x = -bw/2 + p[0]*bw, y = -bh/2 + p[1]*bh;
+    if(i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+  });
   ctx.closePath();
   ctx.fill();
   ctx.shadowBlur = 0; ctx.shadowOffsetY = 0;
   ctx.fillStyle = '#fff';
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
-  ctx.fillText(text.toUpperCase(), 0, 2);
+  ctx.fillText(text.toUpperCase(), 0, -bh/2 + padY + fontSize*0.5);
   ctx.restore();
 }
 function renderShareCardPng(){
