@@ -343,6 +343,7 @@ body{display:flex;flex-direction:column;height:100vh;height:100dvh;max-width:520
 .shareBanners .paintBanner{width:92%; margin:-4cqw 0; opacity:0;}
 .shareBanners .paintBanner svg{width:100%; height:auto; display:block; overflow:visible;}
 .paintBanner text{font-family:'Barlow Condensed', sans-serif; font-weight:800; fill:#fff;}
+.shareFx{position:absolute; inset:0; pointer-events:none; z-index:6; overflow:hidden;}
 .shareStamp{position:absolute; top:26%; left:70%; transform:translate(-50%,-50%) rotate(14deg); z-index:3; opacity:0; pointer-events:none;
   border:1.5cqw double var(--accent-txt); color:var(--accent-txt); font-family:'Saira Stencil One', sans-serif; font-size:8.5cqw;
   padding:1.2cqw 3.6cqw; border-radius:2cqw; white-space:nowrap; mix-blend-mode:screen;}
@@ -819,6 +820,7 @@ body{display:flex;flex-direction:column;height:100vh;height:100dvh;max-width:520
           <div class="paintBanner" id="shareB2"></div>
         </div>
         <div class="shareStamp" id="shareStamp"></div>
+        <div class="shareFx" id="shareFx"></div>
         <div class="shareDateWrap" id="shareDateWrap"><div class="shareDate" id="shareDate"></div></div>
         <div class="shareDayWrap" id="shareDayWrap"><div class="shareDay" id="shareDay"></div></div>
       </div>
@@ -1952,13 +1954,13 @@ function pbBrush(g, o, r){
 function pbDrips(g, r){
   for(let i=0;i<5;i++){
     const x = 80+r()*240, w = 6*(.6+r()*.8), len = 12+r()*18, y = 88;
-    pbEl('path', {d:'M'+(x-w/2)+','+y+' C'+(x-w/2)+','+(y+len*.3)+' '+(x-w*.2)+','+(y+len*.7)+' '+(x-w*.2)+','+(y+len)+' A'+(w*.45)+','+(w*.45)+' 0 1 0 '+(x+w*.2)+','+(y+len)+' C'+(x+w*.2)+','+(y+len*.7)+' '+(x+w/2)+','+(y+len*.3)+' '+(x+w/2)+','+y+' Z', fill:'#A5121C'}, g);
+    pbEl('path', {class:'drip', d:'M'+(x-w/2)+','+y+' C'+(x-w/2)+','+(y+len*.3)+' '+(x-w*.2)+','+(y+len*.7)+' '+(x-w*.2)+','+(y+len)+' A'+(w*.45)+','+(w*.45)+' 0 1 0 '+(x+w*.2)+','+(y+len)+' C'+(x+w*.2)+','+(y+len*.7)+' '+(x+w/2)+','+(y+len*.3)+' '+(x+w/2)+','+y+' Z', fill:'#A5121C'}, g);
   }
 }
 function pbSplatter(g, r){
   for(let i=0;i<90;i++){
     const a = r()*Math.PI*2, d = 150+Math.pow(r(),1.5)*70;
-    pbEl('circle', {cx:(200+Math.cos(a)*d).toFixed(1), cy:(65+Math.sin(a)*d*.35).toFixed(1), r:(2.2*(.3+r())).toFixed(2), fill:'#C81E2C', opacity:(.35+r()*.6).toFixed(2)}, g);
+    pbEl('circle', {class:'spl', cx:(200+Math.cos(a)*d).toFixed(1), cy:(65+Math.sin(a)*d*.35).toFixed(1), r:(2.2*(.3+r())).toFixed(2), fill:'#C81E2C', opacity:(.35+r()*.6).toFixed(2)}, g);
   }
 }
 const PB_BASE = {y:38, h:54, x0:30, x1:370, feather:42, edge:5, bristles:150, flicks:26};
@@ -1993,6 +1995,45 @@ function renderShareBanners(){
     box.appendChild(paintBannerSvg(t(i ? 'share_banner2' : 'share_banner1'), PB_LINES[i].seed, PB_LINES[i].fs, true));
   });
 }
+// Efekty choreografii A10 (oficjalna): uderzenie liczby, malowanie banerow, eksplozja tuszu stempla, czerwony blysk.
+function dmFxFlash(fx, color, op, dur){
+  const d = document.createElement('div');
+  d.style.cssText = 'position:absolute;inset:0;background:' + color + ';';
+  fx.appendChild(d);
+  return d.animate([{opacity:op},{opacity:0}], {duration:dur}).finished.then(function(){ d.remove(); });
+}
+function dmFxParticles(fx, xPct, yPct, n, color, spread, size){
+  const w = fx.clientWidth;
+  for(let i=0;i<n;i++){
+    const p = document.createElement('div'), sz = size*(.5+Math.random());
+    p.style.cssText = 'position:absolute;left:'+xPct+'%;top:'+yPct+'%;width:'+sz+'px;height:'+sz+'px;border-radius:50%;background:'+color+';';
+    fx.appendChild(p);
+    const a = Math.random()*Math.PI*2, d = spread*w*(.3+Math.random());
+    p.animate([{transform:'translate(0,0)', opacity:1},{transform:'translate('+(Math.cos(a)*d)+'px,'+(Math.sin(a)*d+d*.3)+'px)', opacity:0}],
+      {duration:500+Math.random()*500, easing:'cubic-bezier(.1,.7,.3,1)'}).finished.then(function(){ p.remove(); });
+  }
+}
+function dmFxRing(fx, xPct, yPct, color, max){
+  const r = document.createElement('div');
+  r.style.cssText = 'position:absolute;left:'+xPct+'%;top:'+yPct+'%;width:10cqw;height:10cqw;margin:-5cqw 0 0 -5cqw;border:3px solid '+color+';border-radius:50%;';
+  fx.appendChild(r);
+  return r.animate([{transform:'scale(.2)', opacity:1},{transform:'scale('+max+')', opacity:0}], {duration:600, easing:'ease-out'}).finished.then(function(){ r.remove(); });
+}
+// Baner malowany na zywo: pas farby rosnie od lewej, kropelki pryskaja, tekst wskakuje, krople splywaja z opoznieniem.
+async function dmPaintBanner(card, b){
+  const svg = b.querySelector('svg');
+  const drips = Array.from(svg.querySelectorAll('.drip')), spl = Array.from(svg.querySelectorAll('.spl')), txt = svg.querySelector('text');
+  drips.forEach(function(d){ d.style.opacity = 0; }); spl.forEach(function(c){ c.style.opacity = 0; }); if(txt) txt.style.opacity = 0;
+  b.style.opacity = '1'; b.style.transform = 'none';
+  await b.animate([{clipPath:'inset(-30% 100% -30% 0)'},{clipPath:'inset(-30% 0% -30% 0)'}], {duration:420, easing:'cubic-bezier(.5,0,.3,1)'}).finished;
+  spl.forEach(function(c){ c.style.opacity = ''; c.animate([{opacity:0, transform:'scale(0)'},{opacity:c.getAttribute('opacity'), transform:'scale(1)'}], {duration:200, delay:Math.random()*200, fill:'backwards'}); });
+  if(txt){ txt.style.opacity = 1; txt.animate([{opacity:0, transform:'translateY(4px)'},{opacity:1, transform:'none'}], {duration:180}); }
+  await dmShakeCard(card, 3);
+  drips.forEach(function(d, i){
+    d.style.transformBox = 'fill-box'; d.style.transformOrigin = 'top'; d.style.opacity = 1;
+    d.animate([{transform:'scaleY(0)'},{transform:'scaleY(1)'}], {duration:900, delay:200+i*120, easing:'cubic-bezier(.4,0,.2,1)', fill:'backwards'});
+  });
+}
 let dmShareCardPlaying = false;
 async function dmPlayShareCardAnimation(targetVal){
   if(dmShareCardPlaying) return;
@@ -2006,6 +2047,8 @@ async function dmPlayShareCardAnimation(targetVal){
   const lblBar = document.getElementById('shareLblBar');
   const b1 = document.getElementById('shareB1'), b2 = document.getElementById('shareB2');
   const stamp = document.getElementById('shareStamp');
+  const fx = document.getElementById('shareFx');
+  fx.innerHTML = '';
   const dateWrap = document.getElementById('shareDateWrap');
   const date = document.getElementById('shareDate');
   const dayWrap = document.getElementById('shareDayWrap');
@@ -2040,11 +2083,15 @@ async function dmPlayShareCardAnimation(targetVal){
   await dmShakeCard(card, 2);
   await dmWait(200);
 
+  // Uderzenie z glebi: liczba spada z ekranu jak ciezar, pyl, biala fala, blysk, mocne drgniecie.
+  num.textContent = targetVal;
   num.style.opacity = '1';
-  await dmCountUp(num, targetVal, Math.min(900, 260 + targetVal*13));
-  dmShockwave(wave);
-  await num.animate([{transform:'scale(1.28)'},{transform:'scale(1)'}], {duration:240, easing:'cubic-bezier(.2,.8,.3,1)'}).finished;
-  await dmShakeCard(card, 6);
+  await num.animate([{transform:'scale(6)', opacity:0, filter:'blur(12px)'},{transform:'scale(.9)', opacity:1, filter:'blur(0)', offset:.8},{transform:'scale(1)', opacity:1, filter:'blur(0)'}],
+    {duration:420, easing:'cubic-bezier(.6,0,.9,.5)'}).finished;
+  dmFxParticles(fx, 50, 48, 40, '#bbb', .55, 3);
+  dmFxRing(fx, 50, 41.5, '#fff', 7);
+  dmFxFlash(fx, '#fff', .35, 180);
+  await dmShakeCard(card, 12);
   await dmWait(220);
 
   lblWrap.style.opacity = '1';
@@ -2057,25 +2104,30 @@ async function dmPlayShareCardAnimation(targetVal){
   day.style.transform = 'translateY(0)';
   await dmWait(240);
 
-  b1.style.opacity = '1';
-  await b1.animate([{transform:'translateX(-90px) scale(2.2)'},{transform:'translateX(0) scale(1.08)', offset:.75},{transform:'translateX(0) scale(1)'}], {duration:380, easing:'cubic-bezier(.2,.8,.3,1)'}).finished;
-  b1.style.transform = 'translateX(0) scale(1)';
-  await dmShakeCard(card, 5);
+  // Malowanie sprayem na zywo
+  await dmPaintBanner(card, b1);
   await dmWait(150);
-  b2.style.opacity = '1';
-  await b2.animate([{transform:'translateX(-70px) scale(1.7)'},{transform:'translateX(0) scale(1)'}], {duration:300, easing:'cubic-bezier(.2,.8,.3,1)'}).finished;
-  b2.style.transform = 'translateX(0) scale(1)';
-  await dmShakeCard(card, 3);
+  await dmPaintBanner(card, b2);
   await dmWait(350);
 
-  // Stempel ZALICZONE — przybity na koniec: spada z gory, uderza, karta drga.
+  // Stempel ZALICZONE z eksplozja tuszu: uderzenie, pryskajacy tusz, ugiecie karty, odcisk-duch.
+  const ST = 'translate(-50%,-50%) rotate(14deg) ';
   stamp.style.opacity = '.92';
   await stamp.animate([
-    {transform:'translate(-50%,-50%) rotate(4deg) scale(3)', opacity:0},
-    {transform:'translate(-50%,-50%) rotate(14deg) scale(.92)', opacity:.92, offset:.75},
-    {transform:'translate(-50%,-50%) rotate(14deg) scale(1)', opacity:.92}
-  ], {duration:300, easing:'cubic-bezier(.5,0,.8,.4)'}).finished;
-  await dmShakeCard(card, 8);
+    {transform:'translate(-50%,-50%) rotate(-10deg) scale(4)', opacity:0},
+    {transform:ST+'scale(.85)', opacity:1, offset:.7},
+    {transform:ST+'scale(1)', opacity:.92}
+  ], {duration:340, easing:'cubic-bezier(.6,0,.9,.4)'}).finished;
+  dmFxParticles(fx, 70, 26, 60, '#C81E2C', .5, 5);
+  dmFxRing(fx, 70, 26, '#E8394A', 5);
+  dmFxFlash(fx, '#C81E2C', .35, 260);
+  card.animate([{transform:'scale(.97)'},{transform:'scale(1.01)'},{transform:'none'}], {duration:300});
+  const ghost = stamp.cloneNode(true); ghost.removeAttribute('id'); ghost.style.opacity = '.5'; fx.appendChild(ghost);
+  ghost.animate([{transform:ST+'scale(1)', opacity:.6},{transform:ST+'scale(1.5)', opacity:0}], {duration:600}).finished.then(function(){ ghost.remove(); });
+  await dmShakeCard(card, 14);
+
+  // Final: czerwony blysk
+  await dmFxFlash(fx, '#C81E2C', .4, 400);
 
   dmShareCardPlaying = false;
 }
