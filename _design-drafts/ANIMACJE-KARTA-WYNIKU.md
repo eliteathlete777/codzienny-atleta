@@ -4,7 +4,7 @@
 
 | # | Element | Animacja | Czas |
 |---|---|---|---|
-| 1 | Loader | Napis „ŁADOWANIE" + 3 skaczące kropki (wariant L3 z runda8) | 1500 ms |
+| 1 | Loader | Napis „ŁADOWANIE" + 3 skaczące kropki (wariant L3 z runda8) | 900 ms |
 | 2 | Zdjęcie tła | Laserowy skan od góry do dołu, odsłania grafikę (`dmScanRevealBg`) | 1400 ms |
 | 3 | CODZIENNY ATLETA | Maszyna do pisania, po wpisaniu „ATLETA" zmienia kolor na czerwony | 34 ms/znak |
 | 4 | Data | Wjazd ze skali 1.3 → 1, drgnięcie karty (2 px) | 280 ms |
