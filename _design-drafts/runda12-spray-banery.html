@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Runda 12 — Banery farbą</title>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,800;1,800&display=swap">
+<style>
+:root{ --bg:#0A0A0C; --card:#141419; --line:#24242C; --txt:#E8E8EA; --txt2:#9A9AA3; --accent:#C81E2C; color-scheme:dark; }
+*{box-sizing:border-box;}
+body{margin:0; background:var(--bg); color:var(--txt); font-family:'Barlow Condensed',sans-serif; padding:24px 16px 100px;}
+h1{font-size:19px; text-align:center; margin:0 0 6px; text-transform:uppercase; letter-spacing:.04em;}
+p.sub{text-align:center; color:var(--txt2); font-size:13px; margin:0 auto 26px; max-width:640px; line-height:1.6;}
+.grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); gap:20px; max-width:1300px; margin:0 auto;}
+.cell{background:var(--card); border:1px solid var(--line); border-radius:12px; padding:14px; display:flex; flex-direction:column; gap:8px;}
+.idx{font-family:monospace; font-size:11px; font-weight:800; background:var(--accent); color:#fff; border-radius:4px; padding:2px 8px; align-self:flex-start;}
+.lbl{font-size:12px; color:var(--txt2); line-height:1.4;}
+.stage{background:#050506; border:1px solid var(--line); border-radius:8px; padding:6px 0; display:flex; flex-direction:column; align-items:center; overflow:hidden;}
+.stage svg{width:100%; max-width:360px; overflow:visible; display:block;}
+svg text{font-family:'Barlow Condensed',sans-serif; font-weight:800; fill:#fff;}
+</style>
+</head>
+<body>
+<h1>Runda 12 — 10 banerów malowanych farbą</h1>
+<p class="sub">Baza: baner „BEZ WYMÓWEK." z okładki Atlasu — suchy pędzel, poziome smugi włosia, postrzępione końce, lekki przechył, czerwona poświata. Każdy wariant rozwija tę bazę w inną stronę.</p>
+<div class="grid" id="grid"></div>
+
+<script>
+function rng(seed){ let t=seed>>>0; return function(){ t+=0x6D2B79F5; let r=Math.imul(t^t>>>15,1|t); r^=r+Math.imul(r^r>>>7,61|r); return ((r^r>>>14)>>>0)/4294967296; }; }
+const NS='http://www.w3.org/2000/svg';
+const W=400, H=130;
+let uid=0;
+function el(tag, attrs, parent){ const e=document.createElementNS(NS,tag); for(const k in attrs) e.setAttribute(k,attrs[k]); if(parent) parent.appendChild(e); return e; }
+function mix(c1,c2,t){ const a=parseInt(c1.slice(1),16), b=parseInt(c2.slice(1),16);
+  const r=Math.round((a>>16)*(1-t)+(b>>16)*t), g=Math.round((a>>8&255)*(1-t)+(b>>8&255)*t), bl=Math.round((a&255)*(1-t)+(b&255)*t);
+  return '#'+((1<<24)|(r<<16)|(g<<8)|bl).toString(16).slice(1); }
+
+/* Jedno pociągnięcie pędzla: rdzeń + smugi włosia + poszarpane końce */
+function brush(g, o, r){
+  const top=o.y, h=o.h, x0=o.x0, x1=o.x1;
+  const dark=o.dark||'#7E0B14', light=o.light||'#D9202E';
+  // rdzeń — nieregularny kontur
+  const n=24; let d='';
+  for(let i=0;i<=n;i++){ const x=x0+o.feather+(i/n)*(x1-x0-2*o.feather); const y=top+ (r()*o.edge) + (o.taper? Math.pow(Math.abs(i/n-.5)*2,3)*h*o.taper : 0); d+=(i?'L':'M')+x.toFixed(1)+','+y.toFixed(1)+' '; }
+  for(let i=n;i>=0;i--){ const x=x0+o.feather+(i/n)*(x1-x0-2*o.feather); const y=top+h-(r()*o.edge) - (o.taper? Math.pow(Math.abs(i/n-.5)*2,3)*h*o.taper : 0); d+='L'+x.toFixed(1)+','+y.toFixed(1)+' '; }
+  el('path',{d:d+'Z', fill:o.core||'#B3141F'},g);
+  // włosie
+  for(let i=0;i<o.bristles;i++){
+    const ty=r(); const y=top+ty*h;
+    const edgeFade=1-Math.pow(Math.abs(ty-.5)*2,2);
+    const sx=x0 + r()*o.feather*(1.4-edgeFade) ;
+    const ex=x1 - r()*o.feather*(1.4-edgeFade);
+    // przerwy w smudze (sucha farba)
+    let x=sx;
+    while(x<ex){
+      const seg=(o.gap? 20+r()*120 : ex-x);
+      const e=Math.min(ex, x+seg);
+      el('line',{x1:x.toFixed(1),y1:y.toFixed(1),x2:e.toFixed(1),y2:(y+(r()-.5)*o.wob).toFixed(1),
+        stroke:mix(dark,light,r()), 'stroke-width':(0.6+r()*o.bw).toFixed(2), 'stroke-linecap':'round',
+        opacity:(0.45+r()*.55).toFixed(2)},g);
+      x=e+(o.gap? r()*o.gap : 0);
+    }
+  }
+  // wyrzucone smugi poza końce
+  for(let i=0;i<o.flicks;i++){
+    const left=r()<.5; const y=top+h*(.1+r()*.8); const len=10+r()*o.flickLen;
+    const xs= left? x0+o.feather*r() : x1-o.feather*r();
+    el('line',{x1:xs,y1:y,x2:left?xs-len:xs+len,y2:y+(r()-.5)*4,stroke:mix(dark,light,r()),'stroke-width':(0.5+r()*1.6).toFixed(2),'stroke-linecap':'round',opacity:(.4+r()*.5).toFixed(2)},g);
+  }
+}
+function drips(g,o,r){
+  for(let i=0;i<o.count;i++){
+    const x=o.x0+r()*(o.x1-o.x0), w=o.w*(.6+r()*.8), len=o.min+r()*(o.max-o.min), y=o.y-2;
+    el('path',{d:`M${x-w/2},${y} C${x-w/2},${y+len*.3} ${x-w*.2},${y+len*.7} ${x-w*.2},${y+len} A${w*.45},${w*.45} 0 1 0 ${x+w*.2},${y+len} C${x+w*.2},${y+len*.7} ${x+w/2},${y+len*.3} ${x+w/2},${y} Z`,fill:o.color||'#A5121C'},g);
+  }
+}
+function splatter(g,o,r){
+  for(let i=0;i<o.count;i++){
+    const a=r()*Math.PI*2, dist=o.rMin+Math.pow(r(),1.5)*(o.rMax-o.rMin);
+    el('circle',{cx:(o.cx+Math.cos(a)*dist*o.sx).toFixed(1),cy:(o.cy+Math.sin(a)*dist*o.sy).toFixed(1),r:(o.dot*(.3+r())).toFixed(2),fill:o.color||'#C81E2C',opacity:(.35+r()*.6).toFixed(2)},g);
+  }
+}
+
+function build(v, text){
+  const r=rng(v.seed + (text.length*97));
+  const svg=el('svg',{viewBox:`0 0 ${W} ${H}`});
+  const defs=el('defs',{},svg);
+  const id='g'+(uid++);
+  // ziarno farby — maska szumu
+  const f=el('filter',{id:id+'n',x:'-10%',y:'-20%',width:'120%',height:'140%'},defs);
+  el('feTurbulence',{type:'fractalNoise',baseFrequency:v.grainF||'0.9',numOctaves:'2',seed:v.seed,result:'t'},f);
+  el('feColorMatrix',{in:'t',type:'matrix',values:`0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 -${v.grain||1.4} 1.35`,result:'m'},f);
+  el('feComposite',{in:'SourceGraphic',in2:'m',operator:'in'},f);
+  const glow=el('filter',{id:id+'gl',x:'-20%',y:'-50%',width:'140%',height:'200%'},defs);
+  el('feGaussianBlur',{in:'SourceAlpha',stdDeviation:v.glow||6,result:'b'},glow);
+  el('feFlood',{'flood-color':'#E0192B','flood-opacity':v.glowOp??.55},glow);
+  el('feComposite',{in2:'b',operator:'in',result:'c'},glow);
+  const m=el('feMerge',{},glow); el('feMergeNode',{in:'c'},m); el('feMergeNode',{in:'SourceGraphic'},m);
+
+  const outer=el('g',{transform:`rotate(${v.rot??-3} ${W/2} ${H/2})`},svg);
+  const paint=el('g',{filter:`url(#${id}gl)`},outer);
+  const layer=el('g',{filter:`url(#${id}n)`},paint);
+  v.draw(layer,r,paint);
+
+  const tw=el('g',{transform:`skewX(${v.skew||0})`},outer);
+  const t=el('text',{x:W/2,y:H/2+ (v.ty||13),'text-anchor':'middle','font-size':v.fs||40,'letter-spacing':'1.5',
+    'font-style':v.italic?'italic':'normal', style:'filter:drop-shadow(0 0 5px rgba(255,255,255,.35)) drop-shadow(0 2px 2px rgba(0,0,0,.6))'},tw);
+  t.textContent=text;
+  if(v.post) v.post(outer,r);
+  return svg;
+}
+
+const BASE={y:38,h:54,x0:30,x1:370,feather:42,edge:5,bristles:150,bw:2.4,wob:2,flicks:26,flickLen:34,gap:0};
+
+const V=[
+ { name:'S1 — Wierne odwzorowanie okładki', desc:'Suchy pędzel, gęste poziome smugi, postrzępione końce, −3°, czerwona poświata.', seed:11,
+   draw:(g,r)=>brush(g,BASE,r) },
+ { name:'S2 — Świeża farba, która spływa', desc:'Baza + ciężkie krople zwisające z dolnej krawędzi. Mokra ściana.', seed:23,
+   draw:(g,r)=>{ drips(g,{count:6,x0:70,x1:330,y:90,w:7,min:10,max:34},r); brush(g,{...BASE,edge:3},r); } },
+ { name:'S3 — Dwa przejazdy pędzlem', desc:'Dwie warstwy pod różnym kątem — ciemna pod spodem, jasna na wierzchu. Głębia.', seed:37,
+   draw:(g,r)=>{ const s=el('g',{transform:'rotate(4 200 65) translate(6,6)'},g); brush(s,{...BASE,dark:'#4E060C',light:'#8A0E18',core:'#5E0810',y:34,h:58},r); brush(g,{...BASE,y:40,h:48,bristles:120},r); } },
+ { name:'S4 — Spray z puszki (overspray)', desc:'Miękka mgiełka drobnych kropek wokół pasa, jak spray bez szablonu.', seed:41, glow:9,
+   draw:(g,r)=>{ splatter(g,{count:420,cx:200,cy:65,rMin:40,rMax:200,sx:1,sy:.28,dot:1.1},r); brush(g,{...BASE,feather:28,bristles:110},r); } },
+ { name:'S5 — Suchy pędzel, dziurawy', desc:'Mało farby — smugi rwą się, prześwituje tło. Najbardziej surowy.', seed:53, grain:1.9,
+   draw:(g,r)=>brush(g,{...BASE,bristles:170,gap:18,bw:2,core:'none'},r) },
+ { name:'S6 — Chlapnięcie na końcach', desc:'Pas z eksplozją kropel farby na obu końcach — uderzenie.', seed:61,
+   draw:(g,r)=>{ splatter(g,{count:70,cx:30,cy:65,rMin:4,rMax:60,sx:1,sy:.8,dot:3},r); splatter(g,{count:70,cx:370,cy:65,rMin:4,rMax:60,sx:1,sy:.8,dot:3},r); brush(g,BASE,r); } },
+ { name:'S7 — Ostre cięcie, mocny przechył', desc:'−7°, ostro zwężające się końce jak ślad noża/szpachli. Agresja.', seed:71, rot:-7, italic:true, skew:-6,
+   draw:(g,r)=>brush(g,{...BASE,taper:.42,feather:20,flicks:40,flickLen:50},r) },
+ { name:'S8 — Wałek malarski', desc:'Równy, szeroki pas z twardą górą i rozlanym dołem, pionowe prążki wałka.', seed:83, rot:-1.5,
+   draw:(g,r)=>{ brush(g,{...BASE,feather:14,edge:2,bristles:60,flicks:8},r); for(let x=40;x<360;x+=6+r()*10) el('line',{x1:x,y1:40,x2:x+r()*2,y2:90,stroke:'#6E0A12','stroke-width':.8+r()*1.5,opacity:.35},g); drips(g,{count:3,x0:100,x1:300,y:92,w:5,min:6,max:16},r); } },
+ { name:'S9 — Szablon (stencil) + spray', desc:'Twarda prostokątna krawędź od szablonu, spray wychodzi poza jego boki.', seed:97, rot:-2,
+   draw:(g,r)=>{ splatter(g,{count:260,cx:200,cy:65,rMin:150,rMax:215,sx:1,sy:.2,dot:1.2},r); el('rect',{x:48,y:40,width:304,height:50,fill:'#B3141F'},g); brush(g,{...BASE,x0:48,x1:352,feather:0,edge:0,flicks:0,bristles:90},r); } },
+ { name:'S10 — Pełne graffiti: pędzel + krople + chlap', desc:'Wszystko naraz: smugi, spływające krople, kropelki i druga warstwa. Maksymalna ulica.', seed:109, rot:-4, glow:8, glowOp:.7,
+   draw:(g,r)=>{ const s=el('g',{transform:'translate(-8,5)'},g); brush(s,{...BASE,dark:'#4E060C',light:'#7A0B14',core:'#5A0810',bristles:70},r); drips(g,{count:5,x0:80,x1:320,y:90,w:6,min:12,max:30},r); splatter(g,{count:90,cx:200,cy:65,rMin:150,rMax:220,sx:1,sy:.35,dot:2.2},r); brush(g,BASE,r); } },
+];
+
+const grid=document.getElementById('grid');
+V.forEach(v=>{
+  const c=document.createElement('div'); c.className='cell';
+  c.innerHTML=`<span class="idx">${v.name.split(' —')[0]}</span>`;
+  const st=document.createElement('div'); st.className='stage';
+  st.appendChild(build(v,'JEDNA SERIA.'));
+  st.appendChild(build({...v,fs:(v.fs||40)*.88},'ZERO WYMÓWEK.'));
+  c.appendChild(st);
+  const l=document.createElement('div'); l.className='lbl'; l.innerHTML=`<b style="color:#E8E8EA">${v.name.split('— ')[1]}</b><br>${v.desc}`;
+  c.appendChild(l); grid.appendChild(c);
+});
+</script>
+</body>
+</html>
