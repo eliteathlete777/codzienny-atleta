@@ -1,4 +1,4 @@
-# Karta wyniku — zatwierdzona sekwencja animacji (stan: układ V5 + banery S10 + stempel)
+# Karta wyniku — OFICJALNA WERSJA (tag: karta-wyniku-v1) — układ V5 + banery S10 + stempel ZALICZONE
 
 Źródło prawdy: `index.html` → `dmPlayShareCardAnimation()`. Ten plik to zapis decyzji — nie zmieniać animacji bez zgody Damiana.
 
