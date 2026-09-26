@@ -328,13 +328,13 @@ body{display:flex;flex-direction:column;height:100vh;height:100dvh;max-width:520
 .shareBrand{position:absolute; top:5.5%; left:50%; transform:translate(-50%,-50%); text-align:center; z-index:2; white-space:nowrap; opacity:0;
   font-family:'Barlow Condensed', sans-serif; font-weight:800; font-size:4.2cqw; letter-spacing:.32em; color:#fff; min-height:6cqw; text-transform:uppercase;}
 .shareBrand i{color:var(--accent-txt); font-style:normal;}
-.shareNumWrap{position:absolute; top:40%; left:50%; transform:translate(-50%,-50%); z-index:2;}
-.shareBigNum{font-family:var(--display); font-size:30cqw; line-height:.9; color:#fff; opacity:0;
+.shareNumWrap{position:absolute; top:41.5%; left:50%; transform:translate(-50%,-50%); z-index:2;}
+.shareBigNum{font-family:var(--display); font-size:32.5cqw; line-height:.9; color:#fff; opacity:0;
   text-shadow:0 1cqw 4cqw #000;}
 .shareShockwave{position:absolute; left:50%; top:50%; width:13.3cqw; height:13.3cqw; margin:-6.65cqw 0 0 -6.65cqw;
   border:3px solid var(--accent-txt); border-radius:50%; pointer-events:none; z-index:3; opacity:0;}
 /* Uklad V5 (okladka magazynu): liczba + biala belka z opisem + dzien tygodnia, banery S10 malowane farba, stempel ZALICZONE na koniec. */
-.shareLblWrap{position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); z-index:2; opacity:0;}
+.shareLblWrap{position:absolute; top:51.5%; left:50%; transform:translate(-50%,-50%); z-index:2; opacity:0;}
 .shareLbl{font-family:'Barlow Condensed', sans-serif; font-weight:800; font-size:5.5cqw; letter-spacing:.12em; color:#000; background:#fff;
   padding:.6cqw 3cqw; text-transform:uppercase; white-space:nowrap;}
 .shareLblBar{display:none;}
@@ -343,14 +343,14 @@ body{display:flex;flex-direction:column;height:100vh;height:100dvh;max-width:520
 .shareBanners .paintBanner{width:92%; margin:-4cqw 0; opacity:0;}
 .shareBanners .paintBanner svg{width:100%; height:auto; display:block; overflow:visible;}
 .paintBanner text{font-family:'Barlow Condensed', sans-serif; font-weight:800; fill:#fff;}
-.shareStamp{position:absolute; top:33%; left:75%; transform:translate(-50%,-50%) rotate(14deg); z-index:3; opacity:0; pointer-events:none;
-  border:1.2cqw double var(--accent-txt); color:var(--accent-txt); font-family:'Saira Stencil One', sans-serif; font-size:6.5cqw;
-  padding:1cqw 3cqw; border-radius:2cqw; white-space:nowrap; mix-blend-mode:screen;}
+.shareStamp{position:absolute; top:26%; left:70%; transform:translate(-50%,-50%) rotate(14deg); z-index:3; opacity:0; pointer-events:none;
+  border:1.5cqw double var(--accent-txt); color:var(--accent-txt); font-family:'Saira Stencil One', sans-serif; font-size:8.5cqw;
+  padding:1.2cqw 3.6cqw; border-radius:2cqw; white-space:nowrap; mix-blend-mode:screen;}
 .shareDateWrap{position:absolute; top:10.8%; left:52.1%; transform:translate(-50%,-50%); z-index:2;}
 .shareDate{font-family:var(--mono); font-size:4.67cqw; letter-spacing:.08em; color:#fff; text-transform:uppercase;
   opacity:0; display:flex; align-items:center; gap:3.3cqw; white-space:nowrap;}
 .shareDate::before, .shareDate::after{content:''; width:6.67cqw; height:2px; background:var(--accent);}
-.shareDayWrap{position:absolute; top:56%; left:50%; transform:translate(-50%,-50%); z-index:2;}
+.shareDayWrap{position:absolute; top:57.5%; left:50%; transform:translate(-50%,-50%); z-index:2;}
 .shareDay{font-family:'Barlow Condensed', sans-serif; font-weight:800; font-size:4.2cqw; letter-spacing:.3em;
   color:#fff; text-transform:uppercase; opacity:0; white-space:nowrap;}
 .shareBtn{width:100%; max-width:300px; flex:0 0 auto;}
@@ -2198,8 +2198,8 @@ function renderShareCardPng(){
     // Liczba
     ctx.fillStyle = '#fff';
     ctx.shadowColor = 'rgba(0,0,0,.9)'; ctx.shadowBlur = 4*CQ; ctx.shadowOffsetY = CQ;
-    ctx.font = "400 " + Math.round(30*CQ) + "px 'Anton', Impact, sans-serif";
-    ctx.fillText(document.getElementById('shareBigNum').textContent, W*0.5, H*0.40);
+    ctx.font = "400 " + Math.round(32.5*CQ) + "px 'Anton', Impact, sans-serif";
+    ctx.fillText(document.getElementById('shareBigNum').textContent, W*0.5, H*0.415);
     ctx.shadowBlur = 0; ctx.shadowOffsetY = 0;
 
     // Biala belka z opisem
@@ -2207,14 +2207,14 @@ function renderShareCardPng(){
     ctx.font = "800 " + Math.round(5.5*CQ) + "px 'Barlow Condensed', sans-serif";
     ctx.letterSpacing = Math.round(5.5*CQ*.12) + 'px';
     const lw = ctx.measureText(lblText).width + 6*CQ, lh = 5.5*CQ*1.2 + 1.2*CQ;
-    ctx.fillStyle = '#fff'; ctx.fillRect(W/2 - lw/2, H*0.50 - lh/2, lw, lh);
-    ctx.fillStyle = '#000'; ctx.fillText(lblText, W/2, H*0.50 + 2);
+    ctx.fillStyle = '#fff'; ctx.fillRect(W/2 - lw/2, H*0.515 - lh/2, lw, lh);
+    ctx.fillStyle = '#000'; ctx.fillText(lblText, W/2, H*0.515 + 2);
 
     // Dzien tygodnia
     ctx.font = "800 " + Math.round(4.2*CQ) + "px 'Barlow Condensed', sans-serif";
     ctx.letterSpacing = Math.round(4.2*CQ*.3) + 'px';
     ctx.fillStyle = '#fff';
-    ctx.fillText(document.getElementById('shareDay').textContent.toUpperCase(), W/2, H*0.56);
+    ctx.fillText(document.getElementById('shareDay').textContent.toUpperCase(), W/2, H*0.575);
     ctx.letterSpacing = '0px';
 
     // Banery S10: 92% szerokosci, zachodza na siebie o 2x4cqw jak na ekranie
@@ -2224,15 +2224,15 @@ function renderShareCardPng(){
       .then(function(){
         // Stempel ZALICZONE
         ctx.save();
-        ctx.translate(W*0.75, H*0.33);
+        ctx.translate(W*0.70, H*0.26);
         ctx.rotate(14 * Math.PI / 180);
         ctx.globalAlpha = .92;
-        ctx.font = "400 " + Math.round(6.5*CQ) + "px 'Saira Stencil One', sans-serif";
-        const st = t('share_stamp'), sw = ctx.measureText(st).width + 6*CQ, sh = 6.5*CQ*1.25 + 2*CQ;
+        ctx.font = "400 " + Math.round(8.5*CQ) + "px 'Saira Stencil One', sans-serif";
+        const st = t('share_stamp'), sw = ctx.measureText(st).width + 7.2*CQ, sh = 8.5*CQ*1.25 + 2.4*CQ;
         ctx.strokeStyle = '#E8394A'; ctx.fillStyle = '#E8394A';
-        ctx.lineWidth = .4*CQ;
+        ctx.lineWidth = .5*CQ;
         ctx.strokeRect(-sw/2, -sh/2, sw, sh);
-        ctx.strokeRect(-sw/2 + .8*CQ, -sh/2 + .8*CQ, sw - 1.6*CQ, sh - 1.6*CQ);
+        ctx.strokeRect(-sw/2 + CQ, -sh/2 + CQ, sw - 2*CQ, sh - 2*CQ);
         ctx.fillText(st, 0, 2);
         ctx.restore();
         return new Promise(function(resolve){ canvas.toBlob(resolve, 'image/png', 0.95); });

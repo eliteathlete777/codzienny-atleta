@@ -15,5 +15,5 @@
 | 9 | Baner „ZERO WYMÓWEK." (S10) | Wlot z lewej, skala 1.7 → 1, drgnięcie (3 px) | 300 ms |
 | 10 | Stempel „ZALICZONE" | Spada ze skali 3 i obrotu 4° na 14°, uderza, najmocniejsze drgnięcie karty (8 px) | 300 ms |
 
-Pozycje (top/left % karty 9:16): marka 5.5% · data 10.8% · liczba 40% · belka 50% · dzień 56% · banery od 68% · stempel 33%/75%.
+Pozycje (top/left % karty 9:16): marka 5.5% · data 10.8% · liczba 41.5% (32.5cqw) · belka 51.5% · dzień 57.5% · banery od 68% · stempel 26%/70% (8.5cqw, nad liczbą — NIE może jej zasłaniać).
 PNG do udostępniania (`renderShareCardPng`) odwzorowuje ten sam układ 1:1 (1080×1920, 1cqw = 10.8 px).
