@@ -551,8 +551,11 @@ body{display:flex;flex-direction:column;height:100vh;height:100dvh;max-width:520
 /* Rozne animacje wejscia dla poszczegolnych elementow splasha — nie wszystko jednym slidem. */
 @keyframes splashPop{0%{opacity:0; transform:scale(.7);}65%{opacity:1; transform:scale(1.08);}100%{opacity:1; transform:scale(1);}}
 .splashPop{opacity:0; animation:splashPop .6s cubic-bezier(.2,.8,.3,1) both;}
-@keyframes splashSlam{0%{opacity:0; transform:translateX(-50px) rotate(-6deg);}70%{opacity:1; transform:translateX(6px) rotate(0deg);}100%{opacity:1; transform:translateX(0) rotate(-1.4deg);}}
-.splashSlam{opacity:0; animation:splashSlam .55s cubic-bezier(.2,.8,.3,1) both;}
+/* Tapniecie (jak banery na karcie wyniku): wlot z boku w powiekszeniu, uderzenie z przeskokiem 1.08 -> 1. */
+@keyframes splashSlam{0%{opacity:0; transform:translateX(-90px) scale(2.2);}75%{opacity:1; transform:translateX(0) scale(1.08);}100%{opacity:1; transform:none;}}
+@keyframes splashSlamR{0%{opacity:0; transform:translateX(90px) scale(2.2);}75%{opacity:1; transform:translateX(0) scale(1.08);}100%{opacity:1; transform:none;}}
+.splashSlam{opacity:0; animation:splashSlam .42s cubic-bezier(.2,.8,.3,1) both;}
+.splashSlamR{opacity:0; animation:splashSlamR .42s cubic-bezier(.2,.8,.3,1) both;}
 @keyframes splashFade{0%{opacity:0;}100%{opacity:1;}}
 .splashFade{opacity:0; animation:splashFade .7s ease both;}
 @keyframes splashGrowBar{0%{width:0; opacity:0;}100%{width:60px; opacity:.9;}}
@@ -684,14 +687,14 @@ body{display:flex;flex-direction:column;height:100vh;height:100dvh;max-width:520
   <div class="splashBgImg" aria-hidden="true"></div>
   <div class="splashFrame"><span class="cnr tl"></span><span class="cnr tr"></span><span class="cnr bl"></span><span class="cnr br"></span></div>
   <div class="splashTitle">
-    <span class="l1 splashSlide" style="animation-delay:.08s;">Codzienny</span>
-    <span class="l2 splashSlide" style="animation-delay:.3s;">Atleta</span>
+    <span class="l1 splashSlam" style="animation-delay:.1s;">Codzienny</span>
+    <span class="l2 splashSlamR" style="animation-delay:.42s;">Atleta</span>
   </div>
   <div class="splashTagline splashPop" style="animation-delay:.55s;">Jedna seria pompek.</div>
   <div class="splashTagline2 splashFlame" style="animation-delay:.95s;">30 sekund, które<br>zmienią Twoje ciało.</div>
   <div class="pbSvg splashPaint splashSlam" style="animation-delay:1.55s;" data-pb="Bez siłowni." data-pb-seed="11" data-pb-fs="44"></div>
   <div class="pbSvg splashPaint splashSlam" style="animation-delay:1.75s;" data-pb="Bez wymówek." data-pb-seed="23" data-pb-fs="42"></div>
-  <div class="splashSub2 splashFade" style="animation-delay:2.0s;">One set every day.</div>
+  <div class="splashSub2 splashSlam" style="animation-delay:2.05s;">One set every day.</div>
   <div class="splashBar splashGrowBar" style="animation-delay:2.15s;"></div>
   <div class="splashTap splashSlide" style="animation-delay:2.3s;">dotknij, aby kontynuować</div>
 </div>
@@ -1571,6 +1574,7 @@ function runScanSweep(){
 }
 function openFullscreenSet(){
   document.getElementById('dmFsOverlay').classList.add('on');
+  requestAnimationFrame(function(){ screenEnter(document.getElementById('dmFsOverlay')); });
   runScanSweep();
 }
 document.getElementById('dmFsOpenBtn').addEventListener('click', openFullscreenSet);
@@ -1578,6 +1582,7 @@ document.getElementById('dmFsOpenBtn').addEventListener('click', openFullscreenS
 // ---------- Ustawienia — zawsze dostępne w prawym górnym rogu ----------
 document.getElementById('globalSettingsBtn').addEventListener('click', function(){
   document.getElementById('settingsOverlay').classList.add('on');
+  requestAnimationFrame(function(){ screenEnter(document.getElementById('settingsOverlay')); });
 });
 document.getElementById('settingsCloseBtn').addEventListener('click', function(){
   document.getElementById('settingsOverlay').classList.remove('on');
@@ -1744,10 +1749,12 @@ document.getElementById('backBtn').addEventListener('click', showIntroChoice);
 function openSubScreen(id){
   document.getElementById(id).classList.add('on');
   runScanSweep();
+  requestAnimationFrame(function(){ screenEnter(document.getElementById(id)); });
 }
 function closeSubScreen(id){
   document.getElementById(id).classList.remove('on');
   runScanSweep();
+  screenEnter(document.getElementById('main'), false);
 }
 document.getElementById('navTempoBtn').addEventListener('click', function(){ openSubScreen('tempoOverlay'); });
 document.getElementById('navRecordsBtn').addEventListener('click', function(){ openSubScreen('recordsOverlay'); });
@@ -1757,6 +1764,7 @@ document.getElementById('recordsBackBtn').addEventListener('click', function(){ 
 document.getElementById('statsBackBtn').addEventListener('click', function(){ closeSubScreen('statsOverlay'); });
 document.getElementById('dmFsCloseBtn').addEventListener('click', function(){
   document.getElementById('dmFsOverlay').classList.remove('on');
+  screenEnter(document.getElementById('introFlow').style.display === 'none' ? document.getElementById('main') : document.getElementById('introBody'), false);
   runScanSweep();
 });
 document.getElementById('dmNewReps').addEventListener('input', function(e){
@@ -2127,6 +2135,76 @@ async function introSlamSequence(body){
     await dmWait(90);
   }
 }
+// ================= RUCH W CALEJ APPCE =================
+// Jeden jezyk ruchu: tapniecie (slam) dla napisow, rozwiniecie dla bialych belek, uderzenie dla liczb,
+// wejscie ekranu z rozmycia + drgniecie. composite:'add' — nie nadpisuje transformow z CSS (np. translateX(-50%)).
+const MOTION_EZ = 'cubic-bezier(.2,.8,.3,1)';
+function motionSlam(el, fromRight){
+  return el.animate([
+    {transform:'translateX(' + (fromRight ? 90 : -90) + 'px) scale(2.2)', opacity:0},
+    {transform:'translateX(0) scale(1.08)', opacity:1, offset:.75},
+    {transform:'translateX(0) scale(1)', opacity:1}
+  ], {duration:380, easing:MOTION_EZ, composite:'add', fill:'backwards'}).finished;
+}
+function motionBar(el){
+  return el.animate([{transform:'scaleX(0)'},{transform:'scaleX(1.08)', offset:.7},{transform:'scaleX(1)'}],
+    {duration:260, easing:MOTION_EZ, composite:'add', fill:'backwards'}).finished;
+}
+function motionHit(el){
+  return el.animate([
+    {transform:'translateY(-30px) scale(2.6)', opacity:0, filter:'blur(8px)'},
+    {transform:'translateY(0) scale(.92)', opacity:1, filter:'blur(0)', offset:.75},
+    {transform:'translateY(0) scale(1)', opacity:1, filter:'blur(0)'}
+  ], {duration:340, easing:'cubic-bezier(.6,0,.9,.5)', composite:'add', fill:'backwards'}).finished;
+}
+function motionPop(el){
+  return el.animate([{transform:'scale(.6)', opacity:0},{transform:'scale(1.06)', opacity:1, offset:.7},{transform:'scale(1)', opacity:1}],
+    {duration:300, easing:MOTION_EZ, composite:'add', fill:'backwards'}).finished;
+}
+// Co i jak wchodzi po zmianie ekranu (kolejnosc = kolejnosc w DOM).
+const MOTION_RULES = [
+  ['#headerTitle, .dmSubScreenHead h2, #settingsHead h2, .sectionHead, .calMonthNav span', 'slam'],
+  ['.heroStatNum, .heroComboNum, .dmFsCircle .dmTapCount, .recCardVal', 'hit'],
+  ['.heroStatLbl', 'bar'],
+  ['.dmFsBtn, .dmFsSaveBtn', 'slam'],
+  ['.dmNavTile, .recCard, .dmFsTop, .settingsRow, .calGrid, .dmSubScreenBody > *', 'pop']
+];
+let motionToken = 0;
+async function screenEnter(root, withStagger){
+  if(!root) return;
+  const token = ++motionToken;
+  // Panel glowny (header + main) nie ma wspolnego kontenera — wtedy animujemy oba, a stagger szuka w body
+  // tylko po widocznych elementach (nakladki sa display:none, wiec nie wpadaja).
+  const shells = root === document.body ? [document.getElementById('header'), document.getElementById('main')] : [root];
+  shells.forEach(function(sh){ if(sh) sh.animate([{opacity:0, transform:'scale(1.05)', filter:'blur(6px)'},{opacity:1, transform:'none', filter:'blur(0)'}],
+    {duration:260, easing:MOTION_EZ}); });
+  if(withStagger === false) return;
+  const items = [];
+  MOTION_RULES.forEach(function(r){
+    root.querySelectorAll(r[0]).forEach(function(el){ if(el.offsetParent !== null || el.getClientRects().length) items.push([el, r[1]]); });
+  });
+  items.sort(function(a, b){ return a[0].compareDocumentPosition(b[0]) & Node.DOCUMENT_POSITION_FOLLOWING ? -1 : 1; });
+  const list = items.slice(0, 16);
+  list.forEach(function(it){ it[0].style.opacity = '0'; });
+  await dmWait(140);
+  let side = false;
+  for(const it of list){
+    if(token !== motionToken){ list.forEach(function(x){ x[0].style.opacity = ''; }); return; }
+    const el = it[0], kind = it[1];
+    el.style.opacity = '';
+    const p = kind === 'slam' ? motionSlam(el, side = !side) : kind === 'hit' ? motionHit(el) : kind === 'bar' ? motionBar(el) : motionPop(el);
+    if(kind === 'slam' || kind === 'hit'){ await p; dmShakeCard(root === document.body ? document.getElementById('main') : root, kind === 'hit' ? 7 : 5); }
+    else await dmWait(70);
+  }
+}
+// Splash: drgniecia zsynchronizowane z uderzeniami napisow (CSS animation-delay + ~75% czasu slamu).
+function splashShakes(){
+  const el = document.getElementById('splashScreen');
+  [0.42, 0.74, 1.87, 2.07, 2.37].forEach(function(t, i){
+    setTimeout(function(){ if(el.style.display !== 'none') dmShakeCard(el, i < 2 ? 7 : 5); }, t * 1000);
+  });
+}
+splashShakes();
 let dmShareCardPlaying = false;
 async function dmPlayShareCardAnimation(targetVal){
   if(dmShareCardPlaying) return;
@@ -2566,6 +2644,7 @@ function showSplashAgain(){
   const el = document.getElementById('splashScreen');
   el.style.display = 'flex';
   requestAnimationFrame(()=> el.classList.remove('hide'));
+  splashShakes();
 }
 document.getElementById('introTitle').addEventListener('click', showSplashAgain);
 document.getElementById('introTitle').addEventListener('keydown', function(e){
@@ -2580,6 +2659,7 @@ function showIntroFlow(){
 function hideIntroFlow(){
   const el = document.getElementById('introFlow');
   el.classList.add('hide');
+  screenEnter(document.body);
   setTimeout(()=>{ el.style.display = 'none'; }, 300);
 }
 function glitchTitle(){
