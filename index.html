@@ -1967,13 +1967,45 @@ function renderPushupTotals(){
 // marka wpisywana jak na maszynie → licznik liczy w gore + fala uderzeniowa → mocny napis
 // "POMPEK DZISIAJ" z rosnaca podkreslka → banery (JEDNA SERIA mocniej) → data → dzien tygodnia.
 // Tylko na podgladzie na ekranie — wygenerowany PNG do udostepnienia ma zawsze pelny, gotowy tekst.
-function dmWait(ms){ return new Promise(function(r){ setTimeout(r, ms); }); }
+// Pominiecie animacji jednym tapnieciem: przez chwile wszystkie animacje koncza sie natychmiast,
+// odstepy (dmWait), maszyna do pisania i odliczanie przeskakuja do konca — widac od razu gotowy ekran.
+let motionSkipUntil = 0;
+function motionSkipping(){ return performance.now() < motionSkipUntil; }
+function motionFinishAll(){
+  document.getAnimations().forEach(function(a){
+    const tm = a.effect && a.effect.getComputedTiming ? a.effect.getComputedTiming() : null;
+    if(!tm || tm.iterations === Infinity || a.playState === 'finished') return;
+    try{ a.finish(); }catch(e){}
+  });
+}
+function motionSkippable(){
+  return document.getAnimations().some(function(a){
+    if(a.playState !== 'running' || (window.CSSTransition && a instanceof CSSTransition)) return false;
+    const tm = a.effect.getComputedTiming();
+    if(tm.iterations === Infinity || tm.activeDuration < 200) return false;
+    const tg = a.effect.target;
+    return !(tg && tg.closest && tg.closest('.dmFsCircle'));
+  });
+}
+let motionSwallowClick = false;
+document.addEventListener('pointerdown', function(e){
+  if(!motionSkippable()) return;
+  motionSkipUntil = performance.now() + 2500;
+  motionSwallowClick = true;
+  (function loop(){ motionFinishAll(); if(motionSkipping()) requestAnimationFrame(loop); })();
+}, true);
+document.addEventListener('click', function(e){
+  if(!motionSwallowClick) return;
+  motionSwallowClick = false;
+  e.stopPropagation(); e.preventDefault();
+}, true);
+function dmWait(ms){ return new Promise(function(r){ setTimeout(r, motionSkipping() ? 0 : ms); }); }
 function dmTypewriterLine(el, text, speed){
   return new Promise(function(resolve){
     let i = 0;
     el.textContent = '';
     const iv = setInterval(function(){
-      i++;
+      i = motionSkipping() ? text.length : i + 1;
       el.textContent = text.slice(0, i) + (i < text.length ? '▌' : '');
       if(i >= text.length){ clearInterval(iv); resolve(); }
     }, speed);
@@ -1986,7 +2018,7 @@ function dmCountUp(el, target, duration){
     const stepTime = duration / steps;
     let i = 0;
     const iv = setInterval(function(){
-      i++;
+      i = motionSkipping() ? steps : i + 1;
       el.textContent = String(Math.min(target, Math.round(target * (i/steps))));
       if(i >= steps){ clearInterval(iv); el.textContent = String(target); resolve(); }
     }, stepTime);
@@ -2000,6 +2032,7 @@ function dmShockwave(el){
   ], {duration:460, easing:'cubic-bezier(.2,.7,.3,1)'}).finished.then(function(){ el.style.opacity = '0'; });
 }
 function dmShakeCard(card, amt){
+  if(motionSkipping()) return Promise.resolve();
   return card.animate([
     {transform:'translate(0,0)'},
     {transform:'translate('+amt+'px,'+(-amt*.6)+'px)'},
@@ -2255,22 +2288,18 @@ async function screenEnter(root, withStagger){
   });
   items.sort(function(a, b){ return a[0].compareDocumentPosition(b[0]) & Node.DOCUMENT_POSITION_FOLLOWING ? -1 : 1; });
   const list = items.slice(0, 16);
-  // Wszystko wjezdza od lewej, kaskada nakladajacych sie animacji (bez czekania na koniec poprzedniej) —
-  // szybciej, plynniej. Jedno drgniecie ekranu, gdy laduja liczby, zamiast drgniecia po kazdym elemencie.
-  const STEP = 55;
-  let firstHitAt = -1;
-  list.forEach(function(it, i){
+  // Po kolei: tapniecie na zmiane z lewej/prawej, liczby uderzaja z gory, belki sie rozwijaja — bez drgan ekranu.
+  list.forEach(function(it){ it[0].style.opacity = '0'; });
+  await dmWait(140);
+  let side = false;
+  for(const it of list){
+    if(token !== motionToken){ list.forEach(function(x){ x[0].style.opacity = ''; }); return; }
     const el = it[0], kind = it[1];
-    el.animate([
-      {transform:'translateX(-70px) scale(' + (kind === 'hit' ? 1.5 : 1.25) + ')', opacity:0},
-      {transform:'translateX(0) scale(1.04)', opacity:1, offset:.75},
-      {transform:'translateX(0) scale(1)', opacity:1}
-    ], {duration:300, delay:i * STEP, easing:MOTION_EZ, composite:'add', fill:'backwards'});
-    if(kind === 'hit' && firstHitAt < 0) firstHitAt = i * STEP + 240;
-  });
-  if(firstHitAt >= 0) setTimeout(function(){
-    if(token === motionToken) dmShakeCard(root === document.body ? document.getElementById('main') : root, 4);
-  }, firstHitAt);
+    el.style.opacity = '';
+    const p = kind === 'slam' ? motionSlam(el, side = !side) : kind === 'hit' ? motionHit(el) : kind === 'bar' ? motionBar(el) : motionPop(el);
+    if(kind === 'slam' || kind === 'hit') await p;
+    else await dmWait(70);
+  }
 }
 // Splash: drgniecia zsynchronizowane z uderzeniami napisow (CSS animation-delay + ~75% czasu slamu).
 function splashShakes(){
