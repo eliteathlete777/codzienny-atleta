@@ -3,7 +3,7 @@
 ## Źródło
 - Repo: https://github.com/eliteathlete777/codzienny-atleta
 - Gałąź: `claude/ecstatic-gauss-cdgq0s` (NIE `main` — najnowsza wersja jest tylko na tej gałęzi)
-- Wersja do wdrożenia: najnowszy commit tej gałęzi (stan na 26.09.2026: `f81c2bb`, cache SW `codzienny-atleta-v18`)
+- Wersja do wdrożenia: najnowszy commit tej gałęzi (OFICJALNA v3, 27.09.2026: commit `b8ba1aa`, cache SW `codzienny-atleta-v18`)
 - Pobranie: `git clone -b claude/ecstatic-gauss-cdgq0s https://github.com/eliteathlete777/codzienny-atleta.git`
   albo na GitHubie: przełącz gałąź → Code → Download ZIP.
 
