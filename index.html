@@ -1978,7 +1978,14 @@ function motionFinishAll(){
     try{ a.finish(); }catch(e){}
   });
 }
+// Licznik sekwencji w toku — miedzy kolejnymi krokami (dmWait) nic sie nie animuje, a sekwencja wciaz trwa.
+let motionBusy = 0;
+async function motionRun(fn){
+  motionBusy++;
+  try{ return await fn(); } finally { motionBusy = Math.max(0, motionBusy - 1); }
+}
 function motionSkippable(){
+  if(motionBusy > 0) return true;
   return document.getAnimations().some(function(a){
     if(a.playState !== 'running' || (window.CSSTransition && a instanceof CSSTransition)) return false;
     const tm = a.effect.getComputedTiming();
@@ -1992,7 +1999,12 @@ document.addEventListener('pointerdown', function(e){
   if(!motionSkippable()) return;
   motionSkipUntil = performance.now() + 2500;
   motionSwallowClick = true;
-  (function loop(){ motionFinishAll(); if(motionSkipping()) requestAnimationFrame(loop); })();
+  // Tryb pomijania trwa tylko do konca biezacej sekwencji — kolejny ekran animuje sie juz normalnie.
+  (function loop(){
+    motionFinishAll();
+    if(motionBusy === 0){ motionSkipUntil = 0; return; }
+    if(motionSkipping()) requestAnimationFrame(loop);
+  })();
 }, true);
 document.addEventListener('click', function(e){
   if(!motionSwallowClick) return;
@@ -2211,7 +2223,8 @@ fillPaintSlots(document.getElementById('splashScreen'));
 // Ekran wyboru: kazdy kafelek wchodzi z tapnieciem jak banery na karcie.
 // Kolejnosc per kafelek: tytul na farbie -> biala belka -> emotka; kafelki po kolei 01 -> 02 -> 03.
 let introSlamToken = 0;
-async function introSlamSequence(body){
+function introSlamSequence(body){ return motionRun(function(){ return _introSlamSequenceImpl(body); }); }
+async function _introSlamSequenceImpl(body){
   const token = ++introSlamToken;
   const tiles = Array.from(body.querySelectorAll('.flameEntry:not(.futureHidden)'));
   const parts = tiles.map(function(t){ return [t.querySelector('.flameTitleWrap'), t.querySelector('.flameSub'), t.querySelector('.flameIdx')]; });
@@ -2273,7 +2286,8 @@ const MOTION_RULES = [
   ['.dmNavTile, .recCard, .dmFsTop, .settingsRow, .calGrid, .dmSubScreenBody > *', 'pop']
 ];
 let motionToken = 0;
-async function screenEnter(root, withStagger){
+function screenEnter(root, withStagger){ return motionRun(function(){ return _screenEnterImpl(root, withStagger); }); }
+async function _screenEnterImpl(root, withStagger){
   if(!root) return;
   const token = ++motionToken;
   // Panel glowny (header + main) nie ma wspolnego kontenera — wtedy animujemy oba, a stagger szuka w body
@@ -2310,7 +2324,8 @@ function splashShakes(){
 }
 splashShakes();
 let dmShareCardPlaying = false;
-async function dmPlayShareCardAnimation(targetVal){
+function dmPlayShareCardAnimation(targetVal){ return motionRun(function(){ return _dmPlayShareCardAnimationImpl(targetVal); }); }
+async function _dmPlayShareCardAnimationImpl(targetVal){
   if(dmShareCardPlaying) return;
   dmShareCardPlaying = true;
   const card = document.getElementById('shareCard');
