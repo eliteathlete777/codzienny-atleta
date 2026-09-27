@@ -2233,7 +2233,7 @@ function motionPop(el){
 }
 // Co i jak wchodzi po zmianie ekranu (kolejnosc = kolejnosc w DOM).
 const MOTION_RULES = [
-  ['#headerTitle, .dmSubScreenHead h2, #settingsHead h2, .sectionHead, .calMonthNav span', 'slam'],
+  ['#headerTitle, .dmSubScreenHead h2, #settingsHead h2, .sectionHead, .editHint, .calMonthNav span', 'slam'],
   ['.heroStatNum, .heroComboNum, .dmFsCircle .dmTapCount, .recCardVal', 'hit'],
   ['.heroStatLbl', 'bar'],
   ['.dmFsBtn, .dmFsSaveBtn', 'slam'],
@@ -2255,17 +2255,22 @@ async function screenEnter(root, withStagger){
   });
   items.sort(function(a, b){ return a[0].compareDocumentPosition(b[0]) & Node.DOCUMENT_POSITION_FOLLOWING ? -1 : 1; });
   const list = items.slice(0, 16);
-  list.forEach(function(it){ it[0].style.opacity = '0'; });
-  await dmWait(140);
-  let side = false;
-  for(const it of list){
-    if(token !== motionToken){ list.forEach(function(x){ x[0].style.opacity = ''; }); return; }
+  // Wszystko wjezdza od lewej, kaskada nakladajacych sie animacji (bez czekania na koniec poprzedniej) —
+  // szybciej, plynniej. Jedno drgniecie ekranu, gdy laduja liczby, zamiast drgniecia po kazdym elemencie.
+  const STEP = 55;
+  let firstHitAt = -1;
+  list.forEach(function(it, i){
     const el = it[0], kind = it[1];
-    el.style.opacity = '';
-    const p = kind === 'slam' ? motionSlam(el, side = !side) : kind === 'hit' ? motionHit(el) : kind === 'bar' ? motionBar(el) : motionPop(el);
-    if(kind === 'slam' || kind === 'hit'){ await p; dmShakeCard(root === document.body ? document.getElementById('main') : root, kind === 'hit' ? 7 : 5); }
-    else await dmWait(70);
-  }
+    el.animate([
+      {transform:'translateX(-70px) scale(' + (kind === 'hit' ? 1.5 : 1.25) + ')', opacity:0},
+      {transform:'translateX(0) scale(1.04)', opacity:1, offset:.75},
+      {transform:'translateX(0) scale(1)', opacity:1}
+    ], {duration:300, delay:i * STEP, easing:MOTION_EZ, composite:'add', fill:'backwards'});
+    if(kind === 'hit' && firstHitAt < 0) firstHitAt = i * STEP + 240;
+  });
+  if(firstHitAt >= 0) setTimeout(function(){
+    if(token === motionToken) dmShakeCard(root === document.body ? document.getElementById('main') : root, 4);
+  }, firstHitAt);
 }
 // Splash: drgniecia zsynchronizowane z uderzeniami napisow (CSS animation-delay + ~75% czasu slamu).
 function splashShakes(){
