@@ -679,6 +679,76 @@ body{display:flex;flex-direction:column;height:100vh;height:100dvh;max-width:520
 .dmFsBtn:active, .dmFsSaveBtn:active{transform:scale(.96) rotate(-1deg);}
 .dmFsSaveBtn:disabled{filter:saturate(.55) brightness(.8); opacity:.75;}
 .dmFsCircle .dmTapCount{font-family:var(--display) !important; text-shadow:0 0 40px rgba(200,30,44,.35);}
+
+/* ================= SYSTEM WIZUALNY v3 — podstrony, ustawienia, statystyki, kalendarz, tempo, rekordy =================
+   Zasady: tytuly i liczby = Anton; etykiety = biala belka z czarnym tekstem; akcent = czerwien (bursztyn wycofany);
+   karty = czarne tlo z czerwonymi narożnikami; tlo = zdjecie jak na karcie wyniku. */
+:root{--amber:#E8394A; --glow-amber:0 0 14px rgba(200,30,44,.45);}
+/* Naglowki podstron i ustawien: duzy Anton, czerwona kreska farby pod spodem */
+.dmSubScreenHead h2, #settingsHead h2{font-size:30px !important; letter-spacing:.03em; text-transform:uppercase; position:relative;
+  text-shadow:0 2px 3px rgba(0,0,0,.6);}
+.dmSubScreenHead h2::after, #settingsHead h2::after{content:''; position:absolute; left:-2px; right:-10px; bottom:-3px; height:7px;
+  background:var(--accent); z-index:-1; transform:rotate(-2deg); opacity:.9;
+  clip-path:polygon(0 30%,8% 0,30% 20%,55% 5%,80% 25%,100% 0,97% 70%,100% 100%,70% 80%,45% 100%,20% 75%,0 100%);}
+.dmSubScreenBack, #settingsCloseBtn{border-radius:50% !important; width:40px; height:40px; background:var(--card2) !important; color:#fff !important;
+  border:1px solid var(--line) !important; font-size:18px !important;}
+/* Etykiety sekcji: biala belka */
+.block h3, .settingsSectionLbl{display:inline-flex !important; background:#fff; color:#000 !important; font-family:'Barlow Condensed', sans-serif !important;
+  font-weight:800 !important; font-size:12.5px !important; letter-spacing:.14em !important; padding:3px 10px; margin-bottom:14px;}
+.block h3::before{content:none !important;}
+.settingsSectionLbl{margin:4px 0 -4px !important; align-self:flex-start;}
+/* Karty: czarne, czerwone narozniki jak na karcie wyniku */
+.block, .progresStat, .settingsRow, .reminderRow, .dmLogRow{position:relative; background:rgba(12,12,15,.82) !important; border:1px solid rgba(200,30,44,.28) !important;
+  border-radius:4px !important; backdrop-filter:blur(2px);}
+.block::after, .progresStat::after, .settingsRow::after{content:''; position:absolute; top:-1px; left:-1px; width:14px; height:14px;
+  border:2px solid var(--accent); border-width:2px 0 0 2px; pointer-events:none;}
+/* Kafelki statystyk: belka + wielka liczba Anton */
+.progresStat{padding:14px !important;}
+.progresStat .lbl{display:inline-block; background:#fff; color:#000 !important; font-family:'Barlow Condensed', sans-serif; font-weight:800 !important;
+  font-size:11px !important; letter-spacing:.1em !important; padding:2px 7px;}
+.progresStat .val{font-family:var(--display) !important; font-weight:400 !important; font-size:46px !important; line-height:1; color:#fff !important;
+  margin:8px 0 2px; text-shadow:0 2px 12px rgba(0,0,0,.6) !important;}
+.progresStat .sub{font-family:'Barlow Condensed', sans-serif; font-weight:700; font-size:12px !important; letter-spacing:.08em; text-transform:uppercase; color:var(--txt2) !important;}
+/* Wykresy slupkowe: czerwona farba, wartosci Anton */
+.dmStatBarFill{background:linear-gradient(180deg,#E8394A,#8E0F18) !important; box-shadow:0 0 12px rgba(200,30,44,.5);}
+.dmStatBarTrack{background:rgba(255,255,255,.04) !important; border-color:rgba(255,255,255,.08) !important; border-radius:0 !important;}
+.dmStatBarVal{font-family:var(--display) !important; font-weight:400 !important; font-size:17px !important;}
+.dmStatBarLbl{font-family:'Barlow Condensed', sans-serif !important; font-weight:800; font-size:11.5px !important; letter-spacing:.08em;}
+/* Kalendarz */
+.calMonthNav span{font-size:24px !important; letter-spacing:.04em;}
+.calMonthNav button{border-radius:50% !important; color:#fff !important;}
+.calWeekdays div{font-family:'Barlow Condensed', sans-serif; font-weight:800; font-size:12px !important; color:var(--txt2) !important;}
+.calDay{font-family:var(--display) !important; font-weight:400 !important; font-size:16px !important; border-radius:2px !important;
+  background:rgba(255,255,255,.03) !important; color:var(--txt2) !important;}
+.calDay.done{background:var(--accent) !important; color:#fff !important; border-color:#E8394A !important; transform:rotate(-2deg);
+  box-shadow:0 0 14px rgba(200,30,44,.55) !important;}
+.calDay.today{border:2px solid #fff !important; color:#fff !important;}
+/* Tempo / lista serii */
+.dmLogRow{border-left:3px solid var(--accent) !important; padding:11px 14px !important;}
+.dmLogTime{font-family:'Barlow Condensed', sans-serif !important; font-weight:800; font-size:14px !important; color:var(--txt2) !important; letter-spacing:.06em;}
+.dmLogReps{font-family:var(--display); font-weight:400 !important; font-size:22px !important; letter-spacing:.02em;}
+.dmLogTempo.ok{color:#fff !important;}
+.dmLogTempo.warn{color:var(--accent-txt) !important;}
+.editHint{font-family:'Barlow Condensed', sans-serif; font-weight:600; font-size:14px !important; letter-spacing:.02em; color:var(--txt2) !important;}
+.archiveEmpty, .dmLogEmpty{font-family:'Barlow Condensed', sans-serif; font-weight:700; font-size:15px !important; letter-spacing:.06em; text-transform:uppercase;}
+/* Rekordy */
+.recCard{background:rgba(12,12,15,.85) !important; border-radius:4px !important;}
+.recCard.accent{border-color:var(--accent) !important; background:linear-gradient(160deg, rgba(200,30,44,.18), rgba(12,12,15,.9) 60%) !important;}
+.recCardLbl{display:inline-block; background:#fff; color:#000 !important; font-family:'Barlow Condensed', sans-serif; font-weight:800 !important; font-size:10.5px !important; padding:2px 6px;}
+.recCardVal{font-size:26px !important; color:#fff !important;}
+.recCardSub{font-family:'Barlow Condensed', sans-serif !important; font-weight:700; font-size:11.5px !important; letter-spacing:.06em;}
+/* Ustawienia */
+.settingsRow .settingsLbl, .reminderRow .reminderLbl{font-family:var(--display); font-weight:400 !important; font-size:18px !important; letter-spacing:.03em; text-transform:uppercase;}
+.settingsRow .settingsSub{font-family:'Barlow Condensed', sans-serif; font-weight:600; font-size:13px !important;}
+.langBtn{font-family:var(--display) !important; font-size:15px !important; border-radius:2px !important;}
+.actionBtn.secondary{border-color:var(--accent) !important; color:#fff !important; background:rgba(200,30,44,.12) !important; border-radius:2px !important;}
+.toggleSwitch.on{background:var(--accent) !important;}
+.toggleSwitch.on::after{background:#fff !important;}
+.sectionHead{font-size:20px !important;}
+.reminderRow{flex-wrap:nowrap;}
+.reminderRow .reminderLbl{flex:1 1 auto; font-size:14px !important; letter-spacing:.01em !important; white-space:nowrap; min-width:0; overflow:hidden; text-overflow:ellipsis;}
+.reminderRow input[type=time]{width:100px; flex:0 0 auto; padding:7px 6px !important; font-size:13px !important;}
+.reminderRow .toggleSwitch{flex:0 0 auto;}
 </style>
 </head>
 <body>
@@ -2545,6 +2615,8 @@ function renderDmMonthBars(){
   ).join('');
 }
 function renderDailyMin(){
+  // Rekordy zaleza od tych samych danych — odswiezamy je przy kazdej zmianie serii (zapis, usuniecie, import).
+  queueMicrotask(renderPushupRecords);
   const stats = computeDailyMinStats();
   document.getElementById('dailyMinCombo').textContent = stats.combo;
   document.getElementById('dailyMinComboLbl').textContent = tPlural('dm_comboLbl_one','dm_comboLbl_many', stats.combo);

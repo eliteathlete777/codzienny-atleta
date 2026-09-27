@@ -3,7 +3,7 @@
 ## Źródło
 - Repo: https://github.com/eliteathlete777/codzienny-atleta
 - Gałąź: `claude/ecstatic-gauss-cdgq0s` (NIE `main` — najnowsza wersja jest tylko na tej gałęzi)
-- Wersja do wdrożenia: najnowszy commit tej gałęzi (stan na 26.09.2026: `f81c2bb`, cache SW `codzienny-atleta-v14`)
+- Wersja do wdrożenia: najnowszy commit tej gałęzi (stan na 26.09.2026: `f81c2bb`, cache SW `codzienny-atleta-v15`)
 - Pobranie: `git clone -b claude/ecstatic-gauss-cdgq0s https://github.com/eliteathlete777/codzienny-atleta.git`
   albo na GitHubie: przełącz gałąź → Code → Download ZIP.
 
@@ -33,7 +33,7 @@ Aplikacja to statyczny PWA — zero backendu, zero bazy, zero builda. Pliki wgry
 4. Nie usuwać folderu i nie wgrywać „na czysto" pod nowy adres — tylko nadpisać pliki.
 
 ## Weryfikacja po wgraniu
-1. Otwórz `https://<domena>/<folder>/sw.js` — w 5. linii ma być `codzienny-atleta-v14` (lub wyższa). Jeśli jest stara wersja → cache CDN Hostingera: hPanel → Wydajność / CDN → Wyczyść cache, i sprawdź ponownie.
+1. Otwórz `https://<domena>/<folder>/sw.js` — w 5. linii ma być `codzienny-atleta-v15` (lub wyższa). Jeśli jest stara wersja → cache CDN Hostingera: hPanel → Wydajność / CDN → Wyczyść cache, i sprawdź ponownie.
 2. Otwórz `https://<domena>/<folder>/` na telefonie: ekran startowy z banerami malowanymi farbą („BEZ SIŁOWNI." / „BEZ WYMÓWEK.").
 3. Ekran wyboru: 🔥 CODZIENNE MINIMUM (belka „JEDNA SERIA DZIENNIE"), 💣 DODATKOWA SERIA, 🏆 REKORDY.
 4. Zapisz serię → odpala się animacja karty wyniku zakończona stemplem ZALICZONE i czerwonym błyskiem.
