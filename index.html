@@ -2097,6 +2097,36 @@ fillPaintSlots(document.getElementById('splashScreen'));
   svg.setAttribute('viewBox', '6 26 388 80'); svg.setAttribute('preserveAspectRatio', 'none');
   btn.style.backgroundImage = 'url("data:image/svg+xml;charset=utf-8,' + encodeURIComponent(new XMLSerializer().serializeToString(svg)) + '")';
 });
+// Ekran wyboru: kazdy kafelek wchodzi z tapnieciem jak banery na karcie.
+// Kolejnosc per kafelek: tytul na farbie -> biala belka -> emotka; kafelki po kolei 01 -> 02 -> 03.
+let introSlamToken = 0;
+async function introSlamSequence(body){
+  const token = ++introSlamToken;
+  const tiles = Array.from(body.querySelectorAll('.flameEntry:not(.futureHidden)'));
+  const parts = tiles.map(function(t){ return [t.querySelector('.flameTitleWrap'), t.querySelector('.flameSub'), t.querySelector('.flameIdx')]; });
+  parts.forEach(function(p){ p.forEach(function(el){ if(el) el.style.opacity = '0'; }); });
+  const EZ = 'cubic-bezier(.2,.8,.3,1)';
+  await dmWait(120);
+  for(const p of parts){
+    if(token !== introSlamToken) return;
+    const title = p[0], sub = p[1], ico = p[2];
+    if(title){
+      title.style.opacity = '1';
+      await title.animate([{transform:'translateX(-90px) scale(2.2)', opacity:0},{transform:'translateX(0) scale(1.08)', opacity:1, offset:.75},{transform:'none', opacity:1}], {duration:380, easing:EZ}).finished;
+      dmShakeCard(body, 6);
+    }
+    if(sub){
+      sub.style.opacity = '1';
+      await sub.animate([{transform:'scaleX(0)'},{transform:'scaleX(1.08)', offset:.7},{transform:'scaleX(1)'}], {duration:260, easing:EZ}).finished;
+    }
+    if(ico){
+      ico.style.opacity = '1';
+      await ico.animate([{transform:'translateY(-40px) scale(3)', opacity:0},{transform:'scale(.9)', opacity:1, offset:.75},{transform:'none', opacity:1}], {duration:320, easing:'cubic-bezier(.6,0,.9,.5)'}).finished;
+      await dmShakeCard(body, 8);
+    }
+    await dmWait(90);
+  }
+}
 let dmShareCardPlaying = false;
 async function dmPlayShareCardAnimation(targetVal){
   if(dmShareCardPlaying) return;
@@ -2601,6 +2631,7 @@ function showIntroChoice(){
     </button>
   `;
   fillPaintSlots(body);
+  introSlamSequence(body);
   document.getElementById('introDailyMinBtn').addEventListener('click', openFullscreenSet);
   document.getElementById('introExtraBtn').addEventListener('click', openFullscreenSet);
   document.getElementById('introRecordsBtn').addEventListener('click', function(){
